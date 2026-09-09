@@ -21,7 +21,15 @@ function Describe {
     param([string]$Name, [scriptblock]$Fixture)
     $script:CurrentDescribe = $Name
     Write-Host "`nDescribing $Name" -ForegroundColor Cyan
-    & $Fixture
+    try {
+        & $Fixture
+    } catch {
+        Write-Host " [-] Fixture Failure in $Name" -ForegroundColor Red
+        Write-Host "     $($_.Exception.Message)" -ForegroundColor DarkRed
+        Write-Host "::error title=$Name::$($_.Exception.Message)"
+        $script:TestsFailed++
+        [void]$script:Failures.Add("$Name (Fixture) : $($_.Exception.Message)")
+    }
 }
 
 function It {
@@ -33,6 +41,7 @@ function It {
     } catch {
         Write-Host " [-] $Name" -ForegroundColor Red
         Write-Host "     $($_.Exception.Message)" -ForegroundColor DarkRed
+        Write-Host "::error title=$($script:CurrentDescribe)::$Name : $($_.Exception.Message)"
         $script:TestsFailed++
         [void]$script:Failures.Add("$($script:CurrentDescribe) -> $Name : $($_.Exception.Message)")
     }
@@ -123,11 +132,19 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $AllTestsFile = Join-Path $ScriptDir "AllTests.Tests.ps1"
 
 if (-not (Test-Path $AllTestsFile)) {
+    Write-Host "::error title=MissingTestSuite::Test suite file not found: $AllTestsFile"
     Write-Error "Test suite file not found: $AllTestsFile"
     exit 2
 }
 
-. $AllTestsFile
+try {
+    . $AllTestsFile
+} catch {
+    Write-Host "::error title=TestSuiteLoadFailure::$($_.Exception.Message)"
+    Write-Host "FATAL ERROR LOADING TEST SUITE: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "$($_.ScriptStackTrace)" -ForegroundColor DarkRed
+    exit 1
+}
 
 Write-Host "`n================================================================================" -ForegroundColor Cyan
 Write-Host "  TWOW ORCHESTRATION TEST SUMMARY" -ForegroundColor Cyan
@@ -138,6 +155,7 @@ if ($script:TestsFailed -gt 0) {
     Write-Host "`nFailures detected:" -ForegroundColor Red
     foreach ($f in $script:Failures) {
         Write-Host "  * $f" -ForegroundColor Red
+        Write-Host "::error title=TestFailure::$f"
     }
     exit 1
 }
