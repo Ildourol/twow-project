@@ -699,13 +699,14 @@ This quick-reference cheat sheet summarizes the most frequent commands you will 
 
 ---
 
+<!-- pagebreak -->
+
 ### 26.2. Clean CLI Invocations (From Default Location / Any Prompt)
 
-You do not need to change directory (`cd`) to run any of these commands. You can execute them directly from `C:\Users\Admin>` or any terminal:
+You do not need to change directory (`cd`) to run any of these commands. You can execute them directly from `C:\Users\Admin>` or any terminal prompt:
 
-#### In PowerShell:
+#### 1. Autonomous Auto-Pilot & Batch Porting:
 ```powershell
-# --- 1. Autonomous Auto-Pilot & Batch Porting ---
 # Run 10 commits through full auto-pilot (natural priority)
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10
 
@@ -723,8 +724,10 @@ You do not need to change directory (`cd`) to run any of these commands. You can
 
 # Preview batch auto-pilot execution plan without touching code or worktrees
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10 -DryRun
+```
 
-# --- 2. Upstream Research, Roadmap & Priority Ranking ---
+#### 2. Upstream Research, Roadmap & Priority Ranking:
+```powershell
 # Connect to upstream vmangos/core, fetch latest commits, and audit roadmap
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" roadmap-refresh -FetchLatest
 
@@ -739,8 +742,10 @@ You do not need to change directory (`cd`) to run any of these commands. You can
 
 # Search 22,155 indexed official forum threads for mechanics or lore
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" 2 "<sha_or_topic>"
+```
 
-# --- 3. Build Toolchain, Verification & Testing Gates ---
+#### 3. Build Toolchain, Verification & Testing Gates:
+```powershell
 # Compile target server world daemon (mangosd.exe) via MSVC 2022
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" build world
 
@@ -761,8 +766,10 @@ You do not need to change directory (`cd`) to run any of these commands. You can
 
 # Execute disposable server startup smoke test
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" smoke
+```
 
-# --- 4. Database Scalping & Parity Auditing ---
+#### 4. Database Scalping & Parity Auditing:
+```powershell
 # Scalp entity definition from historical DB, strip progressive columns, and diff
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" scalp item_template 19019 -Diff
 
@@ -771,8 +778,10 @@ You do not need to change directory (`cd`) to run any of these commands. You can
 
 # Audit client binary DBC parity against server source code (MAX_RACES = 11)
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" parity dbc
+```
 
-# --- 5. Workspace Status, Maintenance & Documentation ---
+#### 5. Workspace Status, Maintenance & Documentation:
+```powershell
 # Display live pipeline state, target Git HEAD, and active run IDs
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" status
 

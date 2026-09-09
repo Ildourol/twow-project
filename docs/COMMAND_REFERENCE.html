@@ -72,8 +72,15 @@
         line-height: 1.3;
         margin-top: 4px;
         margin-bottom: 8px;
-        page-break-inside: avoid;
-        break-inside: avoid;
+        page-break-inside: auto;
+        break-inside: auto;
+    }
+    .page-break {
+        page-break-before: always;
+        break-before: page;
+        height: 0;
+        margin: 0;
+        padding: 0;
     }
     pre code {
         background-color: transparent;
@@ -1501,11 +1508,11 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 </tr>
 </tbody></table>
 <hr>
+<div class="page-break"></div>
 <h3>26.2. Clean CLI Invocations (From Default Location / Any Prompt)</h3>
-<p>You do not need to change directory (<code>cd</code>) to run any of these commands. You can execute them directly from <code>C:\Users\Admin&gt;</code> or any terminal:</p>
-<h4>In PowerShell:</h4>
-<pre><code class="language-powershell"># --- 1. Autonomous Auto-Pilot &amp; Batch Porting ---
-# Run 10 commits through full auto-pilot (natural priority)
+<p>You do not need to change directory (<code>cd</code>) to run any of these commands. You can execute them directly from <code>C:\Users\Admin&gt;</code> or any terminal prompt:</p>
+<h4>1. Autonomous Auto-Pilot &amp; Batch Porting:</h4>
+<pre><code class="language-powershell"># Run 10 commits through full auto-pilot (natural priority)
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10
 
 # Run 10 Tier-1 (critical crash / exploit / security) commits through auto-pilot
@@ -1521,10 +1528,9 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" port-batch 10 -AutoCommit
 
 # Preview batch auto-pilot execution plan without touching code or worktrees
-&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10 -DryRun
-
-# --- 2. Upstream Research, Roadmap &amp; Priority Ranking ---
-# Connect to upstream vmangos/core, fetch latest commits, and audit roadmap
+&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10 -DryRun</code></pre>
+<h4>2. Upstream Research, Roadmap &amp; Priority Ranking:</h4>
+<pre><code class="language-powershell"># Connect to upstream vmangos/core, fetch latest commits, and audit roadmap
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" roadmap-refresh -FetchLatest
 
 # Offline audit and re-ranking of all cached candidate commits
@@ -1537,10 +1543,9 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" rank
 
 # Search 22,155 indexed official forum threads for mechanics or lore
-&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" 2 "&lt;sha_or_topic&gt;"
-
-# --- 3. Build Toolchain, Verification &amp; Testing Gates ---
-# Compile target server world daemon (mangosd.exe) via MSVC 2022
+&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" 2 "&lt;sha_or_topic&gt;"</code></pre>
+<h4>3. Build Toolchain, Verification &amp; Testing Gates:</h4>
+<pre><code class="language-powershell"># Compile target server world daemon (mangosd.exe) via MSVC 2022
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" build world
 
 # Compile authentication daemon (realmd.exe) via MSVC 2022
@@ -1559,20 +1564,18 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" baseline
 
 # Execute disposable server startup smoke test
-&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" smoke
-
-# --- 4. Database Scalping &amp; Parity Auditing ---
-# Scalp entity definition from historical DB, strip progressive columns, and diff
+&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" smoke</code></pre>
+<h4>4. Database Scalping &amp; Parity Auditing:</h4>
+<pre><code class="language-powershell"># Scalp entity definition from historical DB, strip progressive columns, and diff
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" scalp item_template 19019 -Diff
 
 # Audit pending database migration SQL against 413 cached table schemas
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" db-audit
 
 # Audit client binary DBC parity against server source code (MAX_RACES = 11)
-&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" parity dbc
-
-# --- 5. Workspace Status, Maintenance &amp; Documentation ---
-# Display live pipeline state, target Git HEAD, and active run IDs
+&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" parity dbc</code></pre>
+<h4>5. Workspace Status, Maintenance &amp; Documentation:</h4>
+<pre><code class="language-powershell"># Display live pipeline state, target Git HEAD, and active run IDs
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" status
 
 # Cleanly dispose of ephemeral candidate worktrees in .worktrees/

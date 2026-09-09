@@ -129,6 +129,13 @@ foreach ($line in $lines) {
         continue
     }
 
+    if ($line -match '<!--\s*page-?break\s*-->|<div class="page-break">') {
+        if ($inList) { [void]$htmlBody.AppendLine("</ul>"); $inList = $false }
+        if ($inTable) { [void]$htmlBody.AppendLine("</tbody></table>"); $inTable = $false }
+        [void]$htmlBody.AppendLine('<div class="page-break"></div>')
+        continue
+    }
+
     if ($line -match '^-{3,}$') {
         if ($inList) { [void]$htmlBody.AppendLine("</ul>"); $inList = $false }
         [void]$htmlBody.AppendLine("<hr>")
@@ -238,8 +245,15 @@ $fullHtml = @"
         line-height: 1.3;
         margin-top: 4px;
         margin-bottom: 8px;
-        page-break-inside: avoid;
-        break-inside: avoid;
+        page-break-inside: auto;
+        break-inside: auto;
+    }
+    .page-break {
+        page-break-before: always;
+        break-before: page;
+        height: 0;
+        margin: 0;
+        padding: 0;
     }
     pre code {
         background-color: transparent;
