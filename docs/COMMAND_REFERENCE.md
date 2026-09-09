@@ -4,13 +4,9 @@ This document is the canonical CLI operational reference and architecture guide 
 
 > [!TIP]
 > **Universal Terminal Invocation**
-> All commands can be executed from any terminal, PowerShell console, shortcut, or CI runner without changing current directory:
+> All commands can be executed from any PowerShell console or terminal without changing current directory:
 > ```powershell
 > & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" <command> [arguments] [options]
-> ```
-> Or via standard command prompt:
-> ```cmd
-> powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" <command> [arguments] [options]
 > ```
 
 ---
@@ -311,12 +307,7 @@ task.ps1 auto-port 448df9ba0
 
 You do **not** need to `cd` into the project repository. All modules dynamically resolve repository roots from `$PSScriptRoot`.
 
-#### 1. Direct Invocation from Windows Command Prompt (`cmd.exe`):
-```cmd
-powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10
-```
-
-#### 2. Direct Invocation from PowerShell (from `C:\Users\Admin>` or any path):
+#### Direct Invocation from PowerShell (from `C:\Users\Admin>` or any path):
 ```powershell
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10
 ```
@@ -714,35 +705,82 @@ You do not need to change directory (`cd`) to run any of these commands. You can
 
 #### In PowerShell:
 ```powershell
-# 1. Run 10 commits through auto-pilot
+# --- 1. Autonomous Auto-Pilot & Batch Porting ---
+# Run 10 commits through full auto-pilot (natural priority)
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10
 
-# 2. Run 10 Tier-1 (critical crash/exploit) commits through auto-pilot
+# Run 10 Tier-1 (critical crash / exploit / security) commits through auto-pilot
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10 1
 
-# 3. Batch port 10 commits with immediate compilation and commit
+# Run 10 Tier-2 (combat accuracy, spells, mechanics) commits through auto-pilot
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10 2
+
+# Port, compile, and commit a specific candidate commit end-to-end
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-port <sha>
+
+# Batch port 10 commits with immediate compilation & commit (semantic equivalent to auto-pilot)
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" port-batch 10 -AutoCommit
 
-# 4. Fetch latest upstream commits and refresh roadmap
+# Preview batch auto-pilot execution plan without touching code or worktrees
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10 -DryRun
+
+# --- 2. Upstream Research, Roadmap & Priority Ranking ---
+# Connect to upstream vmangos/core, fetch latest commits, and audit roadmap
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" roadmap-refresh -FetchLatest
 
-# 5. Compile server world daemon
+# Offline audit and re-ranking of all cached candidate commits
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" roadmap-refresh
+
+# Inspect the single next highest-priority candidate to investigate
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" next
+
+# Display 12-factor priority rankings across all candidate commits
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" rank
+
+# Search 22,155 indexed official forum threads for mechanics or lore
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" 2 "<sha_or_topic>"
+
+# --- 3. Build Toolchain, Verification & Testing Gates ---
+# Compile target server world daemon (mangosd.exe) via MSVC 2022
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" build world
 
-# 6. Run test suite
+# Compile authentication daemon (realmd.exe) via MSVC 2022
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" build auth
+
+# Compile and commit all staged candidate packages in isolated worktrees
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" build-packages
+
+# Run the complete 38-spec automated orchestration test suite
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" test
-```
 
-#### In Windows Command Prompt (`cmd.exe`):
-```cmd
-:: Run 10 commits through auto-pilot
-powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10
+# Deterministically prove whether a bug exists before touching code
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" prove <sha>
 
-:: Fetch latest upstream commits and refresh roadmap
-powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" roadmap-refresh -FetchLatest
+# Verify target repository baseline health and SHA pinning
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" baseline
 
-:: Run test suite
-powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" test
+# Execute disposable server startup smoke test
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" smoke
+
+# --- 4. Database Scalping & Parity Auditing ---
+# Scalp entity definition from historical DB, strip progressive columns, and diff
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" scalp item_template 19019 -Diff
+
+# Audit pending database migration SQL against 413 cached table schemas
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" db-audit
+
+# Audit client binary DBC parity against server source code (MAX_RACES = 11)
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" parity dbc
+
+# --- 5. Workspace Status, Maintenance & Documentation ---
+# Display live pipeline state, target Git HEAD, and active run IDs
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" status
+
+# Cleanly dispose of ephemeral candidate worktrees in .worktrees/
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" cleanup
+
+# Regenerate COMMAND_REFERENCE HTML and printable PDF
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" pdf
 ```
 
 ---
