@@ -1,0 +1,56 @@
+﻿# ==============================================================================
+# Git Ignore Rules for Tortoise-WoW Orchestration & Tooling Project
+# ==============================================================================
+
+# Server Core Repository (tracked separately at https://github.com/Ildourol/tortoise-wow-extended)
+tortoise-wow/
+
+# Heavy Reference Upstreams (tracked in separate external repositories)
+reference-upstreams/
+
+# Forum Intelligence Raw Archive (tracked separately at https://github.com/Ildourol/turtle-wow-forum-archive)
+resources/forum/
+
+# Compiled Binaries, Object Files & Build Output
+bin/
+build/
+*.exe
+*.dll
+*.obj
+*.pdb
+*.lib
+*.ilk
+*.exp
+
+# Staging Artifacts (transient queue files)
+tools/queue/01_candidates/*
+!tools/queue/01_candidates/.gitkeep
+
+tools/queue/02_ready_to_build/*
+!tools/queue/02_ready_to_build/.gitkeep
+
+tools/queue/staging_patches/*
+!tools/queue/staging_patches/.gitkeep
+
+tools/queue/staging_sql/*
+!tools/queue/staging_sql/.gitkeep
+
+tools/queue/03_completed/candidates/*
+!tools/queue/03_completed/candidates/.gitkeep
+
+tools/queue/03_completed/patches/*
+!tools/queue/03_completed/patches/.gitkeep
+
+tools/queue/04_rejected/*
+!tools/queue/04_rejected/.gitkeep
+
+tools/queue/ai_dossiers/*
+!tools/queue/ai_dossiers/.gitkeep
+
+# System & Editor Temp Files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+*.bak

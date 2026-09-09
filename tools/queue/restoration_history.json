@@ -1,0 +1,29 @@
+﻿{
+    "blood frenzy":  {
+                         "topic":  "Blood Frenzy",
+                         "subsystem":  "Auto",
+                         "date_audited":  "2026-09-09",
+                         "forum_sources":  "None found",
+                         "code_status":  "Present (11 occurrences)",
+                         "verdict":  "PARITY_VERIFIED",
+                         "package_id":  ""
+                     },
+    "moonfury":  {
+                     "topic":  "Moonfury",
+                     "subsystem":  "Auto",
+                     "date_audited":  "2026-09-09",
+                     "forum_sources":  "None found",
+                     "code_status":  "Missing / Stubbed",
+                     "verdict":  "AWAITING_RESTORATION",
+                     "package_id":  "CORE-0001"
+                 },
+    "holy strike":  {
+                        "topic":  "Holy Strike",
+                        "subsystem":  "Auto",
+                        "date_audited":  "2026-09-09",
+                        "forum_sources":  "None found",
+                        "code_status":  "Present (10 occurrences)",
+                        "verdict":  "PARITY_VERIFIED",
+                        "package_id":  ""
+                    }
+}
