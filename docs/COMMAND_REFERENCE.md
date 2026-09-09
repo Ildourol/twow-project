@@ -15,6 +15,41 @@ This document is the canonical CLI operational reference and architecture guide 
 
 ---
 
+## Master Table of Contents (Index)
+
+- [1. Overview & Operational Principles](#1-overview--operational-principles)
+- [2. Architecture & Pipeline Flow](#2-architecture--pipeline-flow)
+- [3. Workflow Lifecycle of a Candidate Fix](#3-workflow-lifecycle-of-a-candidate-fix)
+- [4. Master Command Reference: Preserved Existing Commands](#4-master-command-reference-preserved-existing-commands)
+- [5. Master Command Reference: New Extended Commands](#5-master-command-reference-new-extended-commands)
+- [6. Verification Modes: FAST vs NORMAL vs DEEP](#6-verification-modes-fast-vs-normal-vs-deep)
+- [7. Automatic Mode Escalation Rules](#7-automatic-mode-escalation-rules)
+- [8. DryRun Mode & Safety Guarantees](#8-dryrun-mode--safety-guarantees)
+- [9. Auto-Pilot Mode & Autonomous Batch Processing](#9-auto-pilot-mode--autonomous-batch-processing)
+  - [The One-Command End-to-End Pipeline: Task 2 + 3 + 4 -> Task 1](#the-one-command-end-to-end-pipeline-task-2---3---4---1)
+  - [Staging-Only Mode vs Auto-Commit Mode](#staging-only-mode-vs-auto-commit-mode)
+  - [Clean CLI Invocations (From Default Location / Any Prompt)](#clean-cli-invocations-from-default-location--any-prompt)
+  - [Running Auto-Pilot: With Tier vs Without Tier](#running-auto-pilot-mode-with-tier-vs-without-tier)
+  - [How Candidates Are Selected Without a Tier](#how-does-auto-pilot-choose-commits-without-a-tier)
+- [10. Roadmap Research, Commit Auditing & Catching New Upstream Commits (`task roadmap-refresh`)](#10-roadmap-research-commit-auditing--catching-new-upstream-commits-task-roadmap-refresh)
+- [11. Build Profiles & Compiler Toolchain](#11-build-profiles--compiler-toolchain)
+- [12. Baseline Health Check & SHA Pinning](#12-baseline-health-check--sha-pinning)
+- [13. Bug-Existence Proving Engine](#13-bug-existence-proving-engine)
+- [14. Database Safety, Schema Catalog & Provenance](#14-database-safety-schema-catalog--provenance)
+- [15. DBC, Client & Core Parity Auditor](#15-dbc-client--core-parity-auditor)
+- [16. Crash Dump & Server Log Triage](#16-crash-dump--server-log-triage)
+- [17. Worktree Isolation & Cleanup Management](#17-worktree-isolation--cleanup-management)
+- [18. Run IDs, Idempotency & Resumption](#18-run-ids-idempotency--resumption)
+- [19. Canonical 30-State Machine](#19-canonical-30-state-machine)
+- [20. CI / GitHub Actions PR Workflows](#20-ci--github-actions-pr-workflows)
+- [21. Release Checkpoints & Manifest Generation](#21-release-checkpoints--manifest-generation)
+- [22. Critical Safety Warnings](#22-critical-safety-warnings)
+- [23. Troubleshooting & Common Failure States](#23-troubleshooting--common-failure-states)
+- [24. Expected Status & Verdict Reference Values](#24-expected-status--verdict-reference-values)
+- [25. Architectural Comparison: Why the 2.0 Build System is Vastly Superior to the Legacy 1.0 System](#25-architectural-comparison-why-the-20-build-system-is-vastly-superior-to-the-legacy-10-system)
+
+---
+
 ## 1. Overview & Operational Principles
 
 The Tortoise-WoW porting system bridges upstream vanilla bugfixes (`vmangos/core`) with the customized Turtle-WoW 1.12.1/1.18.1 server core (`Ildourol/tortoise-wow-extended`).
@@ -126,8 +161,10 @@ The orchestration architecture consists of three interconnected subsystems feedi
 | `task 6` | `task.ps1 6 <id/query>` | Fast | Read-only | None | None | Online DB API | Queries official Turtle Online DB viewer for item, spell, and creature tooltips. |
 | `task scalp` | `task.ps1 scalp <tbl> <id> [-Diff] [-Export]` | Fast | Read-only | None | None | Brotalnia/Base | Extracts entity definitions and generates side-by-side vanilla vs Turtle diffs. |
 | `task extract` | `task.ps1 extract <tbl> <id>` | Fast | Read-only | None | None | Brotalnia/Base | Alias for `task scalp`. |
-| `task port` | `task.ps1 port <sha> [-Mode Fast\|Normal\|Deep] [-DryRun]` | Variable | Write (Worktree) | Advisory | Patch-Aware | Migration Audit | Unified porting pipeline for upstream donor commits. |
-| `task port-batch` | `task.ps1 port-batch <N> [-Tier 1-5] [-Mode M] [-DryRun]` | Variable | Write (Worktree) | Advisory | Patch-Aware | Migration Audit | Batch executes porting pipeline on next $N$ curated candidate commits. |
+| `task port` | `task.ps1 port <sha> [-Mode Fast\|Normal\|Deep] [-DryRun] [-AutoCommit]` | Variable | Write (Worktree) | Advisory | Patch-Aware | Migration Audit | Unified porting pipeline for upstream donor commits. |
+| `task port-batch` | `task.ps1 port-batch <N> [-Tier 1-5] [-Mode M] [-DryRun] [-AutoCommit]` | Variable | Write (Worktree) | Advisory | Patch-Aware | Migration Audit | Batch executes porting pipeline on next $N$ curated candidate commits. |
+| `task auto-port` | `task.ps1 auto-port <sha> [-Mode M] [-DryRun]` | Variable | Write (Worktree) | Advisory | Full MSVC | Migration Audit | One-command end-to-end port & commit for single commit (Tasks 2->3->4->1). |
+| `task auto-pilot` | `task.ps1 auto-pilot [N] [-Tier 1-5] [-Mode M]` | Variable | Write (Worktree) | Advisory | Full MSVC | Migration Audit | One-command autonomous batch port & commit for $N$ commits (Tasks 2->3->4->1). |
 | `task restore` | `task.ps1 restore <topic> [-StageTemplate]` | Normal | Staging | Advisory | None | Offline Catalog | Audits official staff posts and stages native core restoration manifests. |
 | `task restore-batch`| `task.ps1 restore-batch <N>` | Normal | Staging | Advisory | None | Offline Catalog | Batch audits next $N$ un-audited Turtle patch topics from roadmap queue. |
 | `task status` | `task.ps1 status` | Fast | Read-only | None | None | None | Displays live system metrics, queue counts, HEAD SHAs, and active run IDs. |
@@ -224,6 +261,79 @@ task.ps1 port 448df9ba0 -DryRun
 ## 9. Auto-Pilot Mode & Autonomous Batch Processing
 
 Auto-Pilot Mode enables hands-free, continuous candidate evaluation, bug proving, worktree provisioning, patch normalization, compatibility auditing, and candidate staging across multiple commits without manual per-commit intervention.
+
+### The One-Command End-to-End Pipeline: Tasks 2 -> 3 -> 4 -> 1
+
+When you want an autonomous, zero-friction pipeline that takes upstream commits all the way to candidate branch commits in a single pass, use **Auto-Pilot Mode**:
+
+```powershell
+# Auto-Pilot a batch of 10 candidates with automatic compilation and git commit:
+task.ps1 auto-pilot 10
+
+# Auto-Pilot a specific single commit:
+task.ps1 auto-port 448df9ba0
+
+# Or via the -AutoCommit switch:
+task.ps1 port-batch 10 -AutoCommit
+task.ps1 port 448df9ba0 -AutoCommit
+```
+
+#### How the Chained Pipeline Works:
+1. **Task 2: Forum & Mechanics Intelligence Scout (`Search-ForumArchive.ps1`)**:
+   Automatically mines 22,155 indexed Turtle-WoW forum threads using keywords extracted from the commit subject. Identifies any related mechanics discussions, player bug reports, or staff statements.
+2. **Task 3: Database & Migration Safety Audit (`Audit-DatabaseMigrations.ps1`)**:
+   Checks whether the upstream commit touches SQL migrations. Inspects table definitions against the 413-table schema catalog, verifies Turtle custom ID ranges (creature >= 300,000, spell >= 40,000), checks for forbidden progressive columns, and stages any required SQL files into `tools/queue/staging_sql/`.
+3. **Task 4: AI Context Assembly & Semantic Dossier (`Invoke-AiAudit.ps1`)**:
+   Performs bounded diff context extraction, checks surrounding code ASTs, evaluates Turtle custom divergences, verifies hard invariants (`MAX_RACES=11`, `sTWDebuff`), generates an AI audit dossier in `tools/queue/ai_dossiers/<sha>.md`, and packages the candidate into `tools/queue/02_ready_to_build/PORT-XXXX.json`.
+4. **Task 1: Isolated Worktree Builder & Committer (`Build-ReadyPackages.ps1`)**:
+   Creates an isolated git worktree (`.worktrees/candidate-PORT-XXXX`), applies the patch safely, enforces build profiles (`world`, `auth`, `sql-only`), compiles via MSVC 2022, and commits to a candidate branch with full provenance recorded in `tools/state/state_store.json`.
+
+---
+
+### FAQ: If I run `task.ps1 port-batch 10`, do I have to run `task.ps1 1` after?
+
+| Execution Command | Staged to Queue? | Automatically Compiled? | Automatically Committed? | Need to run `task 1` after? |
+| :--- | :--- | :--- | :--- | :--- |
+| `task.ps1 port-batch 10` | Yes (`02_ready_to_build/`) | No | No | **YES** (Review first, then compile via `task 1`) |
+| `task.ps1 auto-pilot 10` | Yes | Yes (in worktree) | Yes (candidate branch) | **NO** (Fully automated in 1 command) |
+| `task.ps1 port-batch 10 -AutoCommit` | Yes | Yes (in worktree) | Yes (candidate branch) | **NO** (Fully automated in 1 command) |
+| `task.ps1 auto-port <sha>` | Yes | Yes (in worktree) | Yes (candidate branch) | **NO** (Fully automated in 1 command) |
+
+> [!NOTE]
+> - Use `task.ps1 port-batch 10` when you want a **review step** (inspecting AI dossiers and patches in `tools/queue/02_ready_to_build/` before compiling).
+> - Use `task.ps1 auto-pilot 10` or `-AutoCommit` when you want a **hands-off single command** that finishes the entire process and commits verified candidate branches automatically.
+
+---
+
+### Clean CLI Invocations (From Default Open Location / Any Directory)
+
+You do **not** need to `cd` into the project repository. All modules dynamically resolve repository roots from `$PSScriptRoot`.
+
+#### 1. Direct Invocation from Windows Command Prompt (`cmd.exe`):
+```cmd
+powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10
+```
+
+#### 2. Direct Invocation from PowerShell (from `C:\Users\Admin>` or any path):
+```powershell
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10
+```
+
+#### 3. Permanent Global Setup via PowerShell `$PROFILE` (Recommended):
+Run this once in PowerShell to make `task` globally accessible from any terminal:
+```powershell
+if (!(Test-Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force | Out-Null }
+Add-Content $PROFILE "`nfunction task { & 'C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1' @args }"
+```
+Once added, open a new PowerShell prompt anywhere and simply type:
+```powershell
+task auto-pilot 10
+task status
+task next
+task roadmap-refresh
+```
+
+---
 
 ### Running Auto-Pilot Mode: With Tier vs Without Tier
 

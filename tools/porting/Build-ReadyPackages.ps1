@@ -11,7 +11,8 @@
 param(
     [switch]$SkipPush,
     [switch]$UseWorktree = $true,
-    [string]$SpecificPackage = ""
+    [string]$SpecificPackage = "",
+    [switch]$SkipBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -66,9 +67,13 @@ foreach ($pkg in $packagesToBuild) {
     $pkgId = [System.IO.Path]::GetFileNameWithoutExtension($pkg.Name)
     $donorSha = $meta.donor_sha
     $title = $meta.title
+    if ([string]::IsNullOrEmpty($title) -and $meta.evidence -and $meta.evidence.subject) {
+        $title = $meta.evidence.subject
+    }
     $commitMsg = $meta.commit_msg
     if ([string]::IsNullOrEmpty($commitMsg)) {
-        $commitMsg = "Port($($meta.subsystem)): $($meta.title) (vmangos/core@$donorSha)"
+        $sub = if ($meta.subsystem) { $meta.subsystem } elseif ($meta.evidence -and $meta.evidence.subsystem) { $meta.evidence.subsystem } else { "Core" }
+        $commitMsg = "Port($sub): $title (vmangos/core@$donorSha)"
     }
 
     Write-Host "`n>>> Processing Package: $pkgId ($donorSha) - $title" -ForegroundColor Cyan
@@ -84,6 +89,10 @@ foreach ($pkg in $packagesToBuild) {
 
     $patchRelPath = $meta.patch_file
     $patchFullPath = if ($patchRelPath) { Join-Path $ProjectRoot $patchRelPath } else { "" }
+    if (-not $patchFullPath -or -not (Test-Path $patchFullPath)) {
+        $fallbackPatch = Join-Path $ProjectRoot "tools\queue\staging_patches\$donorSha.patch"
+        if (Test-Path $fallbackPatch) { $patchFullPath = $fallbackPatch }
+    }
 
     # Worktree Isolation: Create isolated workspace for build
     $worktree = $null
@@ -135,19 +144,23 @@ foreach ($pkg in $packagesToBuild) {
         $profile = Select-BuildProfile -TouchedFiles @($touched)
         Write-Host "  Selected build profile: $profile" -ForegroundColor DarkGray
 
-        # Link CMake build directory into worktree if needed
-        $wtBuildDir = Join-Path $activeRepo "build"
-        if (-not (Test-Path $wtBuildDir)) {
-            $wtBuildDir = Join-Path $TortoisePath "build"
-        }
+        if (-not $SkipBuild) {
+            # Link CMake build directory into worktree if needed
+            $wtBuildDir = Join-Path $activeRepo "build"
+            if (-not (Test-Path $wtBuildDir)) {
+                $wtBuildDir = Join-Path $TortoisePath "build"
+            }
 
-        $buildRes = Invoke-TargetBuild -TargetRepo $activeRepo -Profile $profile -BuildDir $wtBuildDir
-        if ($buildRes.ExitCode -ne 0) {
-            Write-Host "  [FAIL] Build gate failed for profile $profile!" -ForegroundColor Red
-            Update-CandidateState -CandidateId $donorSha -ToState "COMPILE_FAIL" -ReasonCode "MSVC_BUILD_FAILED" | Out-Null
-            continue
+            $buildRes = Invoke-TargetBuild -TargetRepo $activeRepo -Profile $profile -BuildDir $wtBuildDir
+            if ($buildRes.ExitCode -ne 0) {
+                Write-Host "  [FAIL] Build gate failed for profile $profile!" -ForegroundColor Red
+                Update-CandidateState -CandidateId $donorSha -ToState "COMPILE_FAIL" -ReasonCode "MSVC_BUILD_FAILED" | Out-Null
+                continue
+            }
+            Write-Host "  [PASS] Compilation and linking successful!" -ForegroundColor Green
+        } else {
+            Write-Host "  [SKIP-BUILD] Compilation skipped by user switch (-SkipBuild)." -ForegroundColor Yellow
         }
-        Write-Host "  [PASS] Compilation and linking successful!" -ForegroundColor Green
 
         # 5. Git Commit to Candidate Branch (Never direct to main)
         git -C $activeRepo add -A

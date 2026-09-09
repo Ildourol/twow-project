@@ -33,7 +33,13 @@ param(
     [int]$MaxParallel = 1,
 
     [Parameter()]
-    [switch]$AutoBuild
+    [switch]$AutoBuild,
+
+    [Parameter()]
+    [switch]$AutoCommit,
+
+    [Parameter()]
+    [switch]$SkipBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -195,6 +201,53 @@ foreach ($sha in $shasToProcess) {
         continue
     }
 
+    # --- Task 2: Forum & Mechanics Intelligence Scout ---
+    $searchScript = Join-Path $ScriptDir "Search-ForumArchive.ps1"
+    if (Test-Path $searchScript) {
+        $cleanSubj = ($proof.Evidence.subject -replace '[^\w\s]', ' ' -split '\s+' | Where-Object { $_.Length -gt 4 })
+        $forumMatches = @()
+        foreach ($kw in ($cleanSubj | Select-Object -First 2)) {
+            $hits = & powershell.exe -ExecutionPolicy Bypass -File $searchScript -Query $kw -Limit 2 2>$null
+            if ($hits) {
+                foreach ($h in $hits) {
+                    if ($h -match '\[Thread \d+\]') { $forumMatches += $h.Trim() }
+                }
+            }
+        }
+        if ($forumMatches.Count -gt 0) {
+            Write-Host "  [Task 2 Scout] Discovered $($forumMatches.Count) related Turtle forum thread(s)" -ForegroundColor DarkGray
+            $proof.Evidence["forum_threads"] = $forumMatches
+        }
+    }
+
+    # --- Task 3: Database & Migration Safety Audit ---
+    $touchedSql = git -C $VmangosRepo diff-tree --no-commit-id --name-only -r $sha 2>$null | Where-Object { $_ -like "*.sql" }
+    $stagedSqlRel = $null
+    if ($touchedSql) {
+        Write-Host "  [Task 3 DB Audit] Candidate touches $($touchedSql.Count) database file(s)" -ForegroundColor Yellow
+        $dbScript = Join-Path $ScriptDir "Audit-DatabaseMigrations.ps1"
+        if (Test-Path $dbScript) {
+            & powershell.exe -ExecutionPolicy Bypass -File $dbScript -TargetMigrations $touchedSql 2>&1 | Out-Null
+        }
+        $sqlStagingDir = Join-Path $ProjectRoot "tools\queue\staging_sql"
+        if (-not (Test-Path $sqlStagingDir)) { New-Item -ItemType Directory -Path $sqlStagingDir -Force | Out-Null }
+        foreach ($sqlRel in $touchedSql) {
+            $sqlSrc = Join-Path $VmangosRepo $sqlRel
+            if (Test-Path $sqlSrc) {
+                $sqlDest = Join-Path $sqlStagingDir ([System.IO.Path]::GetFileName($sqlRel))
+                Copy-Item $sqlSrc $sqlDest -Force
+                $stagedSqlRel = "tools/queue/staging_sql/" + ([System.IO.Path]::GetFileName($sqlRel))
+            }
+        }
+    }
+
+    # --- Task 4: AI Context Assembly & Semantic Dossier ---
+    $aiAuditScript = Join-Path $ScriptDir "Invoke-AiAudit.ps1"
+    if (Test-Path $aiAuditScript) {
+        Write-Host "  [Task 4 AI Context] Generating AI semantic audit dossier..." -ForegroundColor DarkGray
+        & powershell.exe -ExecutionPolicy Bypass -File $aiAuditScript -DonorSha $sha 2>&1 | Out-Null
+    }
+
     # 6. Assemble Staging Package in 02_ready_to_build/
     $portId = Get-NextPortId
     $pkgFile = Join-Path $ReadyDir "$portId.json"
@@ -202,6 +255,14 @@ foreach ($sha in $shasToProcess) {
     $subsystemName = if ($commitSubject -match '^(\w+):') { $Matches[1] } else { "Core" }
 
     $stageResult = New-StageResult -RunId $runId -CandidateId $portId -Stage "PORT_STAGING" -DonorSha $sha -DonorFullSha $proof.Evidence.donor_full_sha -DonorRepo "reference-upstreams/vmangos-core" -TargetRepo "tortoise-wow" -TargetBaseSha $targetBaseSha -RequestedMode $Mode -EffectiveMode $modeRes.EffectiveMode -Status "PATCH_READY" -Verdict "BUG_PRESENT" -Confidence $proof.Confidence -ReasonCodes @("BUG_PROVEN_DETERMINISTIC") -Evidence $proof.Evidence -StartedAt $startedAt -CompletedAt (Get-Date)
+
+    $stageResult["patch_file"] = "tools/queue/staging_patches/$sha.patch"
+    $stageResult["title"] = $commitSubject
+    $stageResult["subsystem"] = $subsystemName
+    $stageResult["commit_msg"] = "Port($subsystemName): $commitSubject (vmangos/core@$sha)"
+    if ($stagedSqlRel) {
+        $stageResult["sql_file"] = $stagedSqlRel
+    }
 
     Save-StageResultJson -ResultObject $stageResult -FilePath $pkgFile
     Update-CandidateState -CandidateId $sha -ToState "PATCH_READY" -ReasonCode "PACKAGE_STAGED" -Verdict "BUG_PRESENT" | Out-Null
@@ -211,9 +272,11 @@ foreach ($sha in $shasToProcess) {
 
 Record-Run -RunId $runId -Operation "PORT_PIPELINE" -Mode $Mode -Status "COMPLETED" -Details @{ CandidatesProcessed = $shasToProcess.Count; StagedCount = $results.Count }
 
-if ($AutoBuild -and -not $DryRun) {
-    Write-Host "`nAutoBuild flag set. Invoking Build-ReadyPackages..." -ForegroundColor Cyan
-    & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $ScriptDir "Build-ReadyPackages.ps1")
+if (($AutoBuild -or $AutoCommit) -and -not $DryRun) {
+    Write-Host "`n[Task 1 Builder] Auto-Pilot / AutoCommit enabled: Invoking Build-ReadyPackages..." -ForegroundColor Cyan
+    $buildArgs = @((Join-Path $ScriptDir "Build-ReadyPackages.ps1"))
+    if ($SkipBuild) { $buildArgs += "-SkipBuild" }
+    & powershell.exe -ExecutionPolicy Bypass -File @buildArgs
 }
 
 Write-Host "`n================================================================================" -ForegroundColor Cyan

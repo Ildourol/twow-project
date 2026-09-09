@@ -41,6 +41,12 @@ param(
     [switch]$AutoBuild,
 
     [Parameter()]
+    [switch]$AutoCommit,
+
+    [Parameter()]
+    [switch]$SkipBuild,
+
+    [Parameter()]
     [switch]$Diff,
 
     [Parameter()]
@@ -163,10 +169,11 @@ switch ($Command.ToLower()) {
         & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Query-OnlineDbViewer.ps1") @params
     }
     "port" {
-        if (-not $Argument) { Write-Host "Usage: task port <sha> [-Mode Fast|Normal|Deep] [-DryRun] [-AutoBuild]" -ForegroundColor Yellow; return }
+        if (-not $Argument) { Write-Host "Usage: task port <sha> [-Mode Fast|Normal|Deep] [-DryRun] [-AutoBuild] [-AutoCommit]" -ForegroundColor Yellow; return }
         $params = @{ DonorSha = @($Argument); Mode = $Mode }
         if ($DryRun) { $params["DryRun"] = $true }
-        if ($AutoBuild) { $params["AutoBuild"] = $true }
+        if ($AutoBuild -or $AutoCommit) { $params["AutoBuild"] = $true; $params["AutoCommit"] = $true }
+        if ($SkipBuild) { $params["SkipBuild"] = $true }
         & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Invoke-PortPipeline.ps1") @params
     }
     "port-batch" {
@@ -175,8 +182,64 @@ switch ($Command.ToLower()) {
         if ($Tier -gt 0) { $params["Tier"] = $Tier }
         if (-not [string]::IsNullOrEmpty($Subsystem)) { $params["Subsystem"] = $Subsystem }
         if ($DryRun) { $params["DryRun"] = $true }
-        if ($AutoBuild) { $params["AutoBuild"] = $true }
+        if ($AutoBuild -or $AutoCommit) { $params["AutoBuild"] = $true; $params["AutoCommit"] = $true }
+        if ($SkipBuild) { $params["SkipBuild"] = $true }
         & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Invoke-PortPipeline.ps1") @params
+    }
+    "auto-port" {
+        if (-not $Argument) {
+            $queueCsv = Join-Path $PortingDir "CRUCIAL_COMMITS_QUEUE.csv"
+            if (Test-Path $queueCsv) {
+                $rows = Import-Csv $queueCsv
+                $store = Get-StateStore
+                $processed = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+                if ($store.candidates) {
+                    foreach ($k in $store.candidates.Keys) { [void]$processed.Add($store.candidates[$k].donor_sha) }
+                }
+                foreach ($r in $rows) {
+                    if (-not $processed.Contains($r.ShortSha)) {
+                        $Argument = $r.ShortSha
+                        break
+                    }
+                }
+            }
+        }
+        if (-not $Argument) { Write-Host "Usage: task auto-port <sha> [-Mode Fast|Normal|Deep]" -ForegroundColor Yellow; return }
+        Write-Host "================================================================================" -ForegroundColor Cyan
+        Write-Host "  AUTO-PORT: Chaining Task 2 (Scout) -> 3 (DB) -> 4 (AI Context) -> 1 (Build/Commit)" -ForegroundColor Cyan
+        Write-Host "  Candidate SHA: $Argument" -ForegroundColor Yellow
+        Write-Host "================================================================================" -ForegroundColor Cyan
+        $params = @{ DonorSha = @($Argument); Mode = $Mode; AutoBuild = $true; AutoCommit = $true }
+        if ($DryRun) { $params["DryRun"] = $true }
+        if ($SkipBuild) { $params["SkipBuild"] = $true }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Invoke-PortPipeline.ps1") @params
+    }
+    "auto-pilot" {
+        $count = if ($Argument -and ($Argument -as [int])) { [int]$Argument } else { 0 }
+        $shaArg = if ($Argument -and -not ($Argument -as [int])) { $Argument } else { "" }
+
+        if ($shaArg) {
+            Write-Host "================================================================================" -ForegroundColor Cyan
+            Write-Host "  AUTO-PILOT: Single Candidate Mode for $shaArg" -ForegroundColor Cyan
+            Write-Host "  Chaining Task 2 (Scout) -> 3 (DB) -> 4 (AI Context) -> 1 (Build/Commit)" -ForegroundColor Cyan
+            Write-Host "================================================================================" -ForegroundColor Cyan
+            $params = @{ DonorSha = @($shaArg); Mode = $Mode; AutoBuild = $true; AutoCommit = $true }
+            if ($DryRun) { $params["DryRun"] = $true }
+            if ($SkipBuild) { $params["SkipBuild"] = $true }
+            & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Invoke-PortPipeline.ps1") @params
+        } else {
+            if ($count -le 0) { $count = 10 }
+            Write-Host "================================================================================" -ForegroundColor Cyan
+            Write-Host "  AUTO-PILOT: Autonomous Batch Mode for $count Candidate(s)" -ForegroundColor Cyan
+            Write-Host "  Chaining Task 2 (Scout) -> 3 (DB) -> 4 (AI Context) -> 1 (Build/Commit)" -ForegroundColor Cyan
+            Write-Host "================================================================================" -ForegroundColor Cyan
+            $params = @{ BatchCount = $count; Mode = $Mode; MaxCandidates = $MaxCandidates; MaxParallel = $MaxParallel; AutoBuild = $true; AutoCommit = $true }
+            if ($Tier -gt 0) { $params["Tier"] = $Tier }
+            if (-not [string]::IsNullOrEmpty($Subsystem)) { $params["Subsystem"] = $Subsystem }
+            if ($DryRun) { $params["DryRun"] = $true }
+            if ($SkipBuild) { $params["SkipBuild"] = $true }
+            & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Invoke-PortPipeline.ps1") @params
+        }
     }
     "pdf" {
         & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Export-CommandReferencePdf.ps1")
@@ -451,8 +514,10 @@ switch ($Command.ToLower()) {
         Write-Host "  task 6 <query>           -> Query online DB viewer" -ForegroundColor Gray
         Write-Host "  task scalp <tbl> <id>    -> Scalp & diff DB entity" -ForegroundColor Gray
         Write-Host "  task extract <tbl> <id>  -> Extract entity" -ForegroundColor Gray
-        Write-Host "  task port <sha>          -> Port candidate [-Mode Fast|Normal|Deep] [-DryRun]" -ForegroundColor Gray
-        Write-Host "  task port-batch <N>      -> Batch port [-Mode Fast|Normal|Deep] [-Tier T] [-DryRun]" -ForegroundColor Gray
+        Write-Host "  task port <sha>          -> Port candidate [-Mode Fast|Normal|Deep] [-DryRun] [-AutoCommit]" -ForegroundColor Gray
+        Write-Host "  task port-batch <N>      -> Batch port [-Mode Fast|Normal|Deep] [-Tier T] [-AutoCommit]" -ForegroundColor Gray
+        Write-Host "  task auto-port <sha>     -> One-command auto-port & commit single candidate (Tasks 2->3->4->1)" -ForegroundColor Gray
+        Write-Host "  task auto-pilot [N]      -> One-command auto-pilot & commit batch (Tasks 2->3->4->1) [-Tier T]" -ForegroundColor Gray
         Write-Host "  task status              -> Show canonical pipeline state" -ForegroundColor Gray
         Write-Host "  task pdf                 -> Regenerate COMMAND_REFERENCE HTML & PDF" -ForegroundColor Gray
         Write-Host "`nModern Engineering Commands:" -ForegroundColor Yellow

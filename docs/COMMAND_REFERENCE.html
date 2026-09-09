@@ -134,6 +134,40 @@ Or via standard command prompt:
 powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" &lt;command&gt; [arguments] [options]
 ```</div>
 <hr>
+<h2>Master Table of Contents (Index)</h2>
+<ul>
+<li><a href="#1-overview--operational-principles">1. Overview &amp; Operational Principles</a></li>
+<li><a href="#2-architecture--pipeline-flow">2. Architecture &amp; Pipeline Flow</a></li>
+<li><a href="#3-workflow-lifecycle-of-a-candidate-fix">3. Workflow Lifecycle of a Candidate Fix</a></li>
+<li><a href="#4-master-command-reference-preserved-existing-commands">4. Master Command Reference: Preserved Existing Commands</a></li>
+<li><a href="#5-master-command-reference-new-extended-commands">5. Master Command Reference: New Extended Commands</a></li>
+<li><a href="#6-verification-modes-fast-vs-normal-vs-deep">6. Verification Modes: FAST vs NORMAL vs DEEP</a></li>
+<li><a href="#7-automatic-mode-escalation-rules">7. Automatic Mode Escalation Rules</a></li>
+<li><a href="#8-dryrun-mode--safety-guarantees">8. DryRun Mode &amp; Safety Guarantees</a></li>
+<li><a href="#9-auto-pilot-mode--autonomous-batch-processing">9. Auto-Pilot Mode &amp; Autonomous Batch Processing</a></li>
+<li><a href="#the-one-command-end-to-end-pipeline-task-2---3---4---1">The One-Command End-to-End Pipeline: Task 2 + 3 + 4 -&gt; Task 1</a></li>
+<li><a href="#staging-only-mode-vs-auto-commit-mode">Staging-Only Mode vs Auto-Commit Mode</a></li>
+<li><a href="#clean-cli-invocations-from-default-location--any-prompt">Clean CLI Invocations (From Default Location / Any Prompt)</a></li>
+<li><a href="#running-auto-pilot-mode-with-tier-vs-without-tier">Running Auto-Pilot: With Tier vs Without Tier</a></li>
+<li><a href="#how-does-auto-pilot-choose-commits-without-a-tier">How Candidates Are Selected Without a Tier</a></li>
+<li><a href="#10-roadmap-research-commit-auditing--catching-new-upstream-commits-task-roadmap-refresh">10. Roadmap Research, Commit Auditing &amp; Catching New Upstream Commits (<code>task roadmap-refresh</code>)</a></li>
+<li><a href="#11-build-profiles--compiler-toolchain">11. Build Profiles &amp; Compiler Toolchain</a></li>
+<li><a href="#12-baseline-health-check--sha-pinning">12. Baseline Health Check &amp; SHA Pinning</a></li>
+<li><a href="#13-bug-existence-proving-engine">13. Bug-Existence Proving Engine</a></li>
+<li><a href="#14-database-safety-schema-catalog--provenance">14. Database Safety, Schema Catalog &amp; Provenance</a></li>
+<li><a href="#15-dbc-client--core-parity-auditor">15. DBC, Client &amp; Core Parity Auditor</a></li>
+<li><a href="#16-crash-dump--server-log-triage">16. Crash Dump &amp; Server Log Triage</a></li>
+<li><a href="#17-worktree-isolation--cleanup-management">17. Worktree Isolation &amp; Cleanup Management</a></li>
+<li><a href="#18-run-ids-idempotency--resumption">18. Run IDs, Idempotency &amp; Resumption</a></li>
+<li><a href="#19-canonical-30-state-machine">19. Canonical 30-State Machine</a></li>
+<li><a href="#20-ci--github-actions-pr-workflows">20. CI / GitHub Actions PR Workflows</a></li>
+<li><a href="#21-release-checkpoints--manifest-generation">21. Release Checkpoints &amp; Manifest Generation</a></li>
+<li><a href="#22-critical-safety-warnings">22. Critical Safety Warnings</a></li>
+<li><a href="#23-troubleshooting--common-failure-states">23. Troubleshooting &amp; Common Failure States</a></li>
+<li><a href="#24-expected-status--verdict-reference-values">24. Expected Status &amp; Verdict Reference Values</a></li>
+<li><a href="#25-architectural-comparison-why-the-20-build-system-is-vastly-superior-to-the-legacy-10-system">25. Architectural Comparison: Why the 2.0 Build System is Vastly Superior to the Legacy 1.0 System</a></li>
+</ul>
+<hr>
 <h2>1. Overview &amp; Operational Principles</h2>
 <p>The Tortoise-WoW porting system bridges upstream vanilla bugfixes (<code>vmangos/core</code>) with the customized Turtle-WoW 1.12.1/1.18.1 server core (<code>Ildourol/tortoise-wow-extended</code>).</p>
 <h3>Fundamental Engineering Invariants:</h3>
@@ -315,7 +349,7 @@ powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles
 <td><code>task port</code></td>
 <td>`task.ps1 port &lt;sha&gt; [-Mode Fast\</td>
 <td>Normal\</td>
-<td>Deep] [-DryRun]`</td>
+<td>Deep] [-DryRun] [-AutoCommit]`</td>
 <td>Variable</td>
 <td>Write (Worktree)</td>
 <td>Advisory</td>
@@ -325,13 +359,33 @@ powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles
 </tr>
 <tr>
 <td><code>task port-batch</code></td>
-<td><code>task.ps1 port-batch &lt;N&gt; [-Tier 1-5] [-Mode M] [-DryRun]</code></td>
+<td><code>task.ps1 port-batch &lt;N&gt; [-Tier 1-5] [-Mode M] [-DryRun] [-AutoCommit]</code></td>
 <td>Variable</td>
 <td>Write (Worktree)</td>
 <td>Advisory</td>
 <td>Patch-Aware</td>
 <td>Migration Audit</td>
 <td>Batch executes porting pipeline on next $N$ curated candidate commits.</td>
+</tr>
+<tr>
+<td><code>task auto-port</code></td>
+<td><code>task.ps1 auto-port &lt;sha&gt; [-Mode M] [-DryRun]</code></td>
+<td>Variable</td>
+<td>Write (Worktree)</td>
+<td>Advisory</td>
+<td>Full MSVC</td>
+<td>Migration Audit</td>
+<td>One-command end-to-end port &amp; commit for single commit (Tasks 2-&gt;3-&gt;4-&gt;1).</td>
+</tr>
+<tr>
+<td><code>task auto-pilot</code></td>
+<td><code>task.ps1 auto-pilot [N] [-Tier 1-5] [-Mode M]</code></td>
+<td>Variable</td>
+<td>Write (Worktree)</td>
+<td>Advisory</td>
+<td>Full MSVC</td>
+<td>Migration Audit</td>
+<td>One-command autonomous batch port &amp; commit for $N$ commits (Tasks 2-&gt;3-&gt;4-&gt;1).</td>
 </tr>
 <tr>
 <td><code>task restore</code></td>
@@ -694,6 +748,83 @@ task.ps1 port 448df9ba0 -DryRun</code></pre>
 <hr>
 <h2>9. Auto-Pilot Mode &amp; Autonomous Batch Processing</h2>
 <p>Auto-Pilot Mode enables hands-free, continuous candidate evaluation, bug proving, worktree provisioning, patch normalization, compatibility auditing, and candidate staging across multiple commits without manual per-commit intervention.</p>
+<h3>The One-Command End-to-End Pipeline: Tasks 2 -&gt; 3 -&gt; 4 -&gt; 1</h3>
+<p>When you want an autonomous, zero-friction pipeline that takes upstream commits all the way to candidate branch commits in a single pass, use <strong>Auto-Pilot Mode</strong>:</p>
+<pre><code class="language-powershell"># Auto-Pilot a batch of 10 candidates with automatic compilation and git commit:
+task.ps1 auto-pilot 10
+
+# Auto-Pilot a specific single commit:
+task.ps1 auto-port 448df9ba0
+
+# Or via the -AutoCommit switch:
+task.ps1 port-batch 10 -AutoCommit
+task.ps1 port 448df9ba0 -AutoCommit</code></pre>
+<h4>How the Chained Pipeline Works:</h4>
+<p>1. <strong>Task 2: Forum &amp; Mechanics Intelligence Scout (<code>Search-ForumArchive.ps1</code>)</strong>:</p>
+<p>   Automatically mines 22,155 indexed Turtle-WoW forum threads using keywords extracted from the commit subject. Identifies any related mechanics discussions, player bug reports, or staff statements.</p>
+<p>2. <strong>Task 3: Database &amp; Migration Safety Audit (<code>Audit-DatabaseMigrations.ps1</code>)</strong>:</p>
+<p>   Checks whether the upstream commit touches SQL migrations. Inspects table definitions against the 413-table schema catalog, verifies Turtle custom ID ranges (creature &gt;= 300,000, spell &gt;= 40,000), checks for forbidden progressive columns, and stages any required SQL files into <code>tools/queue/staging_sql/</code>.</p>
+<p>3. <strong>Task 4: AI Context Assembly &amp; Semantic Dossier (<code>Invoke-AiAudit.ps1</code>)</strong>:</p>
+<p>   Performs bounded diff context extraction, checks surrounding code ASTs, evaluates Turtle custom divergences, verifies hard invariants (<code>MAX_RACES=11</code>, <code>sTWDebuff</code>), generates an AI audit dossier in <code>tools/queue/ai_dossiers/&lt;sha&gt;.md</code>, and packages the candidate into <code>tools/queue/02_ready_to_build/PORT-XXXX.json</code>.</p>
+<p>4. <strong>Task 1: Isolated Worktree Builder &amp; Committer (<code>Build-ReadyPackages.ps1</code>)</strong>:</p>
+<p>   Creates an isolated git worktree (<code>.worktrees/candidate-PORT-XXXX</code>), applies the patch safely, enforces build profiles (<code>world</code>, <code>auth</code>, <code>sql-only</code>), compiles via MSVC 2022, and commits to a candidate branch with full provenance recorded in <code>tools/state/state_store.json</code>.</p>
+<hr>
+<h3>FAQ: If I run <code>task.ps1 port-batch 10</code>, do I have to run <code>task.ps1 1</code> after?</h3>
+<table class="table"><thead><tr>
+<th>Execution Command</th>
+<th>Staged to Queue?</th>
+<th>Automatically Compiled?</th>
+<th>Automatically Committed?</th>
+<th>Need to run <code>task 1</code> after?</th>
+</tr></thead><tbody>
+<tr>
+<td><code>task.ps1 port-batch 10</code></td>
+<td>Yes (<code>02_ready_to_build/</code>)</td>
+<td>No</td>
+<td>No</td>
+<td><strong>YES</strong> (Review first, then compile via <code>task 1</code>)</td>
+</tr>
+<tr>
+<td><code>task.ps1 auto-pilot 10</code></td>
+<td>Yes</td>
+<td>Yes (in worktree)</td>
+<td>Yes (candidate branch)</td>
+<td><strong>NO</strong> (Fully automated in 1 command)</td>
+</tr>
+<tr>
+<td><code>task.ps1 port-batch 10 -AutoCommit</code></td>
+<td>Yes</td>
+<td>Yes (in worktree)</td>
+<td>Yes (candidate branch)</td>
+<td><strong>NO</strong> (Fully automated in 1 command)</td>
+</tr>
+<tr>
+<td><code>task.ps1 auto-port &lt;sha&gt;</code></td>
+<td>Yes</td>
+<td>Yes (in worktree)</td>
+<td>Yes (candidate branch)</td>
+<td><strong>NO</strong> (Fully automated in 1 command)</td>
+</tr>
+</tbody></table>
+<div class="alert alert-note"><span class="alert-badge">note</span><br>- Use <code>task.ps1 port-batch 10</code> when you want a <strong>review step</strong> (inspecting AI dossiers and patches in <code>tools/queue/02_ready_to_build/</code> before compiling).
+- Use <code>task.ps1 auto-pilot 10</code> or <code>-AutoCommit</code> when you want a <strong>hands-off single command</strong> that finishes the entire process and commits verified candidate branches automatically.</div>
+<hr>
+<h3>Clean CLI Invocations (From Default Open Location / Any Directory)</h3>
+<p>You do <strong>not</strong> need to <code>cd</code> into the project repository. All modules dynamically resolve repository roots from <code>$PSScriptRoot</code>.</p>
+<h4>1. Direct Invocation from Windows Command Prompt (<code>cmd.exe</code>):</h4>
+<pre><code class="language-cmd">powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10</code></pre>
+<h4>2. Direct Invocation from PowerShell (from <code>C:\Users\Admin&gt;</code> or any path):</h4>
+<pre><code class="language-powershell">&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10</code></pre>
+<h4>3. Permanent Global Setup via PowerShell <code>$PROFILE</code> (Recommended):</h4>
+<p>Run this once in PowerShell to make <code>task</code> globally accessible from any terminal:</p>
+<pre><code class="language-powershell">if (!(Test-Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force | Out-Null }
+Add-Content $PROFILE "`nfunction task { &amp; 'C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1' @args }"</code></pre>
+<p>Once added, open a new PowerShell prompt anywhere and simply type:</p>
+<pre><code class="language-powershell">task auto-pilot 10
+task status
+task next
+task roadmap-refresh</code></pre>
+<hr>
 <h3>Running Auto-Pilot Mode: With Tier vs Without Tier</h3>
 <h4>A. Running WITH Tier Specification:</h4>
 <p>When you want to focus exclusively on a specific severity or architectural domain:</p>
