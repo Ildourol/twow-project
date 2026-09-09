@@ -1,0 +1,31 @@
+{
+  "policy_version": "1.0.0",
+  "description": "Machine-readable authority hierarchy for resolving conflicting sources",
+  "default_hierarchy": [
+    { "rank": 1, "source": "user_explicit_requirement", "rule": "Explicit user requirement in current session is supreme." },
+    { "rank": 2, "source": "target_tortoise_checked_out", "rule": "Checked-out target Tortoise source, build, and runtime evidence are authoritative." },
+    { "rank": 3, "source": "matching_revision_penqle", "rule": "Matching-revision Penqle/tortoise-wow source and docs." },
+    { "rank": 4, "source": "turtle_client_data_1_18_1", "rule": "Turtle 1.18.1 client DBC/maps data take precedence over server assumptions." },
+    { "rank": 5, "source": "vmangos_donor_source", "rule": "Current vMaNGOS donor source and commit history." },
+    { "rank": 6, "source": "shyalya_playerbots", "rule": "Shyalya fork references for PlayerBots/Turtle-specific bot integrations." },
+    { "rank": 7, "source": "tortoise_kb_material", "rule": "TortoiseBots / Turtle knowledge-base documentation." },
+    { "rank": 8, "source": "historical_vanilla_db", "rule": "Historical Vanilla databases (Brotalnia, Lights Hope, Elysium) are donor evidence only." },
+    { "rank": 9, "source": "conceptual_upstream_cores", "rule": "AzerothCore / TrinityCore / CMaNGOS conceptual references." }
+  ],
+  "subsystem_overrides": {
+    "playerbots": {
+      "priority": ["user_explicit_requirement", "target_tortoise_checked_out", "shyalya_playerbots", "tortoise_kb_material"]
+    },
+    "client_dbc": {
+      "priority": ["user_explicit_requirement", "turtle_client_data_1_18_1", "target_tortoise_checked_out", "matching_revision_penqle"]
+    },
+    "custom_mechanics": {
+      "priority": ["user_explicit_requirement", "target_tortoise_checked_out", "matching_revision_penqle", "turtle_client_data_1_18_1"]
+    }
+  },
+  "forbidden_actions": [
+    "historical_vanilla_overwrite_turtle_custom",
+    "brotalnia_data_clobber_turtle_rows",
+    "generic_acore_trinity_concept_import_without_target_validation"
+  ]
+}

@@ -1,0 +1,41 @@
+name: Twow Project Orchestration CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-orchestration:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Orchestration Repository
+        uses: actions/checkout@v4
+
+      - name: Validate JSON Configurations and Schemas
+        shell: powershell
+        run: |
+          Get-ChildItem -Path "config", "config/schemas" -Filter "*.json" | ForEach-Object {
+            Write-Host "Validating $($_.FullName)..."
+            $content = Get-Content $_.FullName -Raw | ConvertFrom-Json
+            if ($null -eq $content) { throw "Invalid JSON in $($_.Name)" }
+          }
+          Write-Host "All JSON configurations are valid." -ForegroundColor Green
+
+      - name: Run Orchestration Pester Tests
+        shell: powershell
+        run: |
+          $testFile = "tests/AllTests.Tests.ps1"
+          if (Test-Path $testFile) {
+            Invoke-Pester -Script $testFile -OutputFile "test-results.xml" -OutputFormat NUnitXml
+          } else {
+            Write-Host "Running custom test runner..."
+            & powershell.exe -ExecutionPolicy Bypass -File "tests/run-all-tests.ps1"
+          }
+
+      - name: Verify Compatibility Guard Exit Codes
+        shell: powershell
+        run: |
+          & powershell.exe -ExecutionPolicy Bypass -File "tools/porting/Verify-TurtleCompatibility.ps1"
+          if ($LASTEXITCODE -ne 0) { throw "Verify-TurtleCompatibility failed on clean tree" }

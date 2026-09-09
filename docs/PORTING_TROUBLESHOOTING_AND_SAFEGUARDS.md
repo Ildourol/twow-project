@@ -164,22 +164,23 @@ cd "C:\Users\Admin\AntigravityProfiles\Projects\twow project"
 
 ---
 
-## 5. Emergency Rollback & Quarantine Runbook
+## 5. Worktree Cleanup & Candidate Quarantine Runbook
 
-If a commit introduces a compilation error, crash, or regression:
+Because all candidate adaptations and builds execute inside isolated Git worktrees (`.worktrees/PORT-XXXX/`), errors never corrupt the user's primary working tree:
 
 ```powershell
-# 1. Identify regressing commit SHA
-git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow" log -n 5 --oneline
+# 1. Cleanly prune the failed candidate worktree
+powershell.exe -ExecutionPolicy Bypass -File "tools\task.ps1" worktree-cleanup
 
-# 2. Revert the commit cleanly
-git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow" revert <commit_sha> -m "Revert: Port(<Subsystem>) due to <reason>"
+# 2. If already committed to a candidate branch and needs retraction
+git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow" branch -D port/PORT-XXXX-<sha>
 
-# 3. Update local roadmap
-# Set Status to QUARANTINED in docs/ROADMAP.md
+# 3. Update canonical state store
+# Candidate state transitions to REJECTED in tools/state/state_store.json
 
-# 4. Push revert immediately:
-git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow" push extended main
+# 4. Strict Safety Principle
+# NEVER run 'git checkout .' or 'git reset --hard' on the target repository!
+# The primary checked-out tree is always kept clean and protected.
 ```
 
 ---

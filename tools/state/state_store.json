@@ -1,0 +1,40 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "last_updated":  "2026-09-09T15:03:57.9043107+02:00",
+    "baseline_cache":  {
+                           "053cb501f11fda999967ffef60852b8902bf26c0":  {
+                                                                            "target_base_sha":  "053cb501f11fda999967ffef60852b8902bf26c0",
+                                                                            "checked_at":  "2026-09-09T14:56:28.3803121+02:00",
+                                                                            "configure_status":  "PASS",
+                                                                            "compile_status":  "PASS",
+                                                                            "link_status":  "PASS",
+                                                                            "startup_status":  "PENDING_SMOKE",
+                                                                            "runtime_sanity_status":  "UNTESTED",
+                                                                            "overall_health":  "HEALTHY"
+                                                                        }
+                       },
+    "runs":  {
+                 "RUN-20260909-144247-FPEC":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "StagedCount":  1,
+                                                                  "CandidatesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-09T14:42:48.3047310+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "PORT_PIPELINE",
+                                                  "run_id":  "RUN-20260909-144247-FPEC"
+                                              }
+             },
+    "candidates":  {
+
+                   },
+    "ai_call_cache":  {
+                          "b7448c6348c14e9403a1d05433a681195f39756057f4dd7fcaab066cec972ae2":  {
+                                                                                                   "summary":  "Cached AI result",
+                                                                                                   "decision":  "ACCEPT"
+                                                                                               }
+                      }
+}

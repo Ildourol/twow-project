@@ -156,12 +156,11 @@ This document defines the operational orchestration workflow, step-by-step runbo
      Adapted donor:
      - <foreign assumption adapted>"
      ```
-  3. Merge topic branch into `main` (or if working on `main`, verify working tree).
-  4. **Push immediately to remote**:
-     ```powershell
-     git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow" push extended main
-     ```
-  5. Only after this commit is pushed and working tree is clean may the next donor commit begin. Never batch multiple donor commits.
+  3. Commit candidate changes to dedicated candidate branch: `port/PORT-XXXX-<sha>` inside isolated worktree.
+  4. **Remote Push Authorization**:
+     - Fixes remain on candidate branches.
+     - Never push directly to `origin/main` or `extended/main` without explicit user authorization in the current session.
+  5. Cleanly prune worktree via `Remove-IsolatedWorktree`. Working tree remains pristine. Only after this candidate is committed to its branch and state store is updated may the next candidate begin.
 
 ---
 

@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StageResultContract",
+  "description": "Standardized schema for twow-project pipeline stage execution results",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tool_version",
+    "run_id",
+    "candidate_id",
+    "stage",
+    "donor_repository",
+    "donor_sha",
+    "donor_full_sha",
+    "target_repository",
+    "target_base_sha",
+    "requested_mode",
+    "effective_mode",
+    "status",
+    "verdict",
+    "confidence",
+    "reason_codes",
+    "started_at",
+    "completed_at",
+    "duration_ms"
+  ],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "tool_version": { "type": "string" },
+    "run_id": { "type": "string" },
+    "candidate_id": { "type": "string" },
+    "stage": { "type": "string" },
+    "donor_repository": { "type": "string" },
+    "donor_sha": { "type": "string" },
+    "donor_full_sha": { "type": "string" },
+    "target_repository": { "type": "string" },
+    "target_base_sha": { "type": "string" },
+    "reference_shas": {
+      "type": "object"
+    },
+    "requested_mode": { "type": "string", "enum": ["Fast", "Normal", "Deep"] },
+    "effective_mode": { "type": "string", "enum": ["Fast", "Normal", "Deep"] },
+    "status": { "type": "string" },
+    "verdict": { "type": "string" },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "reason_codes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "evidence": { "type": "object" },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "errors": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "input_hashes": { "type": "object" },
+    "output_hashes": { "type": "object" },
+    "configuration_hash": { "type": "string" },
+    "compatibility_manifest_version": { "type": "string" },
+    "started_at": { "type": "string" },
+    "completed_at": { "type": "string" },
+    "duration_ms": { "type": "integer", "minimum": 0 }
+  }
+}

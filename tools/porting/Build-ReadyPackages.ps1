@@ -1,125 +1,177 @@
 <#
 .SYNOPSIS
-    Automates Agent 1 (Builder & Committer) to build, verify, commit, and push all ready packages.
+    Agent 1 (Builder & Committer): Verifies, compiles, and commits ready packages.
 .DESCRIPTION
-    Scans tools/queue/02_ready_to_build/ for PORT-XXXX.json and CORE-XXXX.json packages.
-    For each package:
-      1. Applies patch and SQL
-      2. Runs Verify-TurtleCompatibility.ps1
-      3. Compiles via MSVC 2022 Release (Exit Code 0 gate)
-      4. Staged git commit with standardized attribution
-      5. Pushes to extended main
-      6. Moves package and patch to 03_completed/
-      7. Updates COMMITS_UPLOADED.md, BACKPORT_HISTORY.md, docs/commits/, and ROADMAP.md
+    Operates exclusively inside isolated Git worktrees, never on user working tree.
+    Validates package freshness (rejects stale packages), enforces compatibility invariants,
+    selects patch-aware build profiles, compiles via MSVC, creates candidate branch,
+    and records provenance into canonical state store.
 #>
 [CmdletBinding()]
 param(
-    [switch]$SkipPush
+    [switch]$SkipPush,
+    [switch]$UseWorktree = $true,
+    [string]$SpecificPackage = ""
 )
 
 $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..")
-$TortoisePath = Join-Path $ProjectRoot "tortoise-wow"
+$ModulesDir = Join-Path (Split-Path -Parent $ScriptDir) "tools\modules"
+if (-not (Test-Path $ModulesDir)) { $ModulesDir = Join-Path $ScriptDir "..\modules" }
+
+. (Join-Path $ModulesDir "ExitCodes.ps1")
+. (Join-Path $ModulesDir "ProjectConfig.ps1")
+. (Join-Path $ModulesDir "StructuredResult.ps1")
+. (Join-Path $ModulesDir "EncodingHelper.ps1")
+. (Join-Path $ModulesDir "StateStore.ps1")
+. (Join-Path $ModulesDir "StateMachine.ps1")
+. (Join-Path $ModulesDir "WorktreeManager.ps1")
+. (Join-Path $ModulesDir "CompatibilityChecker.ps1")
+. (Join-Path $ModulesDir "BuildEngine.ps1")
+. (Join-Path $ModulesDir "SmokeTest.ps1")
+
+$cfg = Get-ProjectConfig
+$ProjectRoot = $cfg.repositories.twow_project.path
+$TortoisePath = $cfg.repositories.tortoise_wow.path
 $ReadyDir = Join-Path $ProjectRoot "tools\queue\02_ready_to_build"
 $CompletedDir = Join-Path $ProjectRoot "tools\queue\03_completed"
-$CMakeExe = "C:\vcpkg\downloads\tools\cmake-4.4.2-windows\cmake-4.4.2-windows-x86_64\bin\cmake.exe"
+$RejectedDir = Join-Path $ProjectRoot "tools\queue\04_rejected"
 
-$readyPackages = Get-ChildItem -Path $ReadyDir -Filter "*.json" | Sort-Object Name
-if ($readyPackages.Count -eq 0) {
-    Write-Host "================================================================================" -ForegroundColor Cyan
-    Write-Host "[QUEUE STATUS: IDLE - NOTHING TO COMMIT]" -ForegroundColor Yellow
-    Write-Host "No packages found in tools/queue/02_ready_to_build/." -ForegroundColor Yellow
-    Write-Host "================================================================================" -ForegroundColor Cyan
-    return
+$packagesToBuild = @()
+if (-not [string]::IsNullOrEmpty($SpecificPackage)) {
+    $cand = Join-Path $ReadyDir "$SpecificPackage.json"
+    if (Test-Path $cand) { $packagesToBuild = @(Get-Item $cand) }
+} else {
+    $packagesToBuild = Get-ChildItem -Path $ReadyDir -Filter "*.json" -ErrorAction SilentlyContinue | Sort-Object Name
 }
 
+if ($packagesToBuild.Count -eq 0) {
+    Write-Host "================================================================================" -ForegroundColor Cyan
+    Write-Host "[QUEUE STATUS: IDLE - NOTHING TO BUILD]" -ForegroundColor Yellow
+    Write-Host "No packages waiting in tools/queue/02_ready_to_build/." -ForegroundColor Yellow
+    Write-Host "================================================================================" -ForegroundColor Cyan
+    exit $script:EXIT_CODE_PASS
+}
+
+$wtStatus = if ($UseWorktree) { "ENABLED" } else { "DISABLED" }
 Write-Host "================================================================================" -ForegroundColor Cyan
-Write-Host "  Agent 1: Building $($readyPackages.Count) Ready Package(s)" -ForegroundColor Cyan
+Write-Host "  Agent 1: Building $($packagesToBuild.Count) Ready Package(s)" -ForegroundColor Cyan
+Write-Host "  Worktree Isolation: $wtStatus" -ForegroundColor Cyan
 Write-Host "================================================================================" -ForegroundColor Cyan
 
-foreach ($pkg in $readyPackages) {
+$runId = New-RunId
+
+foreach ($pkg in $packagesToBuild) {
     $meta = Get-Content $pkg.FullName -Raw | ConvertFrom-Json
     $pkgId = [System.IO.Path]::GetFileNameWithoutExtension($pkg.Name)
+    $donorSha = $meta.donor_sha
     $title = $meta.title
-    $sha = $meta.donor_sha
-    $subsystem = $meta.subsystem
-    $patchPath = Join-Path $ProjectRoot $meta.patch_file
     $commitMsg = $meta.commit_msg
+    if ([string]::IsNullOrEmpty($commitMsg)) {
+        $commitMsg = "Port($($meta.subsystem)): $($meta.title) (vmangos/core@$donorSha)"
+    }
 
-    Write-Host "`n>>> Processing Package: $pkgId ($sha) - $title" -ForegroundColor Cyan
+    Write-Host "`n>>> Processing Package: $pkgId ($donorSha) - $title" -ForegroundColor Cyan
 
-    if ($meta.status -eq "AWAITING_CODE" -or $meta.status -eq "AWAITING_AI_ADAPTATION") {
-        Write-Host "[WAITING] Package $pkgId has status '$($meta.status)' and is awaiting code authoring/adaptation. Skipping." -ForegroundColor Yellow
+    # Stale Package Invalidation Check
+    $currentHead = (git -C $TortoisePath rev-parse HEAD).Trim()
+    if ($meta.target_base_sha -and $meta.target_base_sha -ne $currentHead) {
+        Write-Host "  [STALE PACKAGE DETECTED] Recorded base $($meta.target_base_sha) != current HEAD $currentHead." -ForegroundColor Yellow
+        Write-Host "  Moving package to NEEDS_REAUDIT state." -ForegroundColor Yellow
+        Update-CandidateState -CandidateId $donorSha -ToState "NEEDS_REAUDIT" -ReasonCode "TARGET_BASE_CHANGED" | Out-Null
         continue
     }
 
-    # 1. Apply patch
-    if (Test-Path $patchPath) {
-        Write-Host "Applying patch: $patchPath" -ForegroundColor DarkGray
-        $applyOut = & git -C $TortoisePath apply --ignore-whitespace $patchPath 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Error "Failed to apply patch $patchPath. Aborting."
-            return
+    $patchRelPath = $meta.patch_file
+    $patchFullPath = if ($patchRelPath) { Join-Path $ProjectRoot $patchRelPath } else { "" }
+
+    # Worktree Isolation: Create isolated workspace for build
+    $worktree = $null
+    $activeRepo = $TortoisePath
+
+    if ($UseWorktree) {
+        try {
+            $worktree = New-CandidateWorktree -TargetRepo $TortoisePath -CandidateId $pkgId -BaseSha $currentHead
+            $activeRepo = $worktree.WorktreePath
+            Write-Host "  Operating in isolated worktree: $activeRepo" -ForegroundColor DarkGray
+        } catch {
+            Write-Host "  [ERROR] Failed to create candidate worktree: $_" -ForegroundColor Red
+            continue
         }
     }
 
-    # 2. Apply SQL if present
-    if ($meta.sql_file -and (Test-Path (Join-Path $ProjectRoot $meta.sql_file))) {
-        $sqlSource = Join-Path $ProjectRoot $meta.sql_file
-        $sqlDestDir = Join-Path $TortoisePath "sql\database_updates\world"
-        Copy-Item $sqlSource $sqlDestDir -Force
-        Write-Host "Copied SQL migration to $sqlDestDir" -ForegroundColor DarkGray
-    }
+    try {
+        # 1. Apply Patch safely
+        if ($patchFullPath -and (Test-Path $patchFullPath)) {
+            $applyRes = Apply-GitPatchSafely -RepoPath $activeRepo -PatchPath $patchFullPath -IgnoreWhitespace
+            if (-not $applyRes.Success) {
+                Write-Host "  [FAIL] Failed to apply patch in worktree: $($applyRes.Output)" -ForegroundColor Red
+                Update-CandidateState -CandidateId $donorSha -ToState "REJECTED" -ReasonCode "PATCH_APPLY_FAILED" | Out-Null
+                continue
+            }
+        }
 
-    # 3. Pre-build compatibility verification
-    $compatScript = Join-Path $ScriptDir "Verify-TurtleCompatibility.ps1"
-    & powershell.exe -ExecutionPolicy Bypass -File $compatScript -TargetRepo $TortoisePath
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Compatibility invariant verification failed for $pkgId. Rolling back."
-        git -C $TortoisePath checkout .
-        return
-    }
+        # 2. Apply SQL migration if present
+        if ($meta.sql_file) {
+            $sqlSrc = Join-Path $ProjectRoot $meta.sql_file
+            if (Test-Path $sqlSrc) {
+                $sqlDestDir = Join-Path $activeRepo "sql\database_updates\world"
+                Copy-Item $sqlSrc $sqlDestDir -Force
+                Write-Host "  Copied SQL migration to $sqlDestDir" -ForegroundColor DarkGray
+            }
+        }
 
-    # 4. Compile gate
-    Write-Host "Compiling server via MSVC 2022 (Release)..." -ForegroundColor Yellow
-    $buildDir = Join-Path $TortoisePath "build"
-    & $CMakeExe --build $buildDir --config Release
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "MSVC 2022 Compilation gate failed with exit code $LASTEXITCODE. Rolling back."
-        git -C $TortoisePath checkout .
-        return
-    }
+        # 3. Verify Turtle Compatibility Invariants
+        $compatRes = Test-TurtleCompatibility -WorktreePath $activeRepo
+        if ($compatRes.ExitCode -ne 0) {
+            $compMsg = $compatRes.Violations -join ", "
+            Write-Host "  [FAIL] Compatibility invariant violated in worktree: $compMsg" -ForegroundColor Red
+            Update-CandidateState -CandidateId $donorSha -ToState "REJECTED" -ReasonCode "COMPATIBILITY_VIOLATION" | Out-Null
+            continue
+        }
 
-    # 5. Git Commit & Push
-    git -C $TortoisePath add src/ sql/ CMakeLists.txt
-    git -C $TortoisePath commit -m $commitMsg
-    $shortHash = (git -C $TortoisePath rev-parse --short HEAD).Trim()
-    $fullHash  = (git -C $TortoisePath rev-parse HEAD).Trim()
+        # 4. Build Profile Selection and Compilation Gate
+        $touched = git -C $activeRepo diff --name-only HEAD
+        $profile = Select-BuildProfile -TouchedFiles @($touched)
+        Write-Host "  Selected build profile: $profile" -ForegroundColor DarkGray
 
-    if (-not $SkipPush) {
-        Write-Host "Pushing $shortHash to extended main..." -ForegroundColor Yellow
-        git -C $TortoisePath push extended main
-        if ($LASTEXITCODE -ne 0) {
-            Write-Error "Failed to push to extended main."
-            return
+        # Link CMake build directory into worktree if needed
+        $wtBuildDir = Join-Path $activeRepo "build"
+        if (-not (Test-Path $wtBuildDir)) {
+            $wtBuildDir = Join-Path $TortoisePath "build"
+        }
+
+        $buildRes = Invoke-TargetBuild -TargetRepo $activeRepo -Profile $profile -BuildDir $wtBuildDir
+        if ($buildRes.ExitCode -ne 0) {
+            Write-Host "  [FAIL] Build gate failed for profile $profile!" -ForegroundColor Red
+            Update-CandidateState -CandidateId $donorSha -ToState "COMPILE_FAIL" -ReasonCode "MSVC_BUILD_FAILED" | Out-Null
+            continue
+        }
+        Write-Host "  [PASS] Compilation and linking successful!" -ForegroundColor Green
+
+        # 5. Git Commit to Candidate Branch (Never direct to main)
+        git -C $activeRepo add -A
+        git -C $activeRepo commit -m $commitMsg 2>&1 | Out-Null
+        $commitSha = (git -C $activeRepo rev-parse --short HEAD).Trim()
+
+        # Move package to completed archive
+        Move-Item $pkg.FullName $CompletedDir -Force
+        if ($patchFullPath -and (Test-Path $patchFullPath)) {
+            $patchesArch = Join-Path $CompletedDir "patches"
+            if (-not (Test-Path $patchesArch)) { New-Item -ItemType Directory -Path $patchesArch -Force | Out-Null }
+            Move-Item $patchFullPath $patchesArch -Force
+        }
+
+        Update-CandidateState -CandidateId $donorSha -ToState "COMPLETE" -ReasonCode "COMMITTED_IN_WORKTREE" -Verdict "VERIFIED" | Out-Null
+        Write-Host "  [SUCCESS] $pkgId committed ($commitSha) in candidate branch $($worktree.Branch)!" -ForegroundColor Green
+
+    } finally {
+        if ($UseWorktree -and $worktree) {
+            Write-Host "  Preserving disposable worktree at $($worktree.WorktreePath) for candidate PR review." -ForegroundColor DarkGray
         }
     }
-
-    # 6. Move manifest and patch to completed archive
-    Move-Item $pkg.FullName $CompletedDir -Force
-    if (Test-Path $patchPath) {
-        $patchesArch = Join-Path $CompletedDir "patches"
-        if (-not (Test-Path $patchesArch)) { New-Item -ItemType Directory -Path $patchesArch -Force | Out-Null }
-        Move-Item $patchPath $patchesArch -Force
-    }
-
-    Write-Host "[SUCCESS] $pkgId committed ($shortHash) and pushed to extended main!" -ForegroundColor Green
 }
 
-# 7. Update Commit Dossiers Archive
-Write-Host "`nUpdating commit dossiers archive..." -ForegroundColor Yellow
-$dossierScript = Join-Path $ScriptDir "Generate-CommitDossiers.ps1"
-& powershell.exe -ExecutionPolicy Bypass -File $dossierScript
+Record-Run -RunId $runId -Operation "BUILD_PACKAGES" -Status "COMPLETED" -Details @{ PackagesProcessed = $packagesToBuild.Count }
+Write-Host "`nAll packages processed." -ForegroundColor Green
 
-Write-Host "`nAll packages processed successfully." -ForegroundColor Green

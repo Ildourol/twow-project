@@ -31,7 +31,7 @@
 3. Sanitize SQL migrations for Turtle-WoW 1.18.1:
    - Strip progressive columns: `` `patch` ``, `` `build` ``, `` `patch_min` ``, `` `patch_max` ``.
    - Remove stored procedures (`CALL AddMigration(...)`) and `DELIMITER` blocks.
-   - Guard Turtle custom ID spaces: ensure entity IDs are $< 300,000$ (reserve >= 300000 for custom content).
+   - Guard Turtle custom ID spaces: ensure `spell_template` IDs are < 40000 (reserve >= 40000 for custom spells) and world entities (`creature_template`, `item_template`, `gameobject_template`, `quest_template`) are < 300,000 (reserve >= 300000 for custom world content).
    - Ensure idempotency (`UPDATE`, conditional `INSERT`, or safe replace).
 4. Save sanitized migration to `tools/queue/staging_sql/<sha>_<name>.sql`.
 5. Pre-validate using `tools/porting/Audit-DatabaseMigrations.ps1`.

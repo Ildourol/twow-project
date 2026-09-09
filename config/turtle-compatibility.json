@@ -1,0 +1,96 @@
+{
+  "manifest_version": "1.0.0",
+  "game_version": "1.18.1",
+  "client_build": 7272,
+  "hard_invariants": {
+    "max_races": 11,
+    "script_command_take_money": 93,
+    "supported_client_build": "CLIENT_BUILD_1_12_1",
+    "staged_debuff_streaming": "sTWDebuff"
+  },
+  "protected_symbols": [
+    "sTWDebuff",
+    "sLFTMgr",
+    "sTransmogMgr",
+    "sCustomMerchantMgr",
+    "inGurubashiArena"
+  ],
+  "entity_id_boundaries": {
+    "spell_template": {
+      "min_custom_id": 40000,
+      "max_custom_id": 999999,
+      "description": "Turtle-WoW custom spell range"
+    },
+    "creature_template": {
+      "min_custom_id": 300000,
+      "max_custom_id": 9999999,
+      "description": "Turtle-WoW custom creature template space"
+    },
+    "item_template": {
+      "min_custom_id": 50000,
+      "tier2_custom_id": 300000,
+      "max_custom_id": 9999999,
+      "description": "Turtle-WoW custom item template space"
+    },
+    "quest_template": {
+      "min_custom_id": 300000,
+      "max_custom_id": 9999999,
+      "description": "Turtle-WoW custom quest template space"
+    },
+    "gameobject_template": {
+      "min_custom_id": 300000,
+      "max_custom_id": 9999999,
+      "description": "Turtle-WoW custom gameobject template space"
+    }
+  },
+  "forbidden_progressive_columns": [
+    "patch",
+    "build",
+    "min_patch",
+    "max_patch",
+    "patch_min",
+    "patch_max"
+  ],
+  "architectural_divergences": [
+    {
+      "pattern": "ReadableBuffer",
+      "reason": "VMaNGOS custom async IO layer. Turtle uses ACE MangosSocket."
+    },
+    {
+      "pattern": "sAuthLogonChallengeBody",
+      "reason": "VMaNGOS static struct. Turtle uses dynamic std::vector buffer."
+    },
+    {
+      "pattern": "SUPPORTED_CLIENT_BUILD\\s*<=\\s*CLIENT_BUILD_1_5_1",
+      "reason": "Pre-1.6 compatibility shim. Turtle targets 1.12.1/1.18.1 client."
+    },
+    {
+      "pattern": "IsSavingDisabled",
+      "reason": "VMaNGOS Playerbot trading bypass. Not present in Turtle-WoW."
+    },
+    {
+      "pattern": "HandlePartyBot(Add|Clone)Command",
+      "reason": "PartyBot GM commands do not exist in Turtle-WoW."
+    },
+    {
+      "pattern": "MoveSpline::ComputePositionAfterTime",
+      "reason": "VMaNGOS predictive chase method not present in Turtle-WoW."
+    },
+    {
+      "pattern": "debug send spellfail",
+      "reason": "Debug command not present in Turtle-WoW."
+    },
+    {
+      "pattern": "m_passengerMutex",
+      "reason": "Multi-threaded transport mutex. Turtle transports are single-threaded on map loop."
+    },
+    {
+      "pattern": "CityAttack|SummonPallid|mouthPos",
+      "reason": "VMaNGOS Scourge Invasion rewrite. Turtle retains classic structure."
+    },
+    {
+      "pattern": "contrib/mmap",
+      "reason": "Offline map extraction tool. Not present in server repository."
+    }
+  ]
+}

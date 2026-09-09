@@ -1,95 +1,83 @@
 <#
 .SYNOPSIS
-    Verifies git diff or modified files in Tortoise-WoW against Turtle-WoW compatibility invariants.
+    Verifies git diff, patch file, or worktree in Tortoise-WoW against Turtle-WoW compatibility invariants.
 .DESCRIPTION
-    Scans changes for violations of the 10-race system, sTWDebuff removal,
-    custom manager clobbering, and forbidden pattern overwrites.
-.PARAMETER TargetRepo
-    Path to tortoise-wow repository.
+    Scans changes for violations of MAX_RACES=11, sTWDebuff removal,
+    custom manager clobbering, entity-specific custom ID boundaries,
+    and forbidden progressive columns.
+    Standardized Exit Codes:
+      0 = PASS
+      1 = VALIDATION / COMPATIBILITY FAILURE
+      2 = TOOL / ENVIRONMENT FAILURE
 #>
 [CmdletBinding()]
 param(
-    [string]$TargetRepo = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow"
+    [Parameter(Position=0)]
+    [string]$TargetRepo = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow",
+
+    [Parameter()]
+    [string]$PatchFile = "",
+
+    [Parameter()]
+    [string]$WorktreePath = "",
+
+    [Parameter()]
+    [switch]$AsJson
 )
 
-Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host "  Turtle-WoW Compatibility Guard & Invariant Checker" -ForegroundColor Cyan
-Write-Host "==========================================================" -ForegroundColor Cyan
-
-if (!(Test-Path $TargetRepo)) {
-    Write-Error "Target repository not found at $TargetRepo"
-    return
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ModulesDir = Join-Path (Split-Path -Parent $ScriptDir) "tools\modules"
+if (-not (Test-Path $ModulesDir)) {
+    $ModulesDir = Join-Path $ScriptDir "..\modules"
 }
 
-# Get working tree or staged diff
-$diff = git -C $TargetRepo diff HEAD
-if ([string]::IsNullOrWhiteSpace($diff)) {
-    # Check unstaged diff
-    $diff = git -C $TargetRepo diff
+. (Join-Path $ModulesDir "ExitCodes.ps1")
+. (Join-Path $ModulesDir "CompatibilityChecker.ps1")
+
+if (-not [string]::IsNullOrEmpty($PatchFile)) {
+    if (-not (Test-Path $PatchFile)) {
+        Write-Host "[ERROR] Patch file not found: $PatchFile" -ForegroundColor Red
+        exit $script:EXIT_CODE_TOOL_FAILURE
+    }
+} elseif (-not [string]::IsNullOrEmpty($WorktreePath)) {
+    if (-not (Test-Path $WorktreePath)) {
+        Write-Host "[ERROR] Worktree path not found: $WorktreePath" -ForegroundColor Red
+        exit $script:EXIT_CODE_TOOL_FAILURE
+    }
+} elseif (-not (Test-Path $TargetRepo)) {
+    Write-Host "[ERROR] Target repository not found: $TargetRepo" -ForegroundColor Red
+    exit $script:EXIT_CODE_TOOL_FAILURE
 }
 
-if ([string]::IsNullOrWhiteSpace($diff)) {
-    Write-Host "No active git diff detected in $TargetRepo. Working directory clean." -ForegroundColor Green
-    Write-Host "Checking HEAD commit..." -ForegroundColor Yellow
-    $diff = git -C $TargetRepo show HEAD
+if (-not $AsJson) {
+    Write-Host "==========================================================" -ForegroundColor Cyan
+    Write-Host "  Turtle-WoW Compatibility Guard & Invariant Checker" -ForegroundColor Cyan
+    Write-Host "==========================================================" -ForegroundColor Cyan
 }
 
-$violations = @()
-$warnings = @()
+$checkResult = Test-TurtleCompatibility -TargetRepo $TargetRepo -PatchFile $PatchFile -WorktreePath $WorktreePath
 
-$lines = $diff -split "`n"
-$currentFile = ""
-
-foreach ($line in $lines) {
-    if ($line -match "^\+\+\+ b/(.*)") {
-        $currentFile = $matches[1]
-        continue
-    }
-
-    # Only inspect added (+) or removed (-) lines
-    if ($line -match "^\+(.*)") {
-        $added = $matches[1]
-
-        # Check for hardcoded 8 or 9 race loops
-        if ($added -match "for\s*\(.*<\s*(9|8)\s*;\s*\+\+.*race" -or $added -match "\[\s*9\s*\]\s*;\s*//.*race") {
-            $violations += "[$currentFile] Hardcoded race limit detected ('$added'). In Tortoise-WoW, MAX_RACES is 11 (Goblins & High Elves)."
-        }
-
-        # Check for MAX_RACES assumption
-        if ($added -match "MAX_RACES\s*=\s*9") {
-            $violations += "[$currentFile] MAX_RACES reassignment to 9. Must remain 11."
-        }
-    }
-
-    if ($line -match "^-(.*)") {
-        $removed = $matches[1]
-
-        # Check for removal of sTWDebuff calls
-        if ($removed -match "sTWDebuff->(AddDebuff|RemoveDebuff|RegisterTarget)") {
-            $violations += "[$currentFile] CRITICAL: Removal of '$removed'. This breaks Turtle-WoW dynamic debuff streaming!"
-        }
-
-        # Check for removal of custom manager hooks
-        if ($removed -match "sLFTMgr\." -or $removed -match "sTransmogMgr\." -or $removed -match "sCustomMerchantMgr\.") {
-            $warnings += "[$currentFile] WARNING: Removal of custom Turtle manager hook: '$removed'."
-        }
-    }
+if ($AsJson) {
+    $checkResult | ConvertTo-Json -Depth 5
+    exit $checkResult.ExitCode
 }
 
 Write-Host "`n--- Verification Report ---" -ForegroundColor Cyan
-if ($violations.Count -eq 0 -and $warnings.Count -eq 0) {
+if ($checkResult.Violations.Count -eq 0 -and $checkResult.Warnings.Count -eq 0) {
     Write-Host "[PASS] No compatibility invariant violations detected. Patch is clean!" -ForegroundColor Green
 } else {
-    if ($violations.Count -gt 0) {
-        Write-Host "`n[FAIL] Found $($violations.Count) Critical Violations:" -ForegroundColor Red
-        foreach ($v in $violations) {
+    if ($checkResult.Violations.Count -gt 0) {
+        Write-Host "`n[FAIL] Found $($checkResult.Violations.Count) Critical Violations:" -ForegroundColor Red
+        foreach ($v in $checkResult.Violations) {
             Write-Host "  * $v" -ForegroundColor Red
         }
     }
-    if ($warnings.Count -gt 0) {
-        Write-Host "`n[WARN] Found $($warnings.Count) Warnings:" -ForegroundColor Yellow
-        foreach ($w in $warnings) {
+    if ($checkResult.Warnings.Count -gt 0) {
+        Write-Host "`n[WARN] Found $($checkResult.Warnings.Count) Warnings:" -ForegroundColor Yellow
+        foreach ($w in $checkResult.Warnings) {
             Write-Host "  * $w" -ForegroundColor Yellow
         }
     }
 }
+
+exit $checkResult.ExitCode

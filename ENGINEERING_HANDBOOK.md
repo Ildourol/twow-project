@@ -108,7 +108,9 @@ SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, u
 ### Danger Zone 7: Database Relational Schema & Migration Invariants
 Tortoise-WoW operates on a Nostalrius-derived world database schema and preserves custom content ranges (`entry >= 300000`). Upstream VMaNGOS databases differ fundamentally in schema design:
 1. **No Progressive Versioning Columns**: VMaNGOS tables frequently use `` `patch` ``, `` `build` ``, `` `patch_min` ``, `` `patch_max` `` to support dynamic progressive patches. In Tortoise-WoW, these columns **do not exist**. Never include them in `INSERT`, `UPDATE`, or `REPLACE` queries.
-2. **Template Range Protection**: Template IDs $\ge 300000$ in `item_template`, `creature_template`, `gameobject_template`, `quest_template`, and `spell_template` belong exclusively to custom Turtle-WoW features (e.g. High Elf / Goblin items, custom quests, new dungeons). Never overwrite or delete these IDs during vanilla backporting.
+2. **Entity-Specific Range Protection**: Custom Turtle-WoW entities have distinct boundary spaces:
+   - `spell_template` entries $\ge 40000$ are reserved for Turtle custom spells (e.g. Holy Strike, Moonfury, custom racials).
+   - World template IDs $\ge 300000$ in `item_template`, `creature_template`, `gameobject_template`, and `quest_template` belong exclusively to custom Turtle content (e.g. High Elf / Goblin items, custom quests, new dungeons). Never overwrite or delete entries within these ranges during vanilla backporting.
 3. **Reference Database Hierarchy**:
    - **Choice 1**: `brotalnia/database` (`reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql`) — primary reference for vanilla table schemas and historical Nostalrius data.
    - **Choice 2**: `vmangos/core db_latest` (`reference-upstreams/vmangos-core/db_latest/mysql-dump/mangos.sql`) — secondary reference for modern column definitions (e.g. `spell_template.script_name`).
@@ -234,7 +236,7 @@ Inspect the upstream migration in `reference-upstreams/vmangos-core/sql/migratio
 3. Verify that table names match Tortoise-WoW catalog (tables with `tw_world_` prefix in base SQL map to standard table names in update scripts).
 
 #### Step 4: Protect Turtle-WoW Custom Range & C++ Engine Parity
-1. Verify that no IDs $\ge 300000$ are clobbered in template tables (`item_template`, `creature_template`, `gameobject_template`, `quest_template`, `spell_template`).
+1. Verify that no custom IDs are clobbered: ensure `spell_template` IDs are $< 40000$ (reserve $\ge 40000$ for custom spells) and world templates (`item_template`, `creature_template`, `gameobject_template`, `quest_template`) are $< 300000$ (reserve $\ge 300000$ for custom world content).
 2. If C++ code references a database column (e.g. `spell_template.script_name`), ensure the column is created via `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` if absent from base schema.
 
 #### Step 5: Save & Validate Migration

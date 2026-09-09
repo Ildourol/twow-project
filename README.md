@@ -1,36 +1,67 @@
-﻿# Turtle-WoW Orchestration & AI Multi-Agent Engineering Framework
+# Turtle-WoW Orchestration & AI Multi-Agent Engineering Framework
+### *The Next-Generation 2.0 Total Revamp Architecture*
 
-This repository houses the **complete autonomous multi-agent engineering framework, porting toolchain, reverse engineering tools, and operational methodology** for **Tortoise-WoW Extended** (targeting Turtle-WoW 1.18.1, Build 7272).
-
-To maintain repository purity and zero Git bloat, **server code, compiled binaries, heavy reference dumps, and raw forum archives are tracked in separate dedicated repositories**. This repository contains the orchestration engine, CLI dispatcher, AI context assemblers, database scalpers, safety invariant checkers, and full technical documentation ledgers.
+[![Test Suite](https://img.shields.io/badge/pester%20tests-38%2F38%20passed%20(100%25)-brightgreen.svg)](tests/AllTests.Tests.ps1)
+[![Build Toolchain](https://img.shields.io/badge/toolchain-MSVC%202022%20x64%20%7C%20CMake%204.4.2-blue.svg)](config/twow-project.json)
+[![Target Core](https://img.shields.io/badge/target-Turtle--WoW%201.18.1%20(Build%207272)-orange.svg)](https://github.com/Ildourol/tortoise-wow-extended)
+[![State Machine](https://img.shields.io/badge/state%20machine-30%20canonical%20states-purple.svg)](tools/modules/StateMachine.ps1)
+[![Isolation](https://img.shields.io/badge/git%20safety-isolated%20worktrees%20only-success.svg)](tools/modules/WorktreeManager.ps1)
+[![Authority](https://img.shields.io/badge/authority-9--tier%20strict%20hierarchy-informational.svg)](config/authority-policy.json)
 
 ---
 
-## 1. External Component Architecture & Setup Mini-Guide
+## 1. Executive Summary: The 2.0 Total Revamp
 
-To achieve full operational parity locally, the toolchain interfaces with several modular external assets. Clone or link each asset into its designated folder within this project root:
+This repository houses the **complete autonomous multi-agent engineering framework, porting toolchain, reverse engineering tools, and operational methodology** for **Tortoise-WoW Extended** (targeting Turtle-WoW 1.18.1, Build 7272).
+
+### Why the Total Revamp?
+The 2.0 engineering overhaul transforms what was once a set of manual porting scripts into a **hardened, deterministic, non-destructive, enterprise-grade autonomous engineering platform**. 
+
+Key capabilities introduced in the Total Revamp:
+
+- **100% Non-Destructive Git Worktree Isolation**: Builds, patch application, and verification run strictly in ephemeral `.worktrees/PORT-XXXX/` workspaces. The main target server tree ([`tortoise-wow/`](tortoise-wow/)) is **never dirtied, reset, or modified**. All destructive git commands (`git checkout .`, `git reset --hard`, `git clean -fd`) have been permanently eliminated. Fixes are committed to isolated candidate branches (`port/PORT-XXXX-<sha>`).
+- **Deterministic Bug-Existence Prover (`task prove <sha>`)**: Proves whether an upstream bug actually exists in the target core before writing any code. Classifies candidates into `BUG_PRESENT`, `ALREADY_FIXED`, `NOT_APPLICABLE`, `TURTLE_INTENTIONAL_DIVERGENCE`, or `UNCERTAIN`.
+- **Multi-Factor Priority Engine (`task rank`, `task next`)**: 12-factor scoring algorithm dynamically evaluates crash severity, player impact, exploit potential, dependency readiness, and target churn to prioritize high-value fixes and reject non-applicable commits with 0-score gates.
+- **Dynamic Verification Modes & Auto-Escalation (`task port -Mode <Fast|Normal|Deep>`)**:
+  - **Fast**: Quick diff triage, syntax validation, and bug proving (dry-run safe).
+  - **Normal**: Isolated worktree build, patch-aware profile compilation, and schema audit.
+  - **Deep**: Full multi-daemon compilation (`world` + `auth`), startup smoke tests, crash triage, and binary parity audit.
+  - *Auto-escalates* upon detecting database migrations, missing dependencies, security patches, or opcodes; *never downgrades*.
+- **Canonical 30-State Atomic State Store**: Transitions are validated by transition guards and persisted atomically to [`tools/state/state_store.json`](tools/state/state_store.json) with unique run IDs (`RUN-yyyyMMdd-HHmmss-xxxx`) supporting safe resumption and idempotency.
+- **Database Migration Safety & Cached Catalog**: Audits SQL migrations against 413 tables in [`config/schema_catalog.json`](config/schema_catalog.json) using statement-anchored multiline regex (`(?m)^\s*`). Enforces entity-specific custom ID boundaries (`spell_template` >= 40000; world templates >= 300000) and forbids legacy progressive versioning columns (`tw_world_progressive_`).
+- **Binary Client-Data Parity Auditor (`task parity`)**: Directly parses WDBC binary files from [`reference-upstreams/client-data-1.18.1/`](reference-upstreams/client-data-1.18.1/) and verifies alignment across races (`MAX_RACES = 11`), maps, spells, and items.
+- **Automated Triage & Disposable Smoke Tests**: Catches regressions before merge via disposable daemon startup smoke tests (`realmd.exe` / `mangosd.exe`) and 17-category categorized server log / crash frame triage.
+- **Full Test Suite & CI/CD**: 38 Pester unit tests covering all invariants, schemas, worktrees, and transitions running in sub-7 seconds via `task test` and backed by GitHub Actions workflows.
+
+---
+
+## 2. External Component Architecture & Setup Mini-Guide
+
+To maintain repository purity and zero Git bloat, **server code, compiled binaries, heavy reference dumps, and raw forum archives are tracked in separate dedicated companion repositories**. This repository acts as the master orchestrator:
 
 ```text
 twow project/
-├── .gitignore
-├── AGENTS.md
-├── MULTI_AGENT_WORKFLOW.md
-├── ENGINEERING_HANDBOOK.md
-├── ORCHESTRATION_WORKFLOW.md
-├── PORTING_PLAN.md
-├── README.md
-├── docs/                                  [Master documentation, ledgers & PDF reference]
-├── tools/                                 [Unified task.ps1 CLI, agent task rulebooks & scripts]
+├── .github/workflows/                 [CI/CD: Orchestration & Candidate Workflows]
+├── config/                            [Canonical JSON Configs, Policies, Schemas & Table Catalog]
+├── docs/                              [Master Documentation, Commit Dossiers & Command Reference]
+├── tests/                             [Pester Test Suite: AllTests.Tests.ps1]
+├── tools/
+│   ├── modules/                       [Modular PowerShell 2.0 Engine Modules]
+│   ├── porting/                       [Core Porting, Scalping, & Packaging Pipeline]
+│   ├── queue/                         [Staging Queue & Porting Dossiers]
+│   ├── state/                         [Canonical state_store.json & Active Runs]
+│   ├── tasks/                         [Specialized Agent Operational Handbooks]
+│   └── task.ps1                       [Universal CLI Dispatcher]
 │
-├── tortoise-wow/                          [LOCAL CLONE: Server source code repository]
+├── tortoise-wow/                      [LOCAL CLONE: Target Turtle-WoW Server Core C++]
 ├── resources/
 │   ├── FORUM_RESOURCE_GUIDE.md
-│   └── forum/                             [LOCAL CLONE: 22,155 archived forum threads]
-└── reference-upstreams/                   [LOCAL CLONE: Upstream donors & client assets]
-    ├── vmangos-core/                      [LOCAL CLONE: VMaNGOS donor C++ & SQL]
-    ├── client-data-1.18.1/                [LOCAL CLONE: 158 DBCs, maps, vmaps, mmaps]
-    ├── lights-hope-database-history/      [LOCAL CLONE: Brotalnia historical world DB]
-    └── elysium-core/                      [LOCAL CLONE: Nostalrius/Elysium reference core]
+│   └── forum/                         [LOCAL CLONE: 22,155 Archived Forum Threads]
+└── reference-upstreams/               [LOCAL CLONE: Donors, DBCs & Historical References]
+    ├── vmangos-core/                  [LOCAL CLONE: VMaNGOS Donor C++ & SQL]
+    ├── client-data-1.18.1/            [LOCAL CLONE: 158 Client DBCs, Maps, Vmaps, Mmaps]
+    ├── lights-hope-database-history/  [LOCAL CLONE: Brotalnia Vanilla World DB]
+    └── elysium-core/                  [LOCAL CLONE: Historical Elysium Reference Core]
 ```
 
 ### Companion Repositories & Download Sources
@@ -45,7 +76,6 @@ twow project/
 | **Historical Core Reference** | `reference-upstreams/elysium-core/` | [`lduguid/core`](https://github.com/lduguid/core) | Historical Nostalrius/Elysium core reference. |
 
 ### Quick Setup Commands (PowerShell)
-To clone and connect all companion assets in one step:
 ```powershell
 # 1. Clone server core repository
 git clone https://github.com/Ildourol/tortoise-wow-extended.git tortoise-wow
@@ -65,112 +95,138 @@ git clone https://github.com/lduguid/core.git reference-upstreams/elysium-core
 
 ---
 
-## 2. The 6-Agent Concurrent Pipeline Architecture
+## 3. The 30-State Canonical Pipeline Architecture
 
-The framework separates **Concurrent Read-Only Research & Staging** from **Sequential Single-Writer Execution**:
+Every candidate fix traverses a validated state transition graph. Direct state leaps or illegal transitions are forbidden by `Assert-StateTransition`:
+
+```mermaid
+flowchart TD
+    DISC[CANDIDATE_DISCOVERED] --> PROVE[INVESTIGATING_BUG]
+    
+    PROVE -->|Bug Confirmed| CONFIRMED[BUG_CONFIRMED_PRESENT]
+    PROVE -->|Already Fixed| FIXED[BUG_ALREADY_FIXED]
+    PROVE -->|System Missing| NA[BUG_NOT_APPLICABLE]
+    PROVE -->|Intentional Custom| DIV[BUG_TURTLE_DIVERGENCE]
+    
+    CONFIRMED --> REL[RELATIONS_ANALYZED]
+    REL --> READY[READY_FOR_ISOLATED_PORT]
+    
+    READY --> WT[WORKTREE_PROVISIONED]
+    WT --> NORM[PATCH_NORMALIZED]
+    NORM --> APPLY[PATCH_APPLIED_CLEAN]
+    
+    APPLY --> AUDIT[COMPATIBILITY_AUDITING]
+    AUDIT --> CLEAN[COMPATIBILITY_CLEAN]
+    
+    CLEAN --> PROF[BUILD_PROFILING]
+    PROF --> COMPILE[BUILD_COMPILING]
+    COMPILE --> LINK[BUILD_LINKING]
+    LINK --> PASSED[BUILD_PASSED]
+    
+    PASSED --> SMOKE[SMOKE_TESTING]
+    SMOKE --> SMOKEPASS[SMOKE_PASSED]
+    
+    SMOKEPASS --> PKG[PACKAGE_READY]
+    PKG --> COMMIT[BRANCH_COMMITTED]
+    COMMIT --> RELM[RELEASED]
+```
+
+---
+
+## 4. Master Command Reference (`tools/task.ps1`)
+
+The universal dispatcher [`tools/task.ps1`](tools/task.ps1) executes seamlessly from any directory without requiring `cd`:
+
+### Core Verification, Testing & Proving Commands
+| Command | Syntax | Description |
+|---|---|---|
+| **Test Suite** | `task test` | Runs the full 38-spec Pester unit test suite (`AllTests.Tests.ps1`). |
+| **Bug Prover** | `task prove <sha>` | Runs deterministic bug prover (`BUG_PRESENT`, `ALREADY_FIXED`, `NOT_APPLICABLE`, `TURTLE_DIVERGENCE`). |
+| **Next Candidate** | `task next` | Picks and displays highest-scoring backlog candidate via 12-factor ranking. |
+| **Rank Backlog** | `task rank` | Evaluates and ranks all candidates with priority scores (0.0–100.0). |
+| **Candidate Plan** | `task plan <sha> [-DryRun]` | Evaluates candidate plan and displays full DryRun report without modifying git. |
+| **Relations** | `task relations <sha>` | Analyzes git history, reverts, and supersession links for a commit. |
+| **Dependencies** | `task dependencies <sha>` | Resolves predecessor commits required before porting candidate. |
+
+### Build, Smoke & Operational Commands
+| Command | Syntax | Description |
+|---|---|---|
+| **Port Candidate** | `task port <sha> [-Mode Fast\|Normal\|Deep]` | Executes isolated porting pipeline in `.worktrees/PORT-XXXX/`. |
+| **Port Batch** | `task port-batch [-Count N]` | Ports the next `N` highest-priority candidates sequentially. |
+| **Build Profile** | `task build-profile <sha>` | Identifies minimal build profile (`world`, `auth`, `sql-only`, `docs-only`). |
+| **Baseline Health** | `task baseline` | Inspects and caches target repository baseline compile/link/startup health. |
+| **Smoke Test** | `task smoke <worktree_dir>` | Runs disposable startup smoke tests on `realmd.exe` and `mangosd.exe`. |
+| **Crash Triage** | `task crash <crash_log>` | Parses stack frames, assertion failures, and minidump logs. |
+| **Log Triage** | `task triage <server_log>` | Classifies server logs into 17 distinct operational categories. |
+| **Parity Audit** | `task parity` | Audits client WDBC data against C++ source (`MAX_RACES = 11`, maps, spells). |
+
+### System Integrity & Documentation Commands
+| Command | Syntax | Description |
+|---|---|---|
+| **Config Check** | `task config-check` | Validates configuration integrity and discovered repository paths. |
+| **State Check** | `task state-check` | Verifies state store schema (`1.0.0`) and transition integrity. |
+| **Status Overview** | `task status` | Displays backlog overview, ready packages, and active state metrics. |
+| **State Summary** | `task state` | Displays active run IDs, registered candidates, and state counts. |
+| **Worktree Cleanup**| `task worktree-cleanup <id>` | Safely dismantles isolated worktree in `.worktrees/PORT-XXXX/`. |
+| **PDF Generation** | `task pdf` | Compiles markdown documentation into printable HTML and PDF references. |
+| **Legacy Aliases** | `task 1` through `task 6` | Preserved legacy shortcuts mapped to modern pipeline stages. |
+
+---
+
+## 5. Safety Invariants & Source Authority
+
+All automated operations strictly observe the **9-Tier Authority Policy** defined in [`config/authority-policy.json`](config/authority-policy.json) and invariants in [`config/turtle-compatibility.json`](config/turtle-compatibility.json):
+
+1. **Target Tortoise-WoW Checked-Out Source is King**: Vanilla assumptions never override Turtle custom mechanics.
+2. **Race Parity Invariant**: `MAX_RACES = 11` (Goblins and High Elves must never be truncated to 10).
+3. **Debuff System Invariant**: `sTWDebuff` debuff limit system must be preserved. Vanilla debuff limit alterations are rejected.
+4. **Script Command Invariant**: `SCRIPT_COMMAND_TAKE_MONEY = 93` and related Turtle script commands are protected.
+5. **Entity-Specific Custom ID Boundaries**:
+   - `spell_template`: IDs **>= 40,000** are custom Turtle spells (e.g., Holy Strike, Moonfury).
+   - World Templates: IDs **>= 300,000** are custom Turtle items, creatures, quests, and gameobjects.
+6. **No Progressive Database Pollution**: Tables/columns matching `tw_world_progressive_` are strictly rejected.
+7. **Single-Writer State Store**: Only the primary orchestration agent may write to [`tools/state/state_store.json`](tools/state/state_store.json). Background subagents operate in read-only mode.
+
+---
+
+## 6. Verification Modes & Auto-Escalation
 
 ```text
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                              READ-ONLY REFERENCE SOURCES                               │
-│   • vmangos-core (donor C++ & SQL)          • lights-hope-database-history (Brotalnia) │
-│   • client-data-1.18.1 (158 DBCs & Maps)    • resources/forum/ (22,155 threads)        │
-│   • tortoise-db-viewer (Online 1.18.1 CDN)  • official Turtle staff changelogs         │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-        │                 │                 │                 │                 │
-        ▼                 ▼                 ▼                 ▼                 ▼
-┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-│   AGENT 2    │  │   AGENT 3    │  │   AGENT 4    │  │   AGENT 5    │  │   AGENT 6    │
-│ Forum Scout  │  │ DB Engineer  │  │ AI Adapter   │  │ Core Restor. │  │ DB Oracle    │
-│  & Bug Proof │  │  & Scalper   │  │ & Context    │  │ & Parity Aud.│  │ & 3D Viewer  │
-│ Alias: task 2│  │ Alias: task 3│  │ Alias: task 4│  │ Alias: task 5│  │ Alias: task 6│
-│- Mined 22k   │  │- Scalp entity│  │- Assemble C++│  │- Turtle patch│  │- Query online│
-│  threads     │  │  item/NPC/spl│  │  code context│  │  changelogs  │  │  1.18.1 DB   │
-│- Bug triage  │  │- Strip patch │  │- MAX_RACES=11│  │- Check core  │  │- Track live  │
-│- DO NOT PORT │  │- Protect IDs │  │- sTWDebuff   │  │  discrepancy │  │  CDN deltas  │
-│  divergences │  │  >= 300,000  │  │- AI Dossiers │  │- Zero double-│  │- 3D model    │
-│              │  │- Sanitize SQL│  │  in queue/   │  │  check cache │  │  inspection  │
-└──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘
-        │                 │                 │                 │                 │
-        └─────────────────┴────────┬────────┴─────────────────┴─────────────────┘
-                                   ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                               ASYNCHRONOUS STAGING QUEUE                               │
-│               twow project/tools/queue/02_ready_to_build/ (PORT-XXXX.json / CORE-XXXX)  │
-│               twow project/tools/queue/staging_patches/   (.patch files)               │
-│               twow project/tools/queue/staging_sql/       (.sql sanitized migrations)  │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-                                           │
-                                           ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                                        AGENT 1                                         │
-│                                Builder & Git Committer                                 │
-│                                     Alias: task 1                                      │
-│        - Single-writer lock on tortoise-wow/ and MSVC 2022 build system                │
-│        - Applies .patch and .sql migration                                             │
-│        - Runs compile gate: mangosd.exe & realmd.exe with 0 errors                     │
-│        - Atomic git commit & immediate remote push to extended main                    │
-│        - Moves package to 03_completed/ and updates ledgers                            │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────────────────┐
+│                                VERIFICATION MODES                                     │
+├──────────────────────┬────────────────────────────────┬───────────────────────────────┤
+│ FAST MODE            │ NORMAL MODE                    │ DEEP MODE                     │
+│ Diff & Syntax Audit  │ Worktree Isolation Build       │ Full Multi-Daemon Build       │
+│ AST Invariants Check │ Patch-Aware Minimal Profile    │ Startup Smoke Test            │
+│ Bug Prover Only      │ Schema Audit & Provenance      │ Log Triage & Parity Audit     │
+└──────────┬───────────┴───────────────┬────────────────┴───────────────────────────────┘
+           │                           │
+           │ DB migration detected     │ Core subsystem / opcode / security fix
+           └──────────────► ESCALATES ─┴──────────────────────────────► ESCALATES
 ```
+- **One-Way Escalation**: The mode engine auto-escalates to ensure complete verification.
+- **Zero Downgrades**: Explicitly requested modes are never downgraded.
 
 ---
 
-## 3. Master Command Reference (`tools/task.ps1`)
+## 7. Documentation Index
 
-Run any task directly from any directory without needing to `cd`:
+The complete engineering documentation suite is organized in [`docs/`](docs/):
 
-```powershell
-# 1. Pipeline Status & Metrics
-& "...\tools\task.ps1" status
-
-# 2. Unified AI Upstream Backport (Audit -> Adapt -> Stage)
-& "...\tools\task.ps1" port 84f1bbccd
-
-# 3. Autonomous End-to-End Backport (Audit -> Adapt -> Compile -> Commit -> Push)
-& "...\tools\task.ps1" port 84f1bbccd -AutoBuild
-
-# 4. Batch Autonomous Porting (Next 10 crucial commits)
-& "...\tools\task.ps1" port-batch 10 -AutoBuild
-
-# 5. Database Entity Scalper & Differential Analysis (Items, NPCs, Spells)
-& "...\tools\task.ps1" scalp item 19019 -Diff
-
-# 6. Export Sanitized SQL Migration (Strips patch/build columns)
-& "...\tools\task.ps1" scalp item 19019 -ExportSql
-
-# 7. Online Database Oracle & 3D Interactive Viewer
-& "...\tools\task.ps1" 6 19019 -OpenBrowser
-
-# 8. Track Live Official CDN Database Deltas
-& "...\tools\task.ps1" 6 changelog
-
-# 9. Native Turtle Core Feature Restorer (Zero double-checking cache)
-& "...\tools\task.ps1" restore "Holy Strike" -StageTemplate
-
-# 10. Single-Writer Build & Commit Gate
-& "...\tools\task.ps1" 1
-
-# 11. Regenerate Printable Master PDF Guide
-& "...\tools\task.ps1" pdf
-```
+- **[`docs/COMMAND_REFERENCE.md`](docs/COMMAND_REFERENCE.md)** — Master CLI Reference across all 23 mandated sections. Also available as printable PDF: **[`docs/COMMAND_REFERENCE.pdf`](docs/COMMAND_REFERENCE.pdf)**.
+- **[`AGENTS.md`](AGENTS.md)** — Autonomous agent operating protocol, 9-tier authority hierarchy, single-writer rules, and definition of done.
+- **[`ENGINEERING_HANDBOOK.md`](ENGINEERING_HANDBOOK.md)** — Technical handbook, safety danger zones, custom ID boundary rules, and porting recipes.
+- **[`MULTI_AGENT_WORKFLOW.md`](MULTI_AGENT_WORKFLOW.md)** — Multi-agent concurrent engineering system operational guide.
+- **[`ORCHESTRATION_WORKFLOW.md`](ORCHESTRATION_WORKFLOW.md)** — Porting pipeline lifecycle runbook and candidate branch release gate.
+- **[`PORTING_PLAN.md`](PORTING_PLAN.md)** — 5-Phase strategic porting plan and deduplicated backlog tracking.
+- **[`docs/ROADMAP.md`](docs/ROADMAP.md)** — Master roadmap across 5,092 deduplicated crucial candidates.
+- **[`docs/UPSTREAM_COMPATIBILITY_LEDGER.md`](docs/UPSTREAM_COMPATIBILITY_LEDGER.md)** — Compatibility invariants reference.
+- **[`docs/PORTING_TROUBLESHOOTING_AND_SAFEGUARDS.md`](docs/PORTING_TROUBLESHOOTING_AND_SAFEGUARDS.md)** — Troubleshooting playbooks and safeguards.
 
 ---
 
-## 4. Documentation Index
+## 8. Continuous Integration & Quality Assurance
 
-Detailed engineering documentation is maintained in `docs/`:
-
-0. **[`docs/COMMAND_REFERENCE.md`](docs/COMMAND_REFERENCE.md)** — Master CLI reference with Goal-Oriented Decision Matrix. Also available as printable PDF: **[`docs/COMMAND_REFERENCE.pdf`](docs/COMMAND_REFERENCE.pdf)**.
-1. **[`MULTI_AGENT_WORKFLOW.md`](MULTI_AGENT_WORKFLOW.md)** — 6-Agent Concurrent Engineering System operational guide.
-2. **[`docs/ROADMAP.md`](docs/ROADMAP.md)** — Master roadmap & live ledger across 5,092 deduplicated crucial candidates.
-3. **[`docs/commits/`](docs/commits/)** — Individual commit dossiers archive.
-4. **[`tools/porting/CRUCIAL_COMMITS_QUEUE.csv`](tools/porting/CRUCIAL_COMMITS_QUEUE.csv)** — 5-tier deduplicated crucial candidate queue.
-5. **[`tools/porting/ALL_AVAILABLE_COMMITS_REFERENCE.csv`](tools/porting/ALL_AVAILABLE_COMMITS_REFERENCE.csv)** — Reference archive across all 7,339 upstream commits.
-6. **[`AGENTS.md`](AGENTS.md)** — Autonomous agent operating protocol, invariants, and local documentation rules.
-7. **[`docs/BACKPORT_WORKFLOW.md`](docs/BACKPORT_WORKFLOW.md)** — 6-Phase commit-by-commit engineering runbook.
-8. **[`docs/BACKPORT_HISTORY.md`](docs/BACKPORT_HISTORY.md)** — Deep provenance history for all ported commits.
-9. **[`docs/UPSTREAM_COMPATIBILITY_LEDGER.md`](docs/UPSTREAM_COMPATIBILITY_LEDGER.md)** — Compatibility invariants (`MAX_RACES = 11`, `sTWDebuff`, `UI64LIT`, custom IDs).
-10. **[`docs/UPSTREAM_REFERENCE_SOURCES.md`](docs/UPSTREAM_REFERENCE_SOURCES.md)** — Authority hierarchy and upstream source inventory.
-11. **[`ENGINEERING_HANDBOOK.md`](ENGINEERING_HANDBOOK.md)** — Technical handbook, safety danger zones, and concrete porting recipes.
-12. **[`docs/CORE_RESTORATION_LEDGER.md`](docs/CORE_RESTORATION_LEDGER.md)** — Parity audit ledger for Turtle custom specifications.
-13. **[`docs/PORTING_TROUBLESHOOTING_AND_SAFEGUARDS.md`](docs/PORTING_TROUBLESHOOTING_AND_SAFEGUARDS.md)** — Toolchain, database scalping, and crash troubleshooting playbooks.
+Orchestration and candidate builds are continuously validated through GitHub Actions:
+- **[`.github/workflows/orchestration-ci.yml`](.github/workflows/orchestration-ci.yml)**: Validates PowerShell syntax, project configuration schemas, canonical state transitions, and executes the complete 38-spec Pester test suite on every commit to `main`.
+- **[`.github/workflows/server-candidate-ci.yml`](.github/workflows/server-candidate-ci.yml)**: Automatically compiles candidate branch worktrees under MSVC 2022 and runs daemon startup smoke tests on `port/**` branch pushes.

@@ -1,17 +1,9 @@
 <#
 .SYNOPSIS
-    Unified Port Pipeline: Runs Probe -> Forum Triage -> DB Check -> C++ Staging in a single automated step.
+    Unified Port Pipeline: Bug Proof -> Triage -> Compatibility -> Build/Worktree Staging
 .DESCRIPTION
-    Replaces manual switching between task 2, task 3, and task 4.
-    Can run on a single SHA or automatically pull the next N pending candidates from CRUCIAL_COMMITS_QUEUE.csv.
-.PARAMETER DonorSha
-    Optional single SHA or list of SHAs to process.
-.PARAMETER BatchCount
-    Optional number of candidates to pull from the pending queue.
-.PARAMETER Tier
-    Optional tier filter (1 to 5) when pulling from the queue.
-.PARAMETER AutoBuild
-    If set, automatically invokes Agent 1 (task 1 / Build-ReadyPackages.ps1) after staging completes!
+    Evidence-driven pipeline supporting Fast, Normal, and Deep verification modes,
+    automatic escalation, DryRun planning, run IDs, and structured state tracking.
 #>
 [CmdletBinding()]
 param(
@@ -25,14 +17,48 @@ param(
     [int]$Tier = 0,
 
     [Parameter()]
+    [string]$Subsystem = "",
+
+    [Parameter()]
+    [ValidateSet("Fast", "Normal", "Deep")]
+    [string]$Mode = "Normal",
+
+    [Parameter()]
+    [switch]$DryRun,
+
+    [Parameter()]
+    [int]$MaxCandidates = 50,
+
+    [Parameter()]
+    [int]$MaxParallel = 1,
+
+    [Parameter()]
     [switch]$AutoBuild
 )
 
 $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..")
-$VmangosRepo = Join-Path $ProjectRoot "reference-upstreams\vmangos-core"
-$TortoiseRepo = Join-Path $ProjectRoot "tortoise-wow"
+$ModulesDir = Join-Path (Split-Path -Parent $ScriptDir) "tools\modules"
+if (-not (Test-Path $ModulesDir)) { $ModulesDir = Join-Path $ScriptDir "..\modules" }
+
+. (Join-Path $ModulesDir "ExitCodes.ps1")
+. (Join-Path $ModulesDir "ProjectConfig.ps1")
+. (Join-Path $ModulesDir "StructuredResult.ps1")
+. (Join-Path $ModulesDir "EncodingHelper.ps1")
+. (Join-Path $ModulesDir "StateStore.ps1")
+. (Join-Path $ModulesDir "StateMachine.ps1")
+. (Join-Path $ModulesDir "WorktreeManager.ps1")
+. (Join-Path $ModulesDir "CompatibilityChecker.ps1")
+. (Join-Path $ModulesDir "BugProver.ps1")
+. (Join-Path $ModulesDir "RelationGraph.ps1")
+. (Join-Path $ModulesDir "PriorityEngine.ps1")
+. (Join-Path $ModulesDir "ModeEngine.ps1")
+. (Join-Path $ModulesDir "AiController.ps1")
+
+$cfg = Get-ProjectConfig
+$ProjectRoot = $cfg.repositories.twow_project.path
+$VmangosRepo = $cfg.repositories.vmangos_donor.path
+$TortoiseRepo = $cfg.repositories.tortoise_wow.path
 $QueueDir = Join-Path $ProjectRoot "tools\queue"
 $ReadyDir = Join-Path $QueueDir "02_ready_to_build"
 $CompletedDir = Join-Path $QueueDir "03_completed"
@@ -40,12 +66,7 @@ $RejectedDir = Join-Path $QueueDir "04_rejected"
 $StagingPatches = Join-Path $QueueDir "staging_patches"
 $StagingSql = Join-Path $QueueDir "staging_sql"
 
-# Ensure directories exist
-foreach ($dir in @($ReadyDir, $CompletedDir, $RejectedDir, $StagingPatches, $StagingSql)) {
-    if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
-}
-
-# 1. Resolve Target SHAs
+# 1. Resolve candidates
 $shasToProcess = [System.Collections.Generic.List[string]]::new()
 
 if ($DonorSha.Count -gt 0) {
@@ -53,19 +74,17 @@ if ($DonorSha.Count -gt 0) {
 } elseif ($BatchCount -gt 0) {
     $queueCsv = Join-Path $ScriptDir "CRUCIAL_COMMITS_QUEUE.csv"
     if (-not (Test-Path $queueCsv)) {
-        Write-Error "Queue file not found: $queueCsv"
-        return
+        Write-Host "[ERROR] Queue file not found: $queueCsv" -ForegroundColor Red
+        exit $script:EXIT_CODE_TOOL_FAILURE
     }
 
-    # Load already-completed and rejected SHAs
+    $store = Get-StateStore
     $processedShas = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-    git -C $TortoiseRepo log --pretty=format:"%s %b" | ForEach-Object {
-        if ($_ -match "vmangos/core@`?([0-9a-f]{7,40})`?") {
-            [void]$processedShas.Add($Matches[1].Substring(0, [Math]::Min(9, $Matches[1].Length)))
+    if ($store.candidates) {
+        foreach ($k in $store.candidates.Keys) {
+            $c = $store.candidates[$k]
+            [void]$processedShas.Add($c.donor_sha)
         }
-    }
-    Get-ChildItem -Path $RejectedDir -Filter "*.json" | ForEach-Object {
-        [void]$processedShas.Add([System.IO.Path]::GetFileNameWithoutExtension($_.Name))
     }
 
     $csvRows = Import-Csv -Path $queueCsv
@@ -73,100 +92,131 @@ if ($DonorSha.Count -gt 0) {
     foreach ($row in $csvRows) {
         $cSha = $row.ShortSha
         $cTier = [int]$row.Tier
+        $cSub = $row.Subsystem
 
         if ($processedShas.Contains($cSha)) { continue }
         if ($Tier -gt 0 -and $cTier -ne $Tier) { continue }
+        if (-not [string]::IsNullOrEmpty($Subsystem) -and $cSub -notlike "*$Subsystem*") { continue }
 
         [void]$shasToProcess.Add($cSha)
         $count++
-        if ($count -ge $BatchCount) { break }
+        if ($count -ge $BatchCount -or $count -ge $MaxCandidates) { break }
     }
 } else {
-    Write-Host "Usage: Invoke-PortPipeline.ps1 -DonorSha <sha> OR -BatchCount <N> [-Tier <T>] [-AutoBuild]" -ForegroundColor Yellow
-    return
+    Write-Host "Usage: task port <sha> [-Mode Fast|Normal|Deep] [-DryRun]" -ForegroundColor Yellow
+    Write-Host "       task port-batch <N> [-Tier T] [-Subsystem S] [-Mode Fast|Normal|Deep] [-DryRun]" -ForegroundColor Yellow
+    exit $script:EXIT_CODE_PASS
 }
 
+$runId = New-RunId
 Write-Host "================================================================================" -ForegroundColor Cyan
-Write-Host "  Unified Port Pipeline: Processing $($shasToProcess.Count) Candidate(s)" -ForegroundColor Cyan
-Write-Host "  AutoBuild Flag: $(if ($AutoBuild) { 'ENABLED (will compile & push at end)' } else { 'DISABLED (staging only)' })" -ForegroundColor DarkGray
+Write-Host "  TWOW PORT PIPELINE [Run: $runId]" -ForegroundColor Cyan
+Write-Host "  Candidates: $($shasToProcess.Count) | Mode: $Mode | DryRun: $([bool]$DryRun)" -ForegroundColor Cyan
 Write-Host "================================================================================" -ForegroundColor Cyan
 
-# Determine next PORT ID
 function Get-NextPortId {
-    $existing = Get-ChildItem -Path $CompletedDir, $ReadyDir -Filter "PORT-*.json"
+    $existing = Get-ChildItem -Path $CompletedDir, $ReadyDir -Filter "PORT-*.json" -ErrorAction SilentlyContinue
     $maxNum = 0
-    foreach ($f in $existing) {
-        if ($f.Name -match 'PORT-(\d+)\.json') {
-            $n = [int]$Matches[1]
-            if ($n -gt $maxNum) { $maxNum = $n }
+    if ($existing) {
+        foreach ($f in $existing) {
+            if ($f.Name -match 'PORT-(\d+)\.json') {
+                $n = [int]$Matches[1]
+                if ($n -gt $maxNum) { $maxNum = $n }
+            }
         }
     }
-    $nextNum = $maxNum + 1
-    return ("PORT-{0:D4}" -f $nextNum)
+    return ("PORT-{0:D4}" -f ($maxNum + 1))
 }
 
-$stagedCount = 0
-$rejectedCount = 0
+$results = [System.Collections.Generic.List[object]]::new()
 
 foreach ($sha in $shasToProcess) {
-    Write-Host "`n>>> [Pipeline] Auditing Candidate: $sha" -ForegroundColor Cyan
+    Write-Host "`n>>> Processing Candidate: $sha" -ForegroundColor Cyan
+    $startedAt = Get-Date
 
-    # 1. Run AI Semantic Context Assembler
-    $aiScript = Join-Path $ScriptDir "Invoke-AiAudit.ps1"
-    $aiRes = & powershell.exe -ExecutionPolicy Bypass -File $aiScript -DonorSha $sha
-    $cleanApply = $aiRes.CleanApply
-    $dossierPath = $aiRes.DossierPath
-    $subject = $aiRes.Subject
+    # If DryRun requested, generate plan only and continue
+    if ($DryRun) {
+        $plan = Invoke-CandidatePlan -DonorSha $sha -RequestedMode $Mode -DryRun
+        [void]$results.Add($plan)
+        continue
+    }
 
-    # 2. Extract patch
+    # 1. Deterministic Bug-Existence Prover
+    $proof = Invoke-BugExistenceProof -DonorSha $sha -DonorRepo $VmangosRepo -TargetRepo $TortoiseRepo
+    Write-Host "  [1/4] Bug Verdict: [$($proof.Verdict)] (Confidence: $($proof.Confidence))" -ForegroundColor $(if ($proof.Verdict -eq "BUG_PRESENT") { "Green" } elseif ($proof.Verdict -eq "ALREADY_FIXED") { "DarkGray" } else { "Yellow" })
+
+    # Register candidate in state store
+    $targetBaseSha = (git -C $TortoiseRepo rev-parse HEAD).Trim()
+    $cState = Register-Candidate -CandidateId $sha -DonorSha $sha -DonorFullSha $proof.Evidence.donor_full_sha -Subject $proof.Evidence.subject -TargetBaseSha $targetBaseSha
+
+    if ($proof.Verdict -eq "ALREADY_FIXED") {
+        Update-CandidateState -CandidateId $sha -ToState "ALREADY_FIXED" -ReasonCode "BUG_PROVER_ALREADY_FIXED" -Verdict "ALREADY_FIXED" -Evidence $proof.Evidence | Out-Null
+        Write-Host "  Candidate already fixed in target; skipping." -ForegroundColor DarkGray
+        continue
+    }
+    if ($proof.Verdict -eq "NOT_APPLICABLE") {
+        Update-CandidateState -CandidateId $sha -ToState "NOT_APPLICABLE" -ReasonCode "BUG_PROVER_NOT_APPLICABLE" -Verdict "NOT_APPLICABLE" -Evidence $proof.Evidence | Out-Null
+        Write-Host "  Candidate not applicable to Turtle architecture; skipping." -ForegroundColor DarkGray
+        continue
+    }
+    if ($proof.Verdict -eq "TURTLE_INTENTIONAL_DIVERGENCE") {
+        Update-CandidateState -CandidateId $sha -ToState "TURTLE_INTENTIONAL_DIVERGENCE" -ReasonCode "BUG_PROVER_TURTLE_DIVERGENCE" -Verdict "TURTLE_INTENTIONAL_DIVERGENCE" -Evidence $proof.Evidence | Out-Null
+        Write-Host "  Candidate rejected due to intentional Turtle architecture divergence." -ForegroundColor Yellow
+        continue
+    }
+
+    # 2. Dependency and Supersession Graph
+    $rel = Get-CandidateRelations -DonorSha $sha -DonorRepo $VmangosRepo
+    $deps = Get-CandidateDependencies -DonorSha $sha -DonorRepo $VmangosRepo
+    Write-Host "  [2/4] Graph: $($deps.Dependencies.Count) prerequisite(s), $($rel.Relations.Count) relation(s)" -ForegroundColor DarkGray
+
+    # 3. Mode Resolution & Escalation
+    $context = @{
+        Subject         = $proof.Evidence.subject
+        Confidence      = $proof.Confidence
+        DependencyCount = $deps.Dependencies.Count
+        Subsystem       = "Core"
+    }
+    $modeRes = Resolve-VerificationMode -RequestedMode $Mode -CandidateContext $context
+    if ($modeRes.Escalated) {
+        Write-Host "  [ESCALATION] Mode escalated to $($modeRes.EffectiveMode): $($modeRes.EscalationReason)" -ForegroundColor Yellow
+    }
+
+    # 4. Safe Patch Export
     $patchFile = Join-Path $StagingPatches "$sha.patch"
-    git -C $VmangosRepo format-patch -1 --stdout $sha | Out-File -FilePath $patchFile -Encoding utf8
+    Export-GitPatchSafely -RepoPath $VmangosRepo -Sha $sha -DestinationPatchPath $patchFile | Out-Null
 
-    # 3. Assemble Package in 02_ready_to_build/
+    # 5. Turtle Invariant Verification
+    $compat = Test-TurtleCompatibility -PatchFile $patchFile
+    if ($compat.ExitCode -ne 0) {
+        $violMsg = $compat.Violations -join ", "
+        Write-Host "  [FAIL] Hard Turtle compatibility invariant violated: $violMsg" -ForegroundColor Red
+        Update-CandidateState -CandidateId $sha -ToState "REJECTED" -ReasonCode "COMPATIBILITY_VIOLATION" -Verdict "REJECTED" | Out-Null
+        continue
+    }
+
+    # 6. Assemble Staging Package in 02_ready_to_build/
     $portId = Get-NextPortId
-    $commitSubject = (git -C $VmangosRepo show -s --pretty=format:"%s" $sha).Trim()
-    $subsystem = "Core"
-    if ($commitSubject -match "^(\w+):") { $subsystem = $Matches[1] }
-
     $pkgFile = Join-Path $ReadyDir "$portId.json"
+    $commitSubject = $proof.Evidence.subject
+    $subsystemName = if ($commitSubject -match '^(\w+):') { $Matches[1] } else { "Core" }
 
-    if ($cleanApply) {
-        $pkgStatus = "READY_FOR_BUILD"
-        Write-Host "[AI VERDICT: CLEAN APPLY] Staged $portId for direct compilation!" -ForegroundColor Green
-    } else {
-        $pkgStatus = "AWAITING_AI_ADAPTATION"
-        Write-Host "[AI VERDICT: ADAPTATION CANDIDATE] Context divergence detected in Turtle code." -ForegroundColor Yellow
-        Write-Host "AI Dossier available at: $dossierPath" -ForegroundColor DarkGray
-        Write-Host "Staged $portId as AWAITING_AI_ADAPTATION." -ForegroundColor Yellow
-    }
+    $stageResult = New-StageResult -RunId $runId -CandidateId $portId -Stage "PORT_STAGING" -DonorSha $sha -DonorFullSha $proof.Evidence.donor_full_sha -DonorRepo "reference-upstreams/vmangos-core" -TargetRepo "tortoise-wow" -TargetBaseSha $targetBaseSha -RequestedMode $Mode -EffectiveMode $modeRes.EffectiveMode -Status "PATCH_READY" -Verdict "BUG_PRESENT" -Confidence $proof.Confidence -ReasonCodes @("BUG_PROVEN_DETERMINISTIC") -Evidence $proof.Evidence -StartedAt $startedAt -CompletedAt (Get-Date)
 
-    $pkgObj = [PSCustomObject]@{
-        status       = $pkgStatus
-        id           = $portId
-        donor_sha    = $sha
-        subsystem    = $subsystem
-        title        = ($commitSubject -replace '^(\w+):\s*', '')
-        clean_apply  = $cleanApply
-        ai_dossier   = "tools/queue/ai_dossiers/$sha.md"
-        patch_file   = "tools/queue/staging_patches/$sha.patch"
-        sql_file     = $null
-        commit_msg   = "Port($subsystem): $($commitSubject -replace '^(\w+):\s*', '') (vmangos/core@$sha)"
-    }
+    Save-StageResultJson -ResultObject $stageResult -FilePath $pkgFile
+    Update-CandidateState -CandidateId $sha -ToState "PATCH_READY" -ReasonCode "PACKAGE_STAGED" -Verdict "BUG_PRESENT" | Out-Null
+    Write-Host "  [PASS] Successfully staged candidate as $portId ($pkgFile)" -ForegroundColor Green
+    [void]$results.Add($stageResult)
+}
 
-    $pkgObj | ConvertTo-Json -Depth 4 | Out-File $pkgFile -Encoding utf8
-    $stagedCount++
+Record-Run -RunId $runId -Operation "PORT_PIPELINE" -Mode $Mode -Status "COMPLETED" -Details @{ CandidatesProcessed = $shasToProcess.Count; StagedCount = $results.Count }
+
+if ($AutoBuild -and -not $DryRun) {
+    Write-Host "`nAutoBuild flag set. Invoking Build-ReadyPackages..." -ForegroundColor Cyan
+    & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $ScriptDir "Build-ReadyPackages.ps1")
 }
 
 Write-Host "`n================================================================================" -ForegroundColor Cyan
-Write-Host "  Pipeline Staging Summary: Staged: $stagedCount | Rejected: $rejectedCount" -ForegroundColor Green
+Write-Host "  Pipeline run $runId completed. Staged $($results.Count) candidate(s)." -ForegroundColor Green
 Write-Host "================================================================================" -ForegroundColor Cyan
 
-# 4. If AutoBuild is requested, trigger Agent 1 now
-if ($AutoBuild -and $stagedCount -gt 0) {
-    Write-Host "`n>>> AutoBuild flag set: Triggering Agent 1 (Build-ReadyPackages.ps1)..." -ForegroundColor Yellow
-    $buildScript = Join-Path $ScriptDir "Build-ReadyPackages.ps1"
-    & powershell.exe -ExecutionPolicy Bypass -File $buildScript
-} elseif ($stagedCount -gt 0) {
-    Write-Host "`nReady packages are waiting in tools/queue/02_ready_to_build/." -ForegroundColor Cyan
-    Write-Host "Run 'task 1' or 'Build-ReadyPackages.ps1' when you are ready to compile and push!" -ForegroundColor Yellow
-}

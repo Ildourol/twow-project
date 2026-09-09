@@ -1,0 +1,35 @@
+name: Tortoise-WoW Extended Candidate CI
+
+on:
+  push:
+    branches: [ "port/**" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-server-msvc:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout Server Candidate Branch
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure CMake
+        shell: powershell
+        run: |
+          cmake -B build -S . -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DALLOW_TURTLE_ADDONS=ON
+
+      - name: Compile and Link Server
+        shell: powershell
+        run: |
+          cmake --build build --config Release --target realmd
+          cmake --build build --config Release --target mangosd
+
+      - name: Verify Binary Outputs
+        shell: powershell
+        run: |
+          if (-not (Test-Path "bin/Release/mangosd.exe") -or -not (Test-Path "bin/Release/realmd.exe")) {
+            throw "Missing required server executables after build!"
+          }
+          Write-Host "Server binaries compiled and linked cleanly." -ForegroundColor Green

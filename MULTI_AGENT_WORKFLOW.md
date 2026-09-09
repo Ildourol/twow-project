@@ -42,13 +42,14 @@ The system separates **Concurrent Read-Only Research & Staging (Agents 2, 3, 4, 
                                            ▼
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                                        AGENT 1                                         │
-│                                Builder & Git Committer                                 │
+│                                Builder & Candidate Committer                           │
 │                                     Alias: task 1                                      │
-│        - Single-writer lock on tortoise-wow/ and MSVC 2022 build system                │
-│        - Applies .patch and .sql migration                                             │
-│        - Runs compile gate: mangosd.exe & realmd.exe with 0 errors                     │
-│        - Atomic git commit & immediate remote push to extended main                    │
-│        - Moves package to 03_completed/ and updates ledgers                            │
+│        - Single-writer lock on MSVC 2022 build system & candidate worktree             │
+│        - Builds exclusively in isolated worktree: .worktrees/PORT-XXXX/                │
+│        - Runs compile & link gate: mangosd.exe & realmd.exe with 0 errors              │
+│        - Runs disposable startup smoke test verification                               │
+│        - Commits to candidate branch: port/PORT-XXXX-<sha>                             │
+│        - Moves package to 03_completed/ and updates canonical state                    │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -103,7 +104,7 @@ When you open an Antigravity CLI terminal, simply use the shorthand command for 
 
 #### CLI 1: Agent 1 (Builder & Committer)
 * **Command**: `task 1`
-* **What it does**: Reads [`tools/tasks/AGENT_1_BUILDER.md`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tools/tasks/AGENT_1_BUILDER.md). Takes the oldest ready package from `tools/queue/02_ready_to_build/`, applies the patch & SQL, compiles via MSVC 2022, commits, pushes to `extended main`, and records the commit in all ledgers.
+* **What it does**: Reads [`tools/tasks/AGENT_1_BUILDER.md`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tools/tasks/AGENT_1_BUILDER.md). Takes the oldest ready package from `tools/queue/02_ready_to_build/`, verifies freshness against target base SHA, applies patch & SQL in isolated `.worktrees/PORT-XXXX/`, compiles via MSVC 2022, runs startup smoke test, commits to candidate branch `port/PORT-XXXX-<sha>`, and records state in state store and ledgers.
 
 #### CLI 2: Agent 2 (Forum & Bug Scout)
 * **Command**: `task 2 <sha or topic>`
@@ -154,7 +155,7 @@ task port <sha>  ──(viable)──►  task 1 (or run: task port <sha> -AutoB
    - Runs AI context assembly, forum scouting, SQL sanitization, and patch check.
    - If viable, packages into `tools/queue/02_ready_to_build/PORT-XXXX.json`.
 3. **Execute Build Gate**: If not running with `-AutoBuild`, type `task 1`.
-   - Agent 1 applies package, runs MSVC 2022 compile gate, commits, pushes to `extended main`, and updates ledgers.
+   - Agent 1 applies package in `.worktrees/PORT-XXXX/`, runs MSVC 2022 compile gate & smoke test, commits to candidate branch `port/PORT-XXXX-<sha>`, and updates canonical state store.
 
 ### Flow 2: Core Specification Restoration Pipeline
 ```

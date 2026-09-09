@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "tool_version": "2.0.0",
+  "project_name": "twow-project",
+  "description": "Turtle-WoW / Tortoise-WoW Fix-Porting, Verification, and Automation Framework",
+  "repositories": {
+    "twow_project": {
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project",
+      "default_branch": "main",
+      "expected_remote": "origin"
+    },
+    "tortoise_wow": {
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/tortoise-wow",
+      "default_branch": "main",
+      "expected_remote": "extended",
+      "upstream_remote": "origin",
+      "baseline_sha": "b8f24bef6cfc69feafc5870ac6a8918a521253d7"
+    },
+    "penqle_reference": {
+      "path": "https://github.com/Penqle/tortoise-wow.git",
+      "local_remote_name": "origin"
+    },
+    "vmangos_donor": {
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/reference-upstreams/vmangos-core",
+      "default_branch": "development",
+      "expected_remote": "origin"
+    },
+    "client_data": {
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/reference-upstreams/client-data-1.18.1",
+      "version": "1.18.1"
+    },
+    "forum_archive": {
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/resources/forum"
+    },
+    "historical_db": {
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql"
+    },
+    "playerbots_reference": {
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/Module-playerbots"
+    }
+  },
+  "build": {
+    "cmake_executable": "C:/vcpkg/downloads/tools/cmake-4.4.2-windows/cmake-4.4.2-windows-x86_64/bin/cmake.exe",
+    "generator": "Visual Studio 17 2022",
+    "architecture": "x64",
+    "default_configuration": "Release",
+    "build_directory": "build",
+    "install_prefix": "C:/Program Files/TurtleWoW",
+    "compiler": "MSVC",
+    "toolset": "v143",
+    "module_mode": "disabled",
+    "allow_turtle_addons": true,
+    "build_playerbots": false,
+    "build_eluna": false,
+    "use_pch": true
+  },
+  "pipeline": {
+    "worktree_root": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/.worktrees",
+    "artifact_root": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/tools/queue",
+    "state_file": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/tools/state/state_store.json",
+    "cache_dir": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/tools/cache",
+    "default_mode": "Normal",
+    "log_retention_days": 14,
+    "max_candidates": 50,
+    "max_parallel": 1,
+    "max_concurrent_builds": 1,
+    "max_worktrees": 10,
+    "max_retained_failed_worktrees": 3,
+    "max_log_size_mb": 25,
+    "max_dossier_size_kb": 256,
+    "max_forum_results": 5,
+    "max_db_evidence_rows": 20,
+    "max_context_lines": 200,
+    "max_ai_calls_per_candidate": 2,
+    "max_ai_retries": 1,
+    "max_ai_input_tokens": 16000,
+    "max_ai_output_tokens": 4000,
+    "timeout_build_seconds": 900,
+    "timeout_smoke_seconds": 60
+  },
+  "git": {
+    "branch_prefix": "port/PORT-",
+    "push_policy": "branch_pr_gate",
+    "target_default_branch": "main",
+    "remote_extended": "extended"
+  }
+}

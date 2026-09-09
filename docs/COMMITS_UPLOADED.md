@@ -1,4 +1,4 @@
-﻿# Uploaded Commits History & Artifact Requirements Ledger
+# Uploaded Commits History & Artifact Requirements Ledger
 
 This document is the authoritative record of all commits uploaded to the remote repository [`Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) (branch `main`), tracking commit hashes, donor references, affected files, safety invariants, and whether additional files (SQL migrations, configurations, client DBC/maps, or build toolchain files) were required.
 
@@ -29,7 +29,7 @@ This document is the authoritative record of all commits uploaded to the remote 
 When porting donor bugfixes from VMaNGOS into Tortoise-WoW Extended, each port is evaluated across four artifact dimensions:
 
 1. **Database Migrations (`sql/database_updates/world/`)**:
-   - Evaluated for each port. All progressive columns (`patch`, `build`) must be stripped. Custom entities ($\ge 300,000$) must be preserved.
+   - Evaluated for each port. All progressive columns (`patch`, `build`) must be stripped. Custom entities (`spell_template` $\ge 40000$ and world templates $\ge 300000$) must be preserved.
 
 2. **Server Configuration Files (`mangosd.conf`, `realmd.conf`)**:
    - Evaluated for each port. Preserves server defaults.
