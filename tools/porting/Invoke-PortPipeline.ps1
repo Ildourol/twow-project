@@ -94,7 +94,8 @@ if ($DonorSha.Count -gt 0) {
         }
     }
 
-    $csvRows = Import-Csv -Path $queueCsv
+    # Guarantee candidates are ordered strictly by most recent commit date first
+    $csvRows = Import-Csv -Path $queueCsv | Sort-Object -Property Date -Descending
     $count = 0
     foreach ($row in $csvRows) {
         $cSha = $row.ShortSha

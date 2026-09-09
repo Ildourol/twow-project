@@ -1,7 +1,7 @@
 {
     "schema_version":  "1.0.0",
     "tool_version":  "2.0.0",
-    "last_updated":  "2026-09-09T16:11:13.2188766+02:00",
+    "last_updated":  "2026-09-09T16:12:59.8749994+02:00",
     "baseline_cache":  {
                            "053cb501f11fda999967ffef60852b8902bf26c0":  {
                                                                             "target_base_sha":  "053cb501f11fda999967ffef60852b8902bf26c0",
@@ -15,17 +15,17 @@
                                                                         }
                        },
     "runs":  {
-                 "RUN-20260909-160312-DT3M":  {
+                 "RUN-20260909-161246-T3NE":  {
                                                   "candidate_id":  "",
                                                   "status":  "COMPLETED",
                                                   "details":  {
-                                                                  "StagedCount":  1,
-                                                                  "CandidatesProcessed":  1
+                                                                  "StagedCount":  10,
+                                                                  "CandidatesProcessed":  10
                                                               },
-                                                  "timestamp":  "2026-09-09T16:03:13.0653864+02:00",
+                                                  "timestamp":  "2026-09-09T16:12:52.0633198+02:00",
                                                   "mode":  "Normal",
                                                   "operation":  "PORT_PIPELINE",
-                                                  "run_id":  "RUN-20260909-160312-DT3M"
+                                                  "run_id":  "RUN-20260909-161246-T3NE"
                                               }
              },
     "candidates":  {
