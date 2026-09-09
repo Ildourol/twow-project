@@ -90,6 +90,6 @@ Package PORT-XXXX (<sha>) is assembled in 'tools/queue/02_ready_to_build/'.
 C++ patch: tools/queue/staging_patches/<sha>.patch
 SQL status: Attached (or pure C++)
 
->>> ACTION REQUIRED: You can now run 'task 1' in CLI 1 to compile and push! <<<
+>>> ACTION REQUIRED: You can now run 'task build-packages' (or 'task auto-pilot') to compile and commit! <<<
 ================================================================================
 ```

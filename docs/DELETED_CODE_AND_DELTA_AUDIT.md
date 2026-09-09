@@ -64,7 +64,7 @@ This document provides an authoritative, forensic audit of all code deleted, rep
 
 ## 3. Pre-Commit Deletion Safety Checklist
 
-Before any future backport commit is accepted and committed via `task 1`:
+Before any future backport commit is accepted and committed via `task build-packages` (or `task auto-pilot`):
 1. **No Regressed Enum Values**: Ensure `SCRIPT_COMMAND_TAKE_MONEY = 93` is untouched.
 2. **No Array Clamping**: Ensure `MAX_RACES` is never reduced below 11.
 3. **No Debuff Slot Reversion**: Ensure `sTWDebuff` hooks and `UI64LIT` are preserved.

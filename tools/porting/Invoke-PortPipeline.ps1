@@ -273,7 +273,7 @@ foreach ($sha in $shasToProcess) {
 Record-Run -RunId $runId -Operation "PORT_PIPELINE" -Mode $Mode -Status "COMPLETED" -Details @{ CandidatesProcessed = $shasToProcess.Count; StagedCount = $results.Count }
 
 if (($AutoBuild -or $AutoCommit) -and -not $DryRun) {
-    Write-Host "`n[Task 1 Builder] Auto-Pilot / AutoCommit enabled: Invoking Build-ReadyPackages..." -ForegroundColor Cyan
+    Write-Host "`n[Build Engine] Auto-Pilot / AutoCommit enabled: Invoking Build-ReadyPackages..." -ForegroundColor Cyan
     $buildArgs = @((Join-Path $ScriptDir "Build-ReadyPackages.ps1"))
     if ($SkipBuild) { $buildArgs += "-SkipBuild" }
     & powershell.exe -ExecutionPolicy Bypass -File @buildArgs

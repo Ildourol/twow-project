@@ -43,7 +43,7 @@ The system separates **Concurrent Read-Only Research & Staging (Agents 2, 3, 4, 
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                                        AGENT 1                                         │
 │                                Builder & Candidate Committer                           │
-│                                     Alias: task 1                                      │
+│                     Invocations: task auto-pilot, task build-packages                  │
 │        - Single-writer lock on MSVC 2022 build system & candidate worktree             │
 │        - Builds exclusively in isolated worktree: .worktrees/PORT-XXXX/                │
 │        - Runs compile & link gate: mangosd.exe & realmd.exe with 0 errors              │
@@ -84,27 +84,16 @@ The system separates **Concurrent Read-Only Research & Staging (Agents 2, 3, 4, 
 
 When you open an Antigravity CLI terminal, simply use the shorthand command for that agent (or run via full path from any directory):
 
-### Primary: Unified AI Porting Pipeline (Default)
-* **Command**: `task port <sha>` (or `task port <sha> -AutoBuild`)
-* **What it does**: Automatically runs Tasks 2, 3, and 4 through the AI Semantic Context Engine. Mines forum lore, extracts target source files and surrounding context, validates invariants, and stages package in `02_ready_to_build/` (or generates AI dossier if context divergence is detected). With `-AutoBuild`, immediately runs Task 1.
-* **Batch Command**: `task port-batch <N> [-Tier <1-5>] [-AutoBuild]`
-* **What it does**: Pulls the next $N$ candidates sequentially from `CRUCIAL_COMMITS_QUEUE.csv` and stages all viable ones.
+### Primary: Unified Auto-Pilot Pipeline (Default Hands-Free)
+* **Batch Auto-Pilot**: `task auto-pilot <N> [Tier]` (e.g., `task auto-pilot 10 1`)
+* **Single Commit Auto-Port**: `task auto-port <sha>`
+* **What it does**: Fully autonomous end-to-end pipeline. Automatically mines forum lore (Task 2), audits database migrations against the schema catalog (Task 3), extracts surrounding context & evaluates invariants via the AI Semantic Engine (Task 4), and immediately compiles under isolated worktree and commits to candidate branch (`task build-packages`).
 
-### Primary: Turtle Core Specification Restorer
-* **Command**: `task restore <topic>` (alias: `task 5 <topic>`)
-* **What it does**: Audits forum archives for official Turtle staff changelogs, scans `tortoise-wow` codebase and database for missing features, reports discrepancies, and caches progress in `docs/CORE_RESTORATION_LEDGER.md` (zero double-checking). With `-StageTemplate`, creates `CORE-XXXX.json`.
-* **Batch Command**: `task restore-batch <N>` (or `task restore-batch "Topic1,Topic2"`)
-* **What it does**: Sequentially audits the next $N$ un-audited Turtle patch topics from the curated priority queue, skipping topics already verified with parity.
-
-### Primary: Online Database Oracle & 1.18.1 Asset Auditor
-* **Command**: `task 6 <id or name>` (alias: `task db-viewer <id or name>`)
-* **What it does**: Reads [`tools/tasks/AGENT_6_ONLINE_DB_ORACLE.md`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tools/tasks/AGENT_6_ONLINE_DB_ORACLE.md). Queries the official Turtle Database Viewer (`https://xian55.github.io/tortoise-db-viewer/`), tracks live CDN changelogs (`task 6 changelog`), and launches interactive 3D browser views (`-OpenBrowser`).
-
-### Granular Agent Commands:
-
-#### CLI 1: Agent 1 (Builder & Committer)
-* **Command**: `task 1`
-* **What it does**: Reads [`tools/tasks/AGENT_1_BUILDER.md`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tools/tasks/AGENT_1_BUILDER.md). Takes the oldest ready package from `tools/queue/02_ready_to_build/`, verifies freshness against target base SHA, applies patch & SQL in isolated `.worktrees/PORT-XXXX/`, compiles via MSVC 2022, runs startup smoke test, commits to candidate branch `port/PORT-XXXX-<sha>`, and records state in state store and ledgers.
+### Review Mode Pipeline:
+* **Command**: `task port <sha>` (or `task port-batch <N>`)
+* **What it does**: Stages candidates to `02_ready_to_build/` for review before compiling.
+* **Build Staged Packages**: `task build-packages`
+* **What it does**: Reads [`tools/tasks/AGENT_1_BUILDER.md`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tools/tasks/AGENT_1_BUILDER.md). Takes ready packages from `tools/queue/02_ready_to_build/`, verifies freshness against target base SHA, applies patch & SQL in isolated `.worktrees/candidate-PORT-XXXX/`, compiles via MSVC 2022, runs startup smoke test, commits to candidate branch `port/PORT-XXXX-<sha>`, and records state.
 
 #### CLI 2: Agent 2 (Forum & Bug Scout)
 * **Command**: `task 2 <sha or topic>`
@@ -146,25 +135,25 @@ When you open an Antigravity CLI terminal, simply use the shorthand command for 
 
 ### Flow 1: Unified AI Upstream Backporting Pipeline (Default)
 ```
-task port <sha>  ──(viable)──►  task 1 (or run: task port <sha> -AutoBuild)
+task port <sha>  ──(viable)──►  task build-packages (or run: task auto-port <sha>)
       │
-      └──(diverged)──► tools/queue/ai_dossiers/<sha>.md ──► AI adaptation ──► task 1
+      └──(diverged)──► tools/queue/ai_dossiers/<sha>.md ──► AI adaptation ──► task build-packages
 ```
 1. **Pick Candidate**: Check [`docs/ROADMAP.md`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/docs/ROADMAP.md) (Section 2) or `CRUCIAL_COMMITS_QUEUE.csv` (e.g. `448df9ba0`).
-2. **Execute AI Port**: Type `task port 448df9ba0` (or `task port 448df9ba0 -AutoBuild`).
+2. **Execute AI Port**: Type `task port 448df9ba0` (or `task auto-port 448df9ba0`).
    - Runs AI context assembly, forum scouting, SQL sanitization, and patch check.
    - If viable, packages into `tools/queue/02_ready_to_build/PORT-XXXX.json`.
-3. **Execute Build Gate**: If not running with `-AutoBuild`, type `task 1`.
-   - Agent 1 applies package in `.worktrees/PORT-XXXX/`, runs MSVC 2022 compile gate & smoke test, commits to candidate branch `port/PORT-XXXX-<sha>`, and updates canonical state store.
+3. **Execute Build Gate**: If not running via auto-pilot, type `task build-packages`.
+   - The build engine applies package in `.worktrees/PORT-XXXX/`, runs MSVC 2022 compile gate & smoke test, commits to candidate branch `port/PORT-XXXX-<sha>`, and updates canonical state store.
 
 ### Flow 2: Core Specification Restoration Pipeline
 ```
-task restore "<topic>"  ──(discrepancy)──►  -StageTemplate (CORE-XXXX.json)  ──►  task 1
+task restore "<topic>"  ──(discrepancy)──►  -StageTemplate (CORE-XXXX.json)  ──►  task build-packages
 ```
 1. Run `task restore "Holy Strike"` (or `task restore-batch 5`).
 2. Instant cache check ensures zero double-checking of already verified topics.
 3. If a discrepancy exists and needs C++ implementation, pass `-StageTemplate` to create `CORE-XXXX.json` in `02_ready_to_build/`.
-4. Agent 1 compiles and seals the restoration commit.
+4. Run `task build-packages` to compile and seal the restoration commit.
 
 ### Flow 3: Database Entity Scalping & Extraction Pipeline
 ```
@@ -193,4 +182,4 @@ task scalp <type> <id> -Diff  ──►  -ExportSql  ──►  sql/database_upd
    - Reserved script commands (`SCRIPT_COMMAND_TAKE_MONEY = 93`).
    - Custom parameters (`inGurubashiArena`, `UI64LIT`).
    - ID boundaries: Entity IDs $\ge 300,000$ and spell IDs $\ge 40,000$ are reserved for Turtle custom content.
-5. **Concurrency & AutoBuild Mutual Exclusion**: Never run two commands with `-AutoBuild` concurrently in separate terminals. Running multiple simultaneous MSVC builds or `git commit`/`push` operations on `tortoise-wow` causes fatal compiler lock collisions and Git index corruption. You **CAN** run staging tasks (`task restore`, `task restore-batch`, `task port`, `task port-batch`) concurrently without `-AutoBuild`, and then trigger `task 1` once to compile and push all ready packages sequentially.
+5. **Concurrency & AutoBuild Mutual Exclusion**: Never run two commands with `-AutoBuild` concurrently in separate terminals. Running multiple simultaneous MSVC builds or `git commit`/`push` operations on `tortoise-wow` causes fatal compiler lock collisions and Git index corruption. You **CAN** run staging tasks (`task restore`, `task restore-batch`, `task port`, `task port-batch`) concurrently without `-AutoBuild`, and then trigger `task build-packages` once to compile and push all ready packages sequentially.

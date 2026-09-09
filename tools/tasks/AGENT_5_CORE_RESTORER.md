@@ -18,7 +18,7 @@
 4. Audit `tortoise-wow` source code and database for discrepancies or missing implementations in the leaked core.
 5. Author native C++ fixes or SQL migrations to achieve 100% parity with official Turtle-WoW specifications.
 6. Package the fix into `tools/queue/02_ready_to_build/CORE-XXXX.json`.
-7. Signal Agent 1 (`task 1`) to compile, commit, and push.
+7. Execute build and commit via `task build-packages` (or `task auto-pilot`).
 
 ---
 
@@ -70,4 +70,4 @@ Create `tools/queue/02_ready_to_build/CORE-XXXX.json`:
 ```
 
 ### Step 6: Build Execution
-Run `task 1` to compile via MSVC 2022 and push to `extended main`.
+Run `task build-packages` to compile via MSVC 2022 and commit to the candidate branch in an isolated worktree.

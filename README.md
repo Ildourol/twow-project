@@ -28,7 +28,7 @@ Key capabilities introduced in the Total Revamp:
   - **Deep**: Full multi-daemon compilation (`world` + `auth`), startup smoke tests, crash triage, and binary parity audit.
   - *Auto-escalates* upon detecting database migrations, missing dependencies, security patches, or opcodes; *never downgrades*.
 - **Canonical 30-State Atomic State Store**: Transitions are validated by transition guards and persisted atomically to [`tools/state/state_store.json`](tools/state/state_store.json) with unique run IDs (`RUN-yyyyMMdd-HHmmss-xxxx`) supporting safe resumption and idempotency.
-- **Database Migration Safety & Cached Catalog**: Audits SQL migrations against 413 tables in [`config/schema_catalog.json`](config/schema_catalog.json) using statement-anchored multiline regex (`(?m)^\s*`). Enforces entity-specific custom ID boundaries (`spell_template` >= 40000; world templates >= 300000) and forbids legacy progressive versioning columns (`tw_world_progressive_`).
+- **Database Migration Safety & Cached Catalog**: Audits SQL migrations against 413 tables in [`config/schema_catalog.json`](config/schema_catalog.json) using statement-anchored multiline regex (`(?m)^\s*`). Enforces entity-specific custom ID boundaries (`spell_template` >= 40000; world templates >= 300000) and forbids progressive versioning columns (`tw_world_progressive_`).
 - **Binary Client-Data Parity Auditor (`task parity`)**: Directly parses WDBC binary files from [`reference-upstreams/client-data-1.18.1/`](reference-upstreams/client-data-1.18.1/) and verifies alignment across races (`MAX_RACES = 11`), maps, spells, and items.
 - **Automated Triage & Disposable Smoke Tests**: Catches regressions before merge via disposable daemon startup smoke tests (`realmd.exe` / `mangosd.exe`) and 17-category categorized server log / crash frame triage.
 - **Full Test Suite & CI/CD**: 38 Pester unit tests covering all invariants, schemas, worktrees, and transitions running in sub-7 seconds via `task test` and backed by GitHub Actions workflows.
@@ -73,7 +73,10 @@ twow project/
 | **Client Assets (1.18.1)** | `reference-upstreams/client-data-1.18.1/` | [`Ildourol/Twow_data-1.18.1`](https://github.com/Ildourol/Twow_data-1.18.1) | 158 DBCs, 2,805 maps, 2,133 mmaps, 6,921 vmaps. |
 | **Historical World Database** | `reference-upstreams/lights-hope-database-history/` | [`Ildourol/database`](https://github.com/Ildourol/database) | Authoritative Brotalnia vanilla DB (`world_full_14_june_2021.sql`). |
 | **Primary Donor Core** | `reference-upstreams/vmangos-core/` | [`vmangos/core`](https://github.com/vmangos/core) | Upstream vanilla 1.12.1 emulator (development branch). |
-| **Historical Core Reference** | `reference-upstreams/elysium-core/` | [`lduguid/core`](https://github.com/lduguid/core) | Historical Nostalrius/Elysium core reference. |
+> [!IMPORTANT]
+> **Primary Server Target & Draft Orchestrator Policy**:
+> - **Primary Focus**: [`Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) is the **sole primary target server repository**. All fixes, investigations, and verified commits target this repository.
+> - **Orchestrator Status**: The local workspace `twow-project` is a local engineering orchestrator. Its remote repository (`Ildourol/twow-project`) is a draft workspace. **Auto-sync and auto-update are disabled by default (`auto_sync: false`)**. The system will never push or upload status to `twow-project` on GitHub unless explicitly commanded by the user.
 
 ### Quick Setup Commands (PowerShell)
 ```powershell
@@ -169,15 +172,17 @@ The universal dispatcher [`tools/task.ps1`](tools/task.ps1) executes seamlessly 
 | **State Summary** | `task state` | Displays active run IDs, registered candidates, and state counts. |
 | **Roadmap Refresh**| `task roadmap-refresh [-FetchLatest]`| Audits upstream commits, refreshes queue, and fetches latest commits. |
 | **PDF Generation** | `task pdf` | Compiles markdown documentation into printable HTML and PDF references. |
-| **Legacy Aliases** | `task 1` through `task 6` | Preserved legacy shortcuts mapped to modern pipeline stages. |
+| **Core Shortcuts** | `task auto-pilot`, `task auto-port`, `task 2-6` | Direct command shortcuts mapped to pipeline stages. |
 
 ### Auto-Pilot Mode (Hands-Free Batch Execution)
-- **With Tier**: `task port-batch 10 -Tier 1` (Targets specific severity like crashes & exploits).
-- **Without Tier**: `task port-batch 10` (Picks next candidates via natural tier order & 12-factor priority algorithm in `task rank` / `task next`).
-- **3-Step Auto-Pilot Runbook**:
+- **One-Command Full Pipeline**: `task auto-pilot 10` (Executes forum scout, DB audit, AI context, compilation, and worktree candidate branch commit).
+- **With Tier**: `task auto-pilot 10 -Tier 1` (Targets specific severity like crashes & exploits).
+- **Without Tier**: `task auto-pilot 10` (Picks next candidates via natural tier order & 12-factor priority algorithm in `task rank` / `task next`).
+- **Single Candidate**: `task auto-port <sha>`
+- **Isolated Review Workflow**:
   1. Dry-Run Check: `task port-batch 10 -DryRun`
-  2. Isolated Worktree Port: `task port-batch 10 -Mode Normal`
-  3. Single-Writer Build & Candidate Commit: `task 1`
+  2. Isolated Worktree Staging: `task port-batch 10 -Mode Normal`
+  3. Single-Writer Build & Candidate Commit: `task build-packages` (or `task build`)
 
 ---
 

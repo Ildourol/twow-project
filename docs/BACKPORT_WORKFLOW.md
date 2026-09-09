@@ -70,16 +70,16 @@ When pulling candidate donor commits from [`tools/porting/CRUCIAL_COMMITS_QUEUE.
 3. **Manifest Assembly**:
    - Generates `PORT-XXXX.json` in `tools/queue/02_ready_to_build/`.
 
-### Phase 3: Builder & Single-Writer Compile Gate (`task 1`)
+### Phase 3: Single-Writer Compile Gate (`task build-packages`)
 1. **Invariant Verification**:
    - Runs `Verify-TurtleCompatibility.ps1` to assert `MAX_RACES = 11`, `sTWDebuff`, and no progressive SQL columns.
 2. **MSVC 2022 Release Compilation**:
-   - Compiles both `mangosd.exe` and `realmd.exe` via CMake (`--config Release`).
+   - Compiles both `mangosd.exe` and `realmd.exe` in isolated Git worktree (`--config Release`).
    - Gate requirement: **Exit Code 0** (0 compiler errors, 0 linker errors).
-   - If build fails: Automatically rolls back via `git checkout .` to preserve repository integrity.
-3. **Atomic Git Commit & Immediate Remote Push**:
+   - If build fails: Non-destructively removes the isolated worktree via `Remove-IsolatedWorktree`. Primary working tree is never touched.
+3. **Atomic Git Commit to Candidate Branch**:
    - Formats standardized message: `Port(<Subsystem>): <Subject> (vmangos/core@<sha>)`.
-   - Pushes commit immediately to `https://github.com/Ildourol/tortoise-wow-extended.git` branch `main`.
+   - Commits cleanly to isolated candidate branch `port/PORT-XXXX-<sha>`.
 4. **Archive & Metrics Update**:
    - Moves package to `tools/queue/03_completed/` and patch to `03_completed/patches/`.
    - Updates [`docs/COMMITS_UPLOADED.md`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/docs/COMMITS_UPLOADED.md) and [`docs/commits/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/docs/commits/).
@@ -91,7 +91,7 @@ When restoring custom Turtle specifications that are missing from the leaked cor
 3. Checks `tortoise-wow` codebase for existing stubs or missing handlers.
 4. Generates `CORE-XXXX.json` in `02_ready_to_build/` ready for C++ synthesis.
 5. Instant cache verification (`restoration_history.json`) guarantees zero double-checking of previously analyzed topics.
-6. Once synthesized, compiled via `task 1`.
+6. Once synthesized, compiled via `task build-packages` (or `task auto-pilot`).
 
 ### Phase 5: Database Scalping & Entity Extraction (`task scalp` / `task extract`)
 When extracting or comparing items, creatures, or spells against historical baselines:

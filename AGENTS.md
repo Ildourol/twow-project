@@ -34,9 +34,11 @@ When conflicting technical requirements or code patterns arise, agents must stri
   - `git clean -fd` (FORBIDDEN)
 - If an isolated worktree fails compilation or tests, remove the worktree via `Remove-IsolatedWorktree`. The main working tree is never touched.
 
-### 2.3. No Direct Push / No Auto-Merge
-- Candidates are committed strictly to candidate branches: `port/PORT-XXXX-<sha>`.
-- Do not commit or push to remote repositories (`origin/main` or `extended/main`) without explicit user authorization in the current session.
+### 2.3. No Direct Push / Remote Sync Disabled by Default
+- **Primary Server Target**: All fixes, investigations, and commits target **Tortoise-WoW Extended** (`https://github.com/Ildourol/tortoise-wow-extended`). Candidates are committed strictly to candidate branches: `port/PORT-XXXX-<sha>`.
+- **Local Draft Orchestration Repository**: The orchestration workspace `twow-project` (`https://github.com/Ildourol/twow-project`) is a local draft repository.
+- **Auto-Sync / Auto-Update Strictly Disabled**: Auto-sync and background remote pushes to `twow-project` on GitHub are **disabled by default (`auto_sync: false`)**. Agents and scripts must never push or sync status to `twow-project` unless the user explicitly and manually requests a sync in the current prompt.
+- Do not push or commit to remote main branches (`origin/main` or `extended/main`) without explicit user authorization in the current session.
 
 ### 2.4. Read-Only Research Agents
 - Agents 2 (Forum Scout), 3 (DB Scalper), 4 (AI Context Assembler), 5 (Core Restorer), and 6 (Online DB Oracle) are **strictly read-only**. They inspect, scalp, assemble evidence, and stage package manifests in `tools/queue/02_ready_to_build/`.
@@ -135,3 +137,21 @@ A candidate fix or topic restoration is officially **DONE** when:
 6. State store (`tools/state/state_store.json`) updates candidate state to `COMPLETE`.
 7. Candidate manifest and dossier are saved locally to `docs/commits/` and `docs/BACKPORT_HISTORY.md`.
 8. Orchestration test suite (`task test`) passes 38/38 tests.
+
+---
+
+## 8. CLI Dispatcher & Autonomous Operation Commands
+
+Agents and operators execute workflows through the canonical dispatcher ([`tools/task.ps1`](tools/task.ps1)):
+
+| Purpose | Command Syntax | Description |
+| :--- | :--- | :--- |
+| **Autonomous Batch Porting** | `task auto-pilot [N] [Tier]` | Runs complete pipeline (Scout, DB audit, AI context, build, isolated branch commit) for $N$ candidates. |
+| **Autonomous Single Porting** | `task auto-port <sha>` | Runs complete pipeline for single commit and commits in candidate worktree branch. |
+| **Deterministic Bug Proof** | `task prove <sha>` | Verifies defect pattern exists in target without modifying files. |
+| **Target Build Execution** | `task build <profile>` | Compiles server under specified profile (`world`, `auth`, `sql-only`, `playerbots`). |
+| **Worktree Build & Commit** | `task build-packages` | Compiles and commits all ready staged packages in isolated worktrees. |
+| **Invariant & State Audit** | `task compatibility`, `task db-audit`, `task parity` | Verifies hard compatibility, DB ID ranges, and client DBC alignment. |
+| **Automated Verification** | `task test` | Runs the full 38-suite orchestration test suite. |
+| **Pipeline State & Queue** | `task status`, `task next`, `task rank` | Displays backlog metrics, candidate ranking, and optimal next target. |
+

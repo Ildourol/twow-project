@@ -206,8 +206,8 @@ When `task port <sha>` or `task port-batch <N>` stages a package with status `AW
      ```powershell
      git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow" apply --check "tools/queue/staging_patches/<sha>.patch"
      ```
-4. **Compile & Gate (`task 1`)**:
-   - Run `task 1` to execute the MSVC 2022 compile gate, git commit, and push!
+4. **Compile & Gate (`task build-packages`)**:
+   - Run `task build-packages` (or `task auto-pilot`) to execute the MSVC 2022 compile gate and commit to candidate branch!
 
 ---
 
@@ -255,4 +255,4 @@ When `task port <sha>` or `task port-batch <N>` stages a package with status `AW
 ### Issue 7.5: Concurrency Safety & `-AutoBuild` Mutual Exclusion
 - **Question**: Can `-AutoBuild` be run concurrently in multiple terminals?
 - **Answer**: **NO.** `-AutoBuild` triggers MSVC compilation and `git push` on `tortoise-wow`. Multiple simultaneous builds create compiler file locks on `.obj` / `.pdb` files and can corrupt the Git index.
-- **Safe Concurrent Practice**: Run research and staging tasks (`task scalp`, `task 6`, `task ai-audit`, `task restore-batch`, `task port`) concurrently across multiple terminals without `-AutoBuild`, then execute `task 1` once to compile and commit all staged packages sequentially.
+- **Safe Concurrent Practice**: Run research and staging tasks (`task scalp`, `task 6`, `task ai-audit`, `task restore-batch`, `task port`) concurrently across multiple terminals without `-AutoBuild`, then execute `task build-packages` once to compile and commit all staged packages sequentially.

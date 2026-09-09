@@ -184,36 +184,46 @@ $fullHtml = @"
         padding: 5px;
     }
     h1 {
-        font-size: 18pt;
+        font-size: 17pt;
         border-bottom: 2px solid #0969da;
-        padding-bottom: 0.25em;
+        padding-bottom: 0.2em;
         margin-top: 0;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
         color: #0969da;
+        page-break-after: avoid;
+        break-after: avoid;
     }
     h2 {
-        font-size: 13pt;
+        font-size: 12.5pt;
         border-bottom: 1px solid #d0d7de;
-        padding-bottom: 0.25em;
-        margin-top: 20px;
-        margin-bottom: 10px;
+        padding-bottom: 0.2em;
+        margin-top: 14px;
+        margin-bottom: 4px;
         color: #1f2328;
+        page-break-after: avoid;
+        break-after: avoid;
     }
     h3 {
-        font-size: 11pt;
-        margin-top: 14px;
-        margin-bottom: 6px;
+        font-size: 10.5pt;
+        margin-top: 10px;
+        margin-bottom: 3px;
         color: #24292f;
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+    h4, h5, h6 {
+        page-break-after: avoid;
+        break-after: avoid;
     }
     p, ul {
         margin-top: 0;
-        margin-bottom: 8px;
+        margin-bottom: 5px;
     }
     code {
         font-family: "Consolas", "Courier New", monospace;
         font-size: 8.5pt;
         background-color: #f6f8fa;
-        padding: 0.15em 0.35em;
+        padding: 0.12em 0.3em;
         border-radius: 4px;
         color: #cf222e;
     }
@@ -221,14 +231,15 @@ $fullHtml = @"
         background-color: #f6f8fa;
         border: 1px solid #d0d7de;
         border-radius: 6px;
-        padding: 10px;
+        padding: 8px 10px;
         overflow-x: auto;
         font-family: "Consolas", "Courier New", monospace;
         font-size: 8pt;
-        line-height: 1.35;
-        margin-top: 6px;
-        margin-bottom: 10px;
+        line-height: 1.3;
+        margin-top: 4px;
+        margin-bottom: 8px;
         page-break-inside: avoid;
+        break-inside: avoid;
     }
     pre code {
         background-color: transparent;
@@ -238,14 +249,26 @@ $fullHtml = @"
     table {
         border-collapse: collapse;
         width: 100%;
-        margin-top: 10px;
-        margin-bottom: 14px;
-        font-size: 8pt;
+        margin-top: 3px;
+        margin-bottom: 8px;
+        font-size: 7.5pt;
+        line-height: 1.3;
+        page-break-inside: auto;
+        break-inside: auto;
+    }
+    h2 + table, h3 + table, p + table {
+        margin-top: 2px;
+    }
+    thead {
+        display: table-header-group;
+    }
+    tr {
         page-break-inside: avoid;
+        break-inside: avoid;
     }
     th, td {
         border: 1px solid #d0d7de;
-        padding: 5px 7px;
+        padding: 3.5px 5.5px;
         text-align: left;
         vertical-align: top;
     }

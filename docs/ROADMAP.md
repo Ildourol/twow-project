@@ -1,4 +1,4 @@
-﻿# Master Project Roadmap & Semantic AI Porting Queue
+# Master Project Roadmap & Semantic AI Porting Queue
 
 This document is the authoritative, fixed roadmap and execution ledger for **Tortoise-WoW Extended** (`twow project/tortoise-wow`). All historical VMaNGOS commits have been semantically audited across all 5 severity tiers.
 
@@ -346,8 +346,8 @@ These are the newest unported crucial bugfixes from `tools/porting/CRUCIAL_COMMI
 * **Role**: Instead of discarding commits on naive `git apply` failure, it preserves Turtle custom mechanics (`inGurubashiArena`, `UI64LIT`, custom racials, IDs >= 300,000) and stages viable packages for compilation.
 
 ### 3. Builder & Committer (Single-Writer Compiler Gate)
-* **Command**: `task 1`
-* **Role**: Single-writer MSVC 2022 Release compile gate (0 errors required), atomic git commit, and immediate push to `extended main`.
+* **Command**: `task build-packages` (or `task auto-pilot [N]`)
+* **Role**: Single-writer MSVC 2022 Release compile gate (0 errors required) in isolated worktree, and atomic git commit to candidate branch.
 
 ### 4. Native Core Restorer (Turtle Leaked Core Restoration)
 * **Command**: `task restore <topic>` (or `task 5 <topic>`)

@@ -1,7 +1,7 @@
 # AGENT 1: Builder & Committer (Single Writer Execution)
 
 **Role**: Builder, Compiler, and Candidate Branch Committer  
-**Command Alias**: `task 1`  
+**Canonical Invocations**: `task auto-pilot`, `task auto-port`, `task build-packages`  
 **Execution Mode**: Strictly sequential single-writer (holds exclusive lock on MSVC build system and candidate worktree).
 
 ---
@@ -20,7 +20,7 @@
 
 ---
 
-## 2. Step-by-Step Runbook (`task 1`)
+## 2. Step-by-Step Runbook (`task build-packages`)
 
 ### Step 1: Scan for Ready Package
 Inspect `tools/queue/02_ready_to_build/`.

@@ -118,7 +118,7 @@ foreach ($top in $topicsToProcess) {
 }
 
 if ($AutoBuild) {
-    Write-Host "`n>>> Batch completed. Running Single-Writer Build Gate (task 1)..." -ForegroundColor Yellow
+    Write-Host "`n>>> Batch completed. Running Single-Writer Build Gate (task build-packages)..." -ForegroundColor Yellow
     $buildScript = Join-Path $ScriptDir "Build-ReadyPackages.ps1"
     & powershell.exe -ExecutionPolicy Bypass -File $buildScript
 }

@@ -2,7 +2,7 @@
 .SYNOPSIS
     Universal CLI Task Dispatcher for Turtle-WoW / Tortoise-WoW Extended.
 .DESCRIPTION
-    Provides unified execution for all legacy agent tasks and modern evidence-driven commands.
+    Provides unified execution for all evidence-driven automation commands and workflows.
 #>
 [CmdletBinding()]
 param(
@@ -88,8 +88,14 @@ $ProjectRoot = Split-Path -Parent $ScriptDir
 . (Join-Path $ModulesDir "DbAuditor.ps1")
 
 switch ($Command.ToLower()) {
-    # --- Legacy Agent Commands Preserved ---
+    # --- Core Automation Commands ---
     "1" {
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-ReadyPackages.ps1")
+    }
+    "build-ready" {
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-ReadyPackages.ps1")
+    }
+    "build-packages" {
         & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-ReadyPackages.ps1")
     }
     "2" {
@@ -511,8 +517,16 @@ switch ($Command.ToLower()) {
         Write-Host "================================================================================" -ForegroundColor Cyan
         Write-Host "  TWOW TASK DISPATCHER - AVAILABLE COMMANDS" -ForegroundColor Cyan
         Write-Host "================================================================================" -ForegroundColor Cyan
-        Write-Host "Legacy Agent Tasks:" -ForegroundColor Yellow
-        Write-Host "  task 1                   -> Build & commit all ready packages" -ForegroundColor Gray
+        Write-Host "Core Automation Commands:" -ForegroundColor Yellow
+        Write-Host "  task auto-pilot [N] [T]  -> One-command auto-port & commit batch [-Tier T] [-Mode M]" -ForegroundColor Gray
+        Write-Host "  task auto-port <sha>     -> One-command auto-port & commit single candidate [-Mode M]" -ForegroundColor Gray
+        Write-Host "  task port <sha>          -> Port candidate [-Mode Fast|Normal|Deep] [-DryRun] [-AutoCommit]" -ForegroundColor Gray
+        Write-Host "  task port-batch <N> [T]  -> Batch port [-Mode Fast|Normal|Deep] [-Tier T] [-AutoCommit]" -ForegroundColor Gray
+        Write-Host "  task build <profile>     -> Build profile (world, auth, sql-only, playerbots)" -ForegroundColor Gray
+        Write-Host "  task build-packages      -> Build & commit all ready staged packages" -ForegroundColor Gray
+        Write-Host "  task status              -> Show canonical pipeline state" -ForegroundColor Gray
+        Write-Host "  task pdf                 -> Regenerate COMMAND_REFERENCE HTML & PDF" -ForegroundColor Gray
+        Write-Host "`nAnalysis & Research Commands:" -ForegroundColor Yellow
         Write-Host "  task 2 <sha/topic>       -> Search forum archive" -ForegroundColor Gray
         Write-Host "  task 3 [tbl] [id]        -> Audit migrations or scalp entity" -ForegroundColor Gray
         Write-Host "  task 4 <sha>             -> AI context assembler" -ForegroundColor Gray
@@ -520,13 +534,7 @@ switch ($Command.ToLower()) {
         Write-Host "  task 6 <query>           -> Query online DB viewer" -ForegroundColor Gray
         Write-Host "  task scalp <tbl> <id>    -> Scalp & diff DB entity" -ForegroundColor Gray
         Write-Host "  task extract <tbl> <id>  -> Extract entity" -ForegroundColor Gray
-        Write-Host "  task port <sha>          -> Port candidate [-Mode Fast|Normal|Deep] [-DryRun] [-AutoCommit]" -ForegroundColor Gray
-        Write-Host "  task port-batch <N>      -> Batch port [-Mode Fast|Normal|Deep] [-Tier T] [-AutoCommit]" -ForegroundColor Gray
-        Write-Host "  task auto-port <sha>     -> One-command auto-port & commit single candidate (Tasks 2->3->4->1)" -ForegroundColor Gray
-        Write-Host "  task auto-pilot [N]      -> One-command auto-pilot & commit batch (Tasks 2->3->4->1) [-Tier T]" -ForegroundColor Gray
-        Write-Host "  task status              -> Show canonical pipeline state" -ForegroundColor Gray
-        Write-Host "  task pdf                 -> Regenerate COMMAND_REFERENCE HTML & PDF" -ForegroundColor Gray
-        Write-Host "`nModern Engineering Commands:" -ForegroundColor Yellow
+        Write-Host "`nEngineering & Quality Assurance Commands:" -ForegroundColor Yellow
         Write-Host "  task config              -> View project configuration" -ForegroundColor Gray
         Write-Host "  task config-check        -> Validate project configuration" -ForegroundColor Gray
         Write-Host "  task state-check         -> Validate machine-readable state store" -ForegroundColor Gray

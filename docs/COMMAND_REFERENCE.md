@@ -20,13 +20,13 @@ This document is the canonical CLI operational reference and architecture guide 
 - [1. Overview & Operational Principles](#1-overview--operational-principles)
 - [2. Architecture & Pipeline Flow](#2-architecture--pipeline-flow)
 - [3. Workflow Lifecycle of a Candidate Fix](#3-workflow-lifecycle-of-a-candidate-fix)
-- [4. Master Command Reference: Preserved Existing Commands](#4-master-command-reference-preserved-existing-commands)
-- [5. Master Command Reference: New Extended Commands](#5-master-command-reference-new-extended-commands)
+- [4. Master Command Reference: Core Automation Commands](#4-master-command-reference-core-automation-commands)
+- [5. Master Command Reference: Extended Engineering Commands](#5-master-command-reference-extended-engineering-commands)
 - [6. Verification Modes: FAST vs NORMAL vs DEEP](#6-verification-modes-fast-vs-normal-vs-deep)
 - [7. Automatic Mode Escalation Rules](#7-automatic-mode-escalation-rules)
 - [8. DryRun Mode & Safety Guarantees](#8-dryrun-mode--safety-guarantees)
 - [9. Auto-Pilot Mode & Autonomous Batch Processing](#9-auto-pilot-mode--autonomous-batch-processing)
-  - [The One-Command End-to-End Pipeline: Task 2 + 3 + 4 -> Task 1](#the-one-command-end-to-end-pipeline-task-2---3---4---1)
+  - [The One-Command End-to-End Pipeline](#the-one-command-end-to-end-pipeline)
   - [Staging-Only Mode vs Auto-Commit Mode](#staging-only-mode-vs-auto-commit-mode)
   - [Clean CLI Invocations (From Default Location / Any Prompt)](#clean-cli-invocations-from-default-location--any-prompt)
   - [Running Auto-Pilot: With Tier vs Without Tier](#running-auto-pilot-mode-with-tier-vs-without-tier)
@@ -46,7 +46,8 @@ This document is the canonical CLI operational reference and architecture guide 
 - [22. Critical Safety Warnings](#22-critical-safety-warnings)
 - [23. Troubleshooting & Common Failure States](#23-troubleshooting--common-failure-states)
 - [24. Expected Status & Verdict Reference Values](#24-expected-status--verdict-reference-values)
-- [25. Architectural Comparison: Why the 2.0 Build System is Vastly Superior to the Legacy 1.0 System](#25-architectural-comparison-why-the-20-build-system-is-vastly-superior-to-the-legacy-10-system)
+- [25. Architectural Strengths & Engineering Guarantees](#25-architectural-strengths--engineering-guarantees)
+- [26. Daily Cheat Sheet & Top Fast Commands](#26-daily-cheat-sheet--top-fast-commands)
 
 ---
 
@@ -149,11 +150,16 @@ The orchestration architecture consists of three interconnected subsystems feedi
 
 ---
 
-## 4. Master Command Reference: Preserved Existing Commands
+## 4. Master Command Reference: Core Automation Commands
 
 | Command | Full Syntax | Mode | Access | AI Usage | Build Usage | DB Usage | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `task 1` | `task.ps1 1` | Normal | Write (Worktree) | None | Full MSVC | Offline Audit | Compiles, verifies, and packages all staged `PORT-XXXX` and `CORE-XXXX` packages. |
+| `task auto-pilot` | `task.ps1 auto-pilot [N] [-Tier 1-5] [-Mode M]` | Variable | Write (Worktree) | Advisory | Full MSVC | Migration Audit | One-command autonomous batch port & commit for $N$ commits (default workflow). |
+| `task auto-port` | `task.ps1 auto-port <sha> [-Mode M] [-DryRun]` | Variable | Write (Worktree) | Advisory | Full MSVC | Migration Audit | One-command end-to-end port & commit for a single commit. |
+| `task port` | `task.ps1 port <sha> [-Mode Fast\|Normal\|Deep] [-DryRun] [-AutoCommit]` | Variable | Write (Worktree) | Advisory | Patch-Aware | Migration Audit | Unified porting pipeline for upstream donor commits. |
+| `task port-batch` | `task.ps1 port-batch <N> [-Tier 1-5] [-Mode M] [-DryRun] [-AutoCommit]` | Variable | Write (Worktree) | Advisory | Patch-Aware | Migration Audit | Batch executes porting pipeline on next $N$ curated candidate commits. |
+| `task build` | `task.ps1 build <profile>` | Fast/Deep | Execute | None | Full MSVC | None | Builds server profile (`world`, `auth`, `sql-only`, `playerbots`). |
+| `task build-packages` | `task.ps1 build-packages` | Normal | Write (Worktree) | None | Full MSVC | Offline Audit | Compiles, verifies, and commits all staged `PORT-XXXX` and `CORE-XXXX` packages in worktree. |
 | `task 2` | `task.ps1 2 <sha/topic>` | Fast | Read-only | None | None | None | Searches 22,155 indexed forum threads for bug discussions and mechanics lore. |
 | `task 3` | `task.ps1 3 [tbl] [id]` | Fast | Read-only | None | None | Offline Catalog | Audits pending database migration SQL or scalps table entity details. |
 | `task 4` | `task.ps1 4 <sha>` | Normal | Read-only | Advisory | None | None | Generates bounded AI semantic dossier with touched code and context lines. |
@@ -161,10 +167,6 @@ The orchestration architecture consists of three interconnected subsystems feedi
 | `task 6` | `task.ps1 6 <id/query>` | Fast | Read-only | None | None | Online DB API | Queries official Turtle Online DB viewer for item, spell, and creature tooltips. |
 | `task scalp` | `task.ps1 scalp <tbl> <id> [-Diff] [-Export]` | Fast | Read-only | None | None | Brotalnia/Base | Extracts entity definitions and generates side-by-side vanilla vs Turtle diffs. |
 | `task extract` | `task.ps1 extract <tbl> <id>` | Fast | Read-only | None | None | Brotalnia/Base | Alias for `task scalp`. |
-| `task port` | `task.ps1 port <sha> [-Mode Fast\|Normal\|Deep] [-DryRun] [-AutoCommit]` | Variable | Write (Worktree) | Advisory | Patch-Aware | Migration Audit | Unified porting pipeline for upstream donor commits. |
-| `task port-batch` | `task.ps1 port-batch <N> [-Tier 1-5] [-Mode M] [-DryRun] [-AutoCommit]` | Variable | Write (Worktree) | Advisory | Patch-Aware | Migration Audit | Batch executes porting pipeline on next $N$ curated candidate commits. |
-| `task auto-port` | `task.ps1 auto-port <sha> [-Mode M] [-DryRun]` | Variable | Write (Worktree) | Advisory | Full MSVC | Migration Audit | One-command end-to-end port & commit for single commit (Tasks 2->3->4->1). |
-| `task auto-pilot` | `task.ps1 auto-pilot [N] [-Tier 1-5] [-Mode M]` | Variable | Write (Worktree) | Advisory | Full MSVC | Migration Audit | One-command autonomous batch port & commit for $N$ commits (Tasks 2->3->4->1). |
 | `task restore` | `task.ps1 restore <topic> [-StageTemplate]` | Normal | Staging | Advisory | None | Offline Catalog | Audits official staff posts and stages native core restoration manifests. |
 | `task restore-batch`| `task.ps1 restore-batch <N>` | Normal | Staging | Advisory | None | Offline Catalog | Batch audits next $N$ un-audited Turtle patch topics from roadmap queue. |
 | `task status` | `task.ps1 status` | Fast | Read-only | None | None | None | Displays live system metrics, queue counts, HEAD SHAs, and active run IDs. |
@@ -172,7 +174,7 @@ The orchestration architecture consists of three interconnected subsystems feedi
 
 ---
 
-## 5. Master Command Reference: New Extended Commands
+## 5. Master Command Reference: Extended Engineering Commands
 
 | Command | Full Syntax | Mode | Access | AI Usage | Build Usage | DB Usage | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -262,7 +264,7 @@ task.ps1 port 448df9ba0 -DryRun
 
 Auto-Pilot Mode enables hands-free, continuous candidate evaluation, bug proving, worktree provisioning, patch normalization, compatibility auditing, and candidate staging across multiple commits without manual per-commit intervention.
 
-### The One-Command End-to-End Pipeline: Tasks 2 -> 3 -> 4 -> 1
+#### The One-Command End-to-End Pipeline
 
 When you want an autonomous, zero-friction pipeline that takes upstream commits all the way to candidate branch commits in a single pass, use **Auto-Pilot Mode**:
 
@@ -270,38 +272,38 @@ When you want an autonomous, zero-friction pipeline that takes upstream commits 
 # Auto-Pilot a batch of 10 candidates with automatic compilation and git commit:
 task.ps1 auto-pilot 10
 
+# Auto-Pilot with tier filter:
+task.ps1 auto-pilot 10 -Tier 1
+task.ps1 auto-pilot 10 1
+
 # Auto-Pilot a specific single commit:
 task.ps1 auto-port 448df9ba0
-
-# Or via the -AutoCommit switch:
-task.ps1 port-batch 10 -AutoCommit
-task.ps1 port 448df9ba0 -AutoCommit
 ```
 
 #### How the Chained Pipeline Works:
-1. **Task 2: Forum & Mechanics Intelligence Scout (`Search-ForumArchive.ps1`)**:
+1. **Forum & Mechanics Intelligence Scout (`Search-ForumArchive.ps1`)**:
    Automatically mines 22,155 indexed Turtle-WoW forum threads using keywords extracted from the commit subject. Identifies any related mechanics discussions, player bug reports, or staff statements.
-2. **Task 3: Database & Migration Safety Audit (`Audit-DatabaseMigrations.ps1`)**:
+2. **Database & Migration Safety Audit (`Audit-DatabaseMigrations.ps1`)**:
    Checks whether the upstream commit touches SQL migrations. Inspects table definitions against the 413-table schema catalog, verifies Turtle custom ID ranges (creature >= 300,000, spell >= 40,000), checks for forbidden progressive columns, and stages any required SQL files into `tools/queue/staging_sql/`.
-3. **Task 4: AI Context Assembly & Semantic Dossier (`Invoke-AiAudit.ps1`)**:
-   Performs bounded diff context extraction, checks surrounding code ASTs, evaluates Turtle custom divergences, verifies hard invariants (`MAX_RACES=11`, `sTWDebuff`), generates an AI audit dossier in `tools/queue/ai_dossiers/<sha>.md`, and packages the candidate into `tools/queue/02_ready_to_build/PORT-XXXX.json`.
-4. **Task 1: Isolated Worktree Builder & Committer (`Build-ReadyPackages.ps1`)**:
+3. **AI Context Assembly & Semantic Dossier (`Invoke-AiAudit.ps1`)**:
+   Performs bounded diff context extraction, checks surrounding code ASTs, evaluates Turtle custom divergences (`MAX_RACES=11`, `sTWDebuff`), generates an AI audit dossier in `tools/queue/ai_dossiers/<sha>.md`, and packages the candidate into `tools/queue/02_ready_to_build/PORT-XXXX.json`.
+4. **Isolated Worktree Builder & Committer (`Build-ReadyPackages.ps1`)**:
    Creates an isolated git worktree (`.worktrees/candidate-PORT-XXXX`), applies the patch safely, enforces build profiles (`world`, `auth`, `sql-only`), compiles via MSVC 2022, and commits to a candidate branch with full provenance recorded in `tools/state/state_store.json`.
 
 ---
 
-### FAQ: If I run `task.ps1 port-batch 10`, do I have to run `task.ps1 1` after?
+### FAQ: Staging Mode vs Auto-Pilot Mode
 
-| Execution Command | Staged to Queue? | Automatically Compiled? | Automatically Committed? | Need to run `task 1` after? |
+| Execution Command | Staged to Queue? | Automatically Compiled? | Automatically Committed? | Need follow-up build? |
 | :--- | :--- | :--- | :--- | :--- |
-| `task.ps1 port-batch 10` | Yes (`02_ready_to_build/`) | No | No | **YES** (Review first, then compile via `task 1`) |
+| `task.ps1 port-batch 10` | Yes (`02_ready_to_build/`) | No | No | **YES** (Review first, then compile via `task.ps1 build-packages`) |
 | `task.ps1 auto-pilot 10` | Yes | Yes (in worktree) | Yes (candidate branch) | **NO** (Fully automated in 1 command) |
 | `task.ps1 port-batch 10 -AutoCommit` | Yes | Yes (in worktree) | Yes (candidate branch) | **NO** (Fully automated in 1 command) |
 | `task.ps1 auto-port <sha>` | Yes | Yes (in worktree) | Yes (candidate branch) | **NO** (Fully automated in 1 command) |
 
 > [!NOTE]
 > - Use `task.ps1 port-batch 10` when you want a **review step** (inspecting AI dossiers and patches in `tools/queue/02_ready_to_build/` before compiling).
-> - Use `task.ps1 auto-pilot 10` or `-AutoCommit` when you want a **hands-off single command** that finishes the entire process and commits verified candidate branches automatically.
+> - Use `task.ps1 auto-pilot 10` (or `task.ps1 auto-port`) when you want a **hands-off single command** that finishes the entire process and commits verified candidate branches automatically.
 
 ---
 
@@ -662,21 +664,95 @@ task.ps1 tag-release "v1.18.1-update1"
 
 ---
 
-## 25. Architectural Comparison: Why the 2.0 Build System is Vastly Superior to the Legacy 1.0 System
+## 25. Architectural Strengths & Engineering Guarantees
 
-The 2.0 Total Revamp overhaul transforms the repository from a collection of fragile manual porting scripts into a high-assurance, non-destructive, enterprise-grade autonomous engineering framework:
+The build and porting automation architecture provides a high-assurance, non-destructive, enterprise-grade engineering framework:
 
-| Architectural Dimension | Legacy 1.0 Porting System | Revamp 2.0 Autonomous Architecture | Tangible Engineering Advantage |
+| Architectural Dimension | Modern Autonomous Implementation | Tangible Engineering Guarantee |
+| :--- | :--- | :--- |
+| **Git Working Tree Safety** | Strict Git worktree isolation in ephemeral `.worktrees/candidate-PORT-XXXX/`. | Target repo checkout is **100% clean and immune** to accidental corruption or debris. |
+| **Rollback & Cleanup** | Non-destructive: simply unlinks the worktree (`Remove-IsolatedWorktree`). | Eliminates catastrophic data loss risk; never discards uncommitted work. |
+| **Commit Staging & Branches** | Changes committed exclusively to candidate branches (`port/PORT-XXXX-<sha>`). | Enables clean PR reviews, branch audits, and CI smoke testing before integration. |
+| **Bug Existence Verification** | Deterministic Bug Prover (`BugProver.ps1` / `task prove`). | Classifies `BUG_PRESENT`, `ALREADY_FIXED`, `NOT_APPLICABLE`, or `TURTLE_DIVERGENCE` before touching code. |
+| **Build Efficiency** | Patch-Aware Build Profiles (`world`, `auth`, `sql-only`, `docs-only`). | Bypasses compilation for SQL/docs (0s), targets single daemons (15-45s), maximizing iteration speed. |
+| **Database Migration Safety** | Cached 413-table schema catalog (`DbAuditor.ps1`) and strict boundary guards. | Blocks forbidden progressive columns (`patch`, `build`) and protects custom ranges (`spell` $\ge 40k$, world $\ge 300k$). |
+| **Client Data Parity** | Automated binary WDBC parser (`ParityAuditor.ps1` / `task parity`). | Guarantees code parity with 1.18.1 client DBCs (`MAX_RACES = 11`, maps, spell definitions). |
+| **State Tracking & Resumption** | Atomic canonical JSON state store (`state_store.json`) with 30-state transition guards. | Deterministic run IDs (`RUN-yyyyMMdd-HHmmss-xxxx`), transition guards, and resume capability. |
+| **AI Token Efficiency** | Deterministic-first gating, bounded context ($\le 200$ lines), composite SHA256 caching. | 0 AI tokens spent on deterministic rejections; prevents hallucination via `ADVISORY_ONLY`. |
+| **Runtime Reliability** | Disposable startup smoke tests (`SmokeTest.ps1`) and 17-category log triage. | Catches assertion failures, heap corruptions, and missing DBCs before candidate commits are certified. |
+| **Automated Testing & CI** | Comprehensive 38-spec test suite (`task test`) + 2 GitHub Actions CI workflows. | Sub-7-second automated verification ensuring every invariant, schema, and command passes. |
+
+---
+
+## 26. Daily Cheat Sheet & Top Fast Commands
+
+This quick-reference cheat sheet summarizes the most frequent commands you will run on a day-to-day basis.
+
+### 26.1. The Top Commands at a Glance
+
+| Command | Full Syntax | Primary Purpose | When to Use |
 | :--- | :--- | :--- | :--- |
-| **Git Working Tree Safety** | Directly modified target repository working tree; polluted checkout. | Strict Git worktree isolation in ephemeral `.worktrees/PORT-XXXX/`. | Target repo checkout is **100% clean and immune** to accidental corruption or debris. |
-| **Rollback & Cleanup** | Ran destructive `git checkout .`, `git reset --hard`, and `git clean -fd`. | Non-destructive: simply unlinks the worktree (`Remove-IsolatedWorktree`). | Eliminates catastrophic data loss risk; never discards developer uncommitted work. |
-| **Commit Staging & Branches** | Committed directly to active target branch or left loose patches in folders. | Changes committed exclusively to candidate branches (`port/PORT-XXXX-<sha>`). | Enables clean PR reviews, branch audits, and CI smoke testing before merge. |
-| **Bug Existence Verification** | Blindly applied patches; failed on Turtle custom code divergences. | Deterministic Bug Prover (`BugProver.ps1` / `task prove`). | Classifies `BUG_PRESENT`, `ALREADY_FIXED`, `NOT_APPLICABLE`, or `TURTLE_DIVERGENCE` before touching code. |
-| **Build Speed & Disk Footprint** | Recompiled full solution (`world` + `auth`) for every patch (~15-30 min per commit). | Patch-Aware Build Profiles (`world`, `auth`, `sql-only`, `docs-only`). | Bypasses compilation for SQL/docs (0s), targets single daemons (15-45s), saving hours of build time. |
-| **Database Migration Safety** | Unverified SQL execution; potential collision with custom Turtle content. | Cached 413-table schema catalog (`DbAuditor.ps1`) and strict boundary guards. | Blocks forbidden progressive columns (`patch`, `build`) and protects custom ranges (`spell` $\ge 40k$, world $\ge 300k$). |
-| **Client Data Parity** | Manual inspection or reliance on external assumptions. | Automated binary WDBC parser (`ParityAuditor.ps1` / `task parity`). | Guarantees code parity with 1.18.1 client DBCs (`MAX_RACES = 11`, maps, spell definitions). |
-| **State Tracking & Resumption** | Disparate queue directories with loose JSON files prone to desync. | Atomic canonical JSON state store (`state_store.json`) with 30-state transition guards. | Deterministic run IDs (`RUN-yyyyMMdd-HHmmss-xxxx`), transition guards, and resume capability. |
-| **AI Token Efficiency** | Unbounded prompts; risked spending tokens on already-fixed candidates. | Deterministic-first gating, bounded context ($\le 200$ lines), composite SHA256 caching. | 0 AI tokens spent on deterministic rejections; prevents hallucination via `ADVISORY_ONLY`. |
-| **Runtime Reliability** | No startup validation; crashes only discovered after manual server launch. | Disposable startup smoke tests (`SmokeTest.ps1`) and 17-category log triage. | Catches assertion failures, heap corruptions, and missing DBCs before candidate commits are certified. |
-| **Automated Testing & CI** | Zero automated tests; scripts were untested in continuous integration. | Comprehensive 38-spec Pester suite (`task test`) + 2 GitHub Actions CI workflows. | Sub-7-second automated verification ensuring every invariant, schema, and command passes. |
+| **Batch Auto-Pilot** | `task auto-pilot 10` | Full autonomous pipeline: lore scouting, DB audit, AI context dossier, MSVC worktree compile, and candidate branch commit for 10 commits. | Your primary hands-free daily command for high-velocity porting. |
+| **Tier-Filtered Auto-Pilot** | `task auto-pilot 10 1` | Same end-to-end auto-pilot pipeline, but restricted strictly to Tier 1 (Crash, Exploit, and Critical Security fixes). | When focusing specifically on server stability, security, or crash elimination. |
+| **Batch Auto-Commit** | `task port-batch 10 -AutoCommit` | Equivalent to `task auto-pilot 10`. Runs all research stages (lore, DB audit, AI context) and triggers the MSVC compile & commit gate. | Exact semantic alias for batch auto-pilot. |
+| **Single Auto-Port** | `task auto-port <sha>` | One-command end-to-end port, compile, and commit for a single specific upstream commit SHA. | When investigating or porting a specific upstream commit SHA directly. |
+| **Refresh Upstream Roadmap** | `task roadmap-refresh -FetchLatest` | Connects to upstream `vmangos/core`, fetches the latest commits, audits against Turtle core, recalculates priority scores, and updates `docs/ROADMAP.md`. | Weekly or when new upstream commits are released and you want to catch them. |
+| **Offline Roadmap Audit** | `task roadmap-refresh` | Re-evaluates and ranks all cached candidate commits offline without network requests. | When re-ranking local candidates or updating queue files offline. |
+| **Compile Server** | `task build` *(or `task build world`)* | Directly invokes CMake / MSVC 2022 to build the target server daemon (`world`, `auth`, `sql-only`, `playerbots`). | To verify current core builds cleanly without running the porting pipeline. |
+| **Run All Unit Tests** | `task test` | Runs the universal 38-spec automated Pester test suite in under 7 seconds. | Before and after any major tooling or policy change. |
+| **Prove Bug Existence** | `task prove <sha>` | Deterministically proves whether a bug exists in Tortoise-WoW Extended without modifying any code. | Quick triage to see if an upstream fix is already fixed or applicable. |
+| **Pipeline Status** | `task status` | Outputs current target Git HEAD, active worktree count, staged ready packages, and active run IDs. | Anytime you want a rapid health check of the engineering environment. |
+| **Entity Scalp & Diff** | `task scalp <table/type> <id> -Diff` | Extracts item, NPC, spell, or quest records from historical database, strips progressive columns, and generates sanitized SQL diff. | When fixing or verifying custom database entities against vanilla data. |
+| **Worktree Cleanup** | `task cleanup` | Safe, non-destructive disposal of ephemeral `.worktrees/candidate-*` directories. | Periodic cleanup after large batch runs; leaves working tree 100% clean. |
+| **Regenerate PDF & HTML** | `task pdf` | Converts `COMMAND_REFERENCE.md` into cleanly formatted `COMMAND_REFERENCE.html` and publication-ready `COMMAND_REFERENCE.pdf`. | Whenever documentation or command specifications are updated. |
+
+---
+
+### 26.2. Clean CLI Invocations (From Default Location / Any Prompt)
+
+You do not need to change directory (`cd`) to run any of these commands. You can execute them directly from `C:\Users\Admin>` or any terminal:
+
+#### In PowerShell:
+```powershell
+# 1. Run 10 commits through auto-pilot
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10
+
+# 2. Run 10 Tier-1 (critical crash/exploit) commits through auto-pilot
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10 1
+
+# 3. Batch port 10 commits with immediate compilation and commit
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" port-batch 10 -AutoCommit
+
+# 4. Fetch latest upstream commits and refresh roadmap
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" roadmap-refresh -FetchLatest
+
+# 5. Compile server world daemon
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" build world
+
+# 6. Run test suite
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" test
+```
+
+#### In Windows Command Prompt (`cmd.exe`):
+```cmd
+:: Run 10 commits through auto-pilot
+powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" auto-pilot 10
+
+:: Fetch latest upstream commits and refresh roadmap
+powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" roadmap-refresh -FetchLatest
+
+:: Run test suite
+powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" test
+```
+
+---
+
+### 26.3. Target Repository & Synchronization Guarantees
+
+> [!IMPORTANT]
+> **Repository Authority & Auto-Sync Policy**:
+> - **Sole Server Target**: All ported fixes, investigations, and compiled commits target **[`Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended)** exclusively.
+> - **Draft Orchestration Workspace**: The `twow-project` repository on GitHub is a local draft orchestration framework.
+> - **Auto-Sync Disabled**: **Auto-sync and automatic background pushes to `twow-project` on GitHub are disabled by default (`auto_sync: false`)**. No changes will ever be pushed to `twow-project` unless explicitly requested by the user in the prompt.
+
 

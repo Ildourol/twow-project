@@ -7,7 +7,9 @@
     "twow_project": {
       "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project",
       "default_branch": "main",
-      "expected_remote": "origin"
+      "expected_remote": "origin",
+      "is_draft_project": true,
+      "auto_sync": false
     },
     "tortoise_wow": {
       "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/tortoise-wow",
@@ -82,6 +84,8 @@
     "branch_prefix": "port/PORT-",
     "push_policy": "branch_pr_gate",
     "target_default_branch": "main",
-    "remote_extended": "extended"
+    "remote_extended": "extended",
+    "auto_sync": false,
+    "remote_sync_enabled": false
   }
 }
