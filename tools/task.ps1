@@ -251,6 +251,7 @@ switch ($Command.ToLower()) {
             if (-not [string]::IsNullOrEmpty($Subsystem)) { $cmdArgs += @("-Subsystem", $Subsystem) }
             if ($DryRun) { $cmdArgs += "-DryRun" }
             if ($SkipBuild) { $cmdArgs += "-SkipBuild" }
+            & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
         }
     }
     "pdf" {

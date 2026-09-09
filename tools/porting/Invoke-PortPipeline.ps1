@@ -63,6 +63,7 @@ if (-not (Test-Path $ModulesDir)) { $ModulesDir = Join-Path $ScriptDir "..\modul
 
 $cfg = Get-ProjectConfig
 $ProjectRoot = $cfg.repositories.twow_project.path
+$PortingDir = Join-Path $ProjectRoot "tools\porting"
 $VmangosRepo = $cfg.repositories.vmangos_donor.path
 $TortoiseRepo = $cfg.repositories.tortoise_wow.path
 $QueueDir = Join-Path $ProjectRoot "tools\queue"
@@ -78,7 +79,7 @@ $shasToProcess = [System.Collections.Generic.List[string]]::new()
 if ($DonorSha.Count -gt 0) {
     foreach ($s in $DonorSha) { [void]$shasToProcess.Add($s.Trim()) }
 } elseif ($BatchCount -gt 0) {
-    $queueCsv = Join-Path $ScriptDir "CRUCIAL_COMMITS_QUEUE.csv"
+    $queueCsv = Join-Path $PortingDir "CRUCIAL_COMMITS_QUEUE.csv"
     if (-not (Test-Path $queueCsv)) {
         Write-Host "[ERROR] Queue file not found: $queueCsv" -ForegroundColor Red
         exit $script:EXIT_CODE_TOOL_FAILURE
@@ -274,7 +275,7 @@ Record-Run -RunId $runId -Operation "PORT_PIPELINE" -Mode $Mode -Status "COMPLET
 
 if (($AutoBuild -or $AutoCommit) -and -not $DryRun) {
     Write-Host "`n[Build Engine] Auto-Pilot / AutoCommit enabled: Invoking Build-ReadyPackages..." -ForegroundColor Cyan
-    $buildArgs = @((Join-Path $ScriptDir "Build-ReadyPackages.ps1"))
+    $buildArgs = @((Join-Path $PortingDir "Build-ReadyPackages.ps1"))
     if ($SkipBuild) { $buildArgs += "-SkipBuild" }
     & powershell.exe -ExecutionPolicy Bypass -File @buildArgs
 }
