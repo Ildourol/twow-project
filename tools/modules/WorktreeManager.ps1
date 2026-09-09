@@ -165,9 +165,13 @@ function Remove-IsolatedWorktree {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)][string]$WorktreePath,
-        [string]$TargetRepo = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow",
+        [string]$TargetRepo = "",
         [switch]$Force
     )
+    if ([string]::IsNullOrEmpty($TargetRepo)) {
+        $cfg = Get-ProjectConfig
+        $TargetRepo = if ($cfg -and $cfg.repositories.tortoise_wow.path) { $cfg.repositories.tortoise_wow.path } else { Join-Path $ProjectRoot "tortoise-wow" }
+    }
     Remove-CandidateWorktree -TargetRepo $TargetRepo -WorktreePath $WorktreePath -Force:$Force
 }
 

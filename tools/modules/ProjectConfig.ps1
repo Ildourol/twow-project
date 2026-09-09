@@ -1,12 +1,30 @@
 # ProjectConfig.ps1: Canonical Configuration and Build Discovery
 
-$script:ConfigFilePath = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\config\twow-project.json"
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..") -ErrorAction SilentlyContinue
+if (-not $ProjectRoot) { $ProjectRoot = (Get-Location).Path }
+$script:ConfigFilePath = Join-Path $ProjectRoot "config\twow-project.json"
 
 function Get-ProjectConfig {
     [CmdletBinding()]
     param(
-        [string]$Path = $script:ConfigFilePath
+        [string]$Path = ""
     )
+
+    if ([string]::IsNullOrEmpty($Path)) {
+        $Path = $script:ConfigFilePath
+    }
+
+    if (-not (Test-Path $Path)) {
+        $fallbacks = @(
+            $script:ConfigFilePath,
+            (Join-Path (Get-Location).Path "config\twow-project.json"),
+            (Join-Path $ProjectRoot "config\twow-project.json")
+        )
+        foreach ($fb in $fallbacks) {
+            if ($fb -and (Test-Path $fb)) { $Path = $fb; break }
+        }
+    }
 
     if (-not (Test-Path $Path)) {
         throw "Canonical project configuration file not found at: $Path"
@@ -14,6 +32,23 @@ function Get-ProjectConfig {
 
     $raw = [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
     $config = $raw | ConvertFrom-Json
+
+    $cfgRoot = Split-Path -Parent (Split-Path -Parent (Resolve-Path $Path))
+    if (-not (Test-Path $config.repositories.twow_project.path)) {
+        $config.repositories.twow_project.path = $cfgRoot
+    }
+    if (-not (Test-Path $config.repositories.tortoise_wow.path)) {
+        $config.repositories.tortoise_wow.path = Join-Path $cfgRoot "tortoise-wow"
+    }
+    if (-not (Test-Path $config.repositories.vmangos_donor.path)) {
+        $config.repositories.vmangos_donor.path = Join-Path $cfgRoot "reference-upstreams\vmangos-core"
+    }
+    if (-not (Test-Path $config.repositories.client_data.path)) {
+        $config.repositories.client_data.path = Join-Path $cfgRoot "reference-upstreams\client-data-1.18.1"
+    }
+    if (-not (Test-Path $config.repositories.forum_archive.path)) {
+        $config.repositories.forum_archive.path = Join-Path $cfgRoot "resources\forum"
+    }
 
     # Dynamic auto-discovery for CMake executable if not found at specified path
     $cmakePath = $config.build.cmake_executable

@@ -1,6 +1,8 @@
 # RelationGraph.ps1: Dependency, duplicate, and supersession relationship engine
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..") -ErrorAction SilentlyContinue
+if (-not $ProjectRoot) { $ProjectRoot = (Get-Location).Path }
 . (Join-Path $ScriptDir "ExitCodes.ps1")
 . (Join-Path $ScriptDir "ProjectConfig.ps1")
 
@@ -24,8 +26,13 @@ function Get-CandidateRelations {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)][Alias("CandidateSha")][string]$DonorSha,
-        [string]$DonorRepo = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\reference-upstreams\vmangos-core"
+        [string]$DonorRepo = ""
     )
+
+    if ([string]::IsNullOrEmpty($DonorRepo)) {
+        $cfg = Get-ProjectConfig
+        $DonorRepo = if ($cfg -and $cfg.repositories.vmangos_donor.path) { $cfg.repositories.vmangos_donor.path } else { Join-Path $ProjectRoot "reference-upstreams\vmangos-core" }
+    }
 
     if (-not (Test-Path $DonorRepo)) {
         return @{ Error = "Donor repository not found: $DonorRepo"; Relations = @() }
@@ -126,7 +133,7 @@ function Get-CandidateRelations {
 
     return @{
         Sha       = $shortSha
-        candidate_sha = $shortSha
+        candidate_sha = if ($DonorSha) { $DonorSha } else { $shortSha }
         superseded_by = @($relations | Where-Object { $_.Type -eq 'SUPERSEDED_BY' } | Select-Object -ExpandProperty Target)
         FullSha   = $fullSha
         Subject   = $subject
@@ -138,8 +145,13 @@ function Get-CandidateDependencies {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)][Alias("CandidateSha")][string]$DonorSha,
-        [string]$DonorRepo = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\reference-upstreams\vmangos-core"
+        [string]$DonorRepo = ""
     )
+
+    if ([string]::IsNullOrEmpty($DonorRepo)) {
+        $cfg = Get-ProjectConfig
+        $DonorRepo = if ($cfg -and $cfg.repositories.vmangos_donor.path) { $cfg.repositories.vmangos_donor.path } else { Join-Path $ProjectRoot "reference-upstreams\vmangos-core" }
+    }
 
     $parents = git -C $DonorRepo log -n 1 --pretty=format:"%P" $DonorSha 2>$null
     $parentList = if ($parents) { ($parents.Trim() -split '\s+') } else { @() }

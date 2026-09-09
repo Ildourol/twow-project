@@ -1,6 +1,8 @@
 # BugProver.ps1: Deterministic bug-existence proving engine for donor candidates
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..") -ErrorAction SilentlyContinue
+if (-not $ProjectRoot) { $ProjectRoot = (Get-Location).Path }
 . (Join-Path $ScriptDir "ExitCodes.ps1")
 . (Join-Path $ScriptDir "ProjectConfig.ps1")
 . (Join-Path $ScriptDir "CompatibilityChecker.ps1")
@@ -9,9 +11,17 @@ function Invoke-BugExistenceProof {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)][string]$DonorSha,
-        [string]$DonorRepo = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\reference-upstreams\vmangos-core",
-        [string]$TargetRepo = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow"
+        [string]$DonorRepo = "",
+        [string]$TargetRepo = ""
     )
+
+    $cfg = Get-ProjectConfig
+    if ([string]::IsNullOrEmpty($DonorRepo)) {
+        $DonorRepo = if ($cfg -and $cfg.repositories.vmangos_donor.path) { $cfg.repositories.vmangos_donor.path } else { Join-Path $ProjectRoot "reference-upstreams\vmangos-core" }
+    }
+    if ([string]::IsNullOrEmpty($TargetRepo)) {
+        $TargetRepo = if ($cfg -and $cfg.repositories.tortoise_wow.path) { $cfg.repositories.tortoise_wow.path } else { Join-Path $ProjectRoot "tortoise-wow" }
+    }
 
     if (-not (Test-Path $DonorRepo)) {
         return @{
@@ -219,8 +229,8 @@ function Test-BugExistence {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)][string]$CandidateSha,
-        [string]$DonorRepo = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\reference-upstreams\vmangos-core",
-        [string]$TargetRepo = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow"
+        [string]$DonorRepo = "",
+        [string]$TargetRepo = ""
     )
 
     $proof = Invoke-BugExistenceProof -DonorSha $CandidateSha -DonorRepo $DonorRepo -TargetRepo $TargetRepo
@@ -237,8 +247,13 @@ function Classify-BugByDiff {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)][string]$DiffText,
-        [string]$TargetRepo = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow"
+        [string]$TargetRepo = ""
     )
+
+    if ([string]::IsNullOrEmpty($TargetRepo)) {
+        $cfg = Get-ProjectConfig
+        $TargetRepo = if ($cfg -and $cfg.repositories.tortoise_wow.path) { $cfg.repositories.tortoise_wow.path } else { Join-Path $ProjectRoot "tortoise-wow" }
+    }
 
     if ($DiffText -match "MAX_RACES\s+1[01]|sTWDebuff|sTransmogMgr|sCustomMerchantMgr") {
         return "TURTLE_INTENTIONAL_DIVERGENCE"
