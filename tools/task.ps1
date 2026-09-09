@@ -331,7 +331,7 @@ switch ($Command.ToLower()) {
         if (Test-Path $queueCsv) {
             $candidates = Import-Csv $queueCsv | Select-Object -First 10
             foreach ($c in $candidates) {
-                $score = Get-CandidatePriorityScore -DonorSha $c.ShortSha -Subject $c.Subject -Tier [int]$c.Tier -Subsystem $c.Subsystem
+                $score = Get-CandidatePriorityScore -DonorSha $c.ShortSha -Subject $c.Subject -Tier ([int]$c.Tier) -Subsystem $c.Subsystem
                 Write-Host ("[{0,5}] {1,-10} (Tier {2}, {3}): {4}" -f $score.TotalScore, $c.ShortSha, $c.Tier, $score.RecommendedMode, $c.Subject) -ForegroundColor Green
             }
         }
@@ -343,7 +343,7 @@ switch ($Command.ToLower()) {
             foreach ($r in $rows) {
                 if ($Tier -gt 0 -and [int]$r.Tier -ne $Tier) { continue }
                 if (-not [string]::IsNullOrEmpty($Subsystem) -and $r.Subsystem -notlike "*$Subsystem*") { continue }
-                $score = Get-CandidatePriorityScore -DonorSha $r.ShortSha -Subject $r.Subject -Tier [int]$r.Tier -Subsystem $r.Subsystem
+                $score = Get-CandidatePriorityScore -DonorSha $r.ShortSha -Subject $r.Subject -Tier ([int]$r.Tier) -Subsystem $r.Subsystem
                 Write-Host "Next optimal candidate:" -ForegroundColor Cyan
                 Write-Host "  SHA      : $($r.ShortSha)" -ForegroundColor Yellow
                 Write-Host "  Subject  : $($r.Subject)" -ForegroundColor Gray
@@ -355,19 +355,19 @@ switch ($Command.ToLower()) {
         }
     }
     "roadmap" {
-        $params = @{}
-        if ($FetchLatest) { $params["FetchLatest"] = $true }
-        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-CrucialRoadmap.ps1") @params
+        $cmdArgs = @((Join-Path $PortingDir "Build-CrucialRoadmap.ps1"))
+        if ($FetchLatest) { $cmdArgs += "-FetchLatest" }
+        & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
     }
     "roadmap-refresh" {
-        $params = @{}
-        if ($FetchLatest) { $params["FetchLatest"] = $true }
-        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-CrucialRoadmap.ps1") @params
+        $cmdArgs = @((Join-Path $PortingDir "Build-CrucialRoadmap.ps1"))
+        if ($FetchLatest) { $cmdArgs += "-FetchLatest" }
+        & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
     }
     "audit-roadmap" {
-        $params = @{}
-        if ($FetchLatest) { $params["FetchLatest"] = $true }
-        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-CrucialRoadmap.ps1") @params
+        $cmdArgs = @((Join-Path $PortingDir "Build-CrucialRoadmap.ps1"))
+        if ($FetchLatest) { $cmdArgs += "-FetchLatest" }
+        & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
     }
     "candidate-info" {
         if (-not $Argument) { Write-Host "Usage: task candidate-info <id>" -ForegroundColor Yellow; return }

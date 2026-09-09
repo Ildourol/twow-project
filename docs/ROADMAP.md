@@ -1,4 +1,4 @@
-# Master Project Roadmap & Semantic AI Porting Queue
+﻿# Master Project Roadmap & Semantic AI Porting Queue
 
 This document is the authoritative, fixed roadmap and execution ledger for **Tortoise-WoW Extended** (`twow project/tortoise-wow`). All historical VMaNGOS commits have been semantically audited across all 5 severity tiers.
 
