@@ -34,10 +34,9 @@ When conflicting technical requirements or code patterns arise, agents must stri
   - `git clean -fd` (FORBIDDEN)
 - If an isolated worktree fails compilation or tests, remove the worktree via `Remove-IsolatedWorktree`. The main working tree is never touched.
 
-### 2.3. No Direct Push / Remote Sync Disabled by Default
+### 2.3. Repository Targets & Commit Safety
 - **Primary Server Target**: All fixes, investigations, and commits target **Tortoise-WoW Extended** (`https://github.com/Ildourol/tortoise-wow-extended`). Candidates are committed strictly to candidate branches: `port/PORT-XXXX-<sha>`.
-- **Local Draft Orchestration Repository**: The orchestration workspace `twow-project` (`https://github.com/Ildourol/twow-project`) is a local draft repository.
-- **Auto-Sync / Auto-Update Strictly Disabled**: Auto-sync and background remote pushes to `twow-project` on GitHub are **disabled by default (`auto_sync: false`)**. Agents and scripts must never push or sync status to `twow-project` unless the user explicitly and manually requests a sync in the current prompt.
+- **Local Orchestration Workspace**: All orchestration tooling, scripts, and state management operate exclusively as a local workspace. It has no remote connections, and all workflows run strictly on the local machine.
 - Do not push or commit to remote main branches (`origin/main` or `extended/main`) without explicit user authorization in the current session.
 
 ### 2.4. Read-Only Research Agents

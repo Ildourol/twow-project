@@ -74,9 +74,9 @@ twow project/
 | **Historical World Database** | `reference-upstreams/lights-hope-database-history/` | [`Ildourol/database`](https://github.com/Ildourol/database) | Authoritative Brotalnia vanilla DB (`world_full_14_june_2021.sql`). |
 | **Primary Donor Core** | `reference-upstreams/vmangos-core/` | [`vmangos/core`](https://github.com/vmangos/core) | Upstream vanilla 1.12.1 emulator (development branch). |
 > [!IMPORTANT]
-> **Primary Server Target & Draft Orchestrator Policy**:
-> - **Primary Focus**: [`Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) is the **sole primary target server repository**. All fixes, investigations, and verified commits target this repository.
-> - **Orchestrator Status**: The local workspace `twow-project` is a local engineering orchestrator. Its remote repository (`Ildourol/twow-project`) is a draft workspace. **Auto-sync and auto-update are disabled by default (`auto_sync: false`)**. The system will never push or upload status to `twow-project` on GitHub unless explicitly commanded by the user.
+> **Primary Server Target**:
+> - **Sole Server Target**: [`Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) is the **sole primary target server repository**. All fixes, investigations, and verified commits target this repository.
+> - **Local Toolchain**: The orchestration toolchain, automation scripts, and state machines operate strictly locally within this workspace with zero remote orchestration repository connections.
 
 ### Quick Setup Commands (PowerShell)
 ```powershell

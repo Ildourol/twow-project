@@ -1537,11 +1537,10 @@ powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles
 :: Run test suite
 powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" test</code></pre>
 <hr>
-<h3>26.3. Target Repository &amp; Synchronization Guarantees</h3>
-<div class="alert alert-important"><span class="alert-badge">important</span><br><strong>Repository Authority &amp; Auto-Sync Policy</strong>:
+<h3>26.3. Target Repository Authority &amp; Local Workspace Guarantees</h3>
+<div class="alert alert-important"><span class="alert-badge">important</span><br><strong>Repository Authority &amp; Target Server</strong>:
 - <strong>Sole Server Target</strong>: All ported fixes, investigations, and compiled commits target <strong><a href="https://github.com/Ildourol/tortoise-wow-extended"><code>Ildourol/tortoise-wow-extended</code></a></strong> exclusively.
-- <strong>Draft Orchestration Workspace</strong>: The <code>twow-project</code> repository on GitHub is a local draft orchestration framework.
-- <strong>Auto-Sync Disabled</strong>: <strong>Auto-sync and automatic background pushes to <code>twow-project</code> on GitHub are disabled by default (<code>auto_sync: false</code>)</strong>. No changes will ever be pushed to <code>twow-project</code> unless explicitly requested by the user in the prompt.</div>
+- <strong>Local Toolchain Execution</strong>: All automation scripts, analysis engines, and state trackers operate strictly locally on this machine with zero remote orchestration repository connections.</div>
 
 </body>
 </html>
