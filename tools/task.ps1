@@ -170,21 +170,24 @@ switch ($Command.ToLower()) {
     }
     "port" {
         if (-not $Argument) { Write-Host "Usage: task port <sha> [-Mode Fast|Normal|Deep] [-DryRun] [-AutoBuild] [-AutoCommit]" -ForegroundColor Yellow; return }
-        $params = @{ DonorSha = @($Argument); Mode = $Mode }
-        if ($DryRun) { $params["DryRun"] = $true }
-        if ($AutoBuild -or $AutoCommit) { $params["AutoBuild"] = $true; $params["AutoCommit"] = $true }
-        if ($SkipBuild) { $params["SkipBuild"] = $true }
-        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Invoke-PortPipeline.ps1") @params
+        $cmdArgs = @((Join-Path $PortingDir "Invoke-PortPipeline.ps1"), "-DonorSha", $Argument, "-Mode", $Mode)
+        if ($DryRun) { $cmdArgs += "-DryRun" }
+        if ($AutoBuild -or $AutoCommit) { $cmdArgs += "-AutoCommit" }
+        if ($SkipBuild) { $cmdArgs += "-SkipBuild" }
+        & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
     }
     "port-batch" {
         $count = if ($Argument) { [int]$Argument } else { 10 }
-        $params = @{ BatchCount = $count; Mode = $Mode; MaxCandidates = $MaxCandidates; MaxParallel = $MaxParallel }
-        if ($Tier -gt 0) { $params["Tier"] = $Tier }
-        if (-not [string]::IsNullOrEmpty($Subsystem)) { $params["Subsystem"] = $Subsystem }
-        if ($DryRun) { $params["DryRun"] = $true }
-        if ($AutoBuild -or $AutoCommit) { $params["AutoBuild"] = $true; $params["AutoCommit"] = $true }
-        if ($SkipBuild) { $params["SkipBuild"] = $true }
-        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Invoke-PortPipeline.ps1") @params
+        if ($Tier -le 0 -and $SecondaryArgument -and ($SecondaryArgument -as [int])) {
+            $Tier = [int]$SecondaryArgument
+        }
+        $cmdArgs = @((Join-Path $PortingDir "Invoke-PortPipeline.ps1"), "-BatchCount", $count, "-Mode", $Mode, "-MaxCandidates", $MaxCandidates, "-MaxParallel", $MaxParallel)
+        if ($Tier -gt 0) { $cmdArgs += @("-Tier", $Tier) }
+        if (-not [string]::IsNullOrEmpty($Subsystem)) { $cmdArgs += @("-Subsystem", $Subsystem) }
+        if ($DryRun) { $cmdArgs += "-DryRun" }
+        if ($AutoBuild -or $AutoCommit) { $cmdArgs += "-AutoCommit" }
+        if ($SkipBuild) { $cmdArgs += "-SkipBuild" }
+        & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
     }
     "auto-port" {
         if (-not $Argument) {
@@ -209,10 +212,10 @@ switch ($Command.ToLower()) {
         Write-Host "  AUTO-PORT: Chaining Task 2 (Scout) -> 3 (DB) -> 4 (AI Context) -> 1 (Build/Commit)" -ForegroundColor Cyan
         Write-Host "  Candidate SHA: $Argument" -ForegroundColor Yellow
         Write-Host "================================================================================" -ForegroundColor Cyan
-        $params = @{ DonorSha = @($Argument); Mode = $Mode; AutoBuild = $true; AutoCommit = $true }
-        if ($DryRun) { $params["DryRun"] = $true }
-        if ($SkipBuild) { $params["SkipBuild"] = $true }
-        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Invoke-PortPipeline.ps1") @params
+        $cmdArgs = @((Join-Path $PortingDir "Invoke-PortPipeline.ps1"), "-DonorSha", $Argument, "-Mode", $Mode, "-AutoCommit")
+        if ($DryRun) { $cmdArgs += "-DryRun" }
+        if ($SkipBuild) { $cmdArgs += "-SkipBuild" }
+        & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
     }
     "auto-pilot" {
         $count = if ($Argument -and ($Argument -as [int])) { [int]$Argument } else { 0 }
@@ -223,22 +226,25 @@ switch ($Command.ToLower()) {
             Write-Host "  AUTO-PILOT: Single Candidate Mode for $shaArg" -ForegroundColor Cyan
             Write-Host "  Chaining Task 2 (Scout) -> 3 (DB) -> 4 (AI Context) -> 1 (Build/Commit)" -ForegroundColor Cyan
             Write-Host "================================================================================" -ForegroundColor Cyan
-            $params = @{ DonorSha = @($shaArg); Mode = $Mode; AutoBuild = $true; AutoCommit = $true }
-            if ($DryRun) { $params["DryRun"] = $true }
-            if ($SkipBuild) { $params["SkipBuild"] = $true }
-            & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Invoke-PortPipeline.ps1") @params
+            $cmdArgs = @((Join-Path $PortingDir "Invoke-PortPipeline.ps1"), "-DonorSha", $shaArg, "-Mode", $Mode, "-AutoCommit")
+            if ($DryRun) { $cmdArgs += "-DryRun" }
+            if ($SkipBuild) { $cmdArgs += "-SkipBuild" }
+            & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
         } else {
             if ($count -le 0) { $count = 10 }
+            if ($Tier -le 0 -and $SecondaryArgument -and ($SecondaryArgument -as [int])) {
+                $Tier = [int]$SecondaryArgument
+            }
+            $tierMsg = if ($Tier -gt 0) { " (Tier $Tier Filter Active)" } else { " (All Tiers / Natural Priority)" }
             Write-Host "================================================================================" -ForegroundColor Cyan
-            Write-Host "  AUTO-PILOT: Autonomous Batch Mode for $count Candidate(s)" -ForegroundColor Cyan
+            Write-Host "  AUTO-PILOT: Autonomous Batch Mode for $count Candidate(s)$tierMsg" -ForegroundColor Cyan
             Write-Host "  Chaining Task 2 (Scout) -> 3 (DB) -> 4 (AI Context) -> 1 (Build/Commit)" -ForegroundColor Cyan
             Write-Host "================================================================================" -ForegroundColor Cyan
-            $params = @{ BatchCount = $count; Mode = $Mode; MaxCandidates = $MaxCandidates; MaxParallel = $MaxParallel; AutoBuild = $true; AutoCommit = $true }
-            if ($Tier -gt 0) { $params["Tier"] = $Tier }
-            if (-not [string]::IsNullOrEmpty($Subsystem)) { $params["Subsystem"] = $Subsystem }
-            if ($DryRun) { $params["DryRun"] = $true }
-            if ($SkipBuild) { $params["SkipBuild"] = $true }
-            & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Invoke-PortPipeline.ps1") @params
+            $cmdArgs = @((Join-Path $PortingDir "Invoke-PortPipeline.ps1"), "-BatchCount", $count, "-Mode", $Mode, "-MaxCandidates", $MaxCandidates, "-MaxParallel", $MaxParallel, "-AutoCommit")
+            if ($Tier -gt 0) { $cmdArgs += @("-Tier", $Tier) }
+            if (-not [string]::IsNullOrEmpty($Subsystem)) { $cmdArgs += @("-Subsystem", $Subsystem) }
+            if ($DryRun) { $cmdArgs += "-DryRun" }
+            if ($SkipBuild) { $cmdArgs += "-SkipBuild" }
         }
     }
     "pdf" {
