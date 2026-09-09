@@ -50,7 +50,10 @@ param(
     [switch]$OpenViewer,
 
     [Parameter()]
-    [switch]$Force
+    [switch]$Force,
+
+    [Parameter()]
+    [switch]$FetchLatest
 )
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -275,6 +278,21 @@ switch ($Command.ToLower()) {
             }
         }
     }
+    "roadmap" {
+        $params = @{}
+        if ($FetchLatest) { $params["FetchLatest"] = $true }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-CrucialRoadmap.ps1") @params
+    }
+    "roadmap-refresh" {
+        $params = @{}
+        if ($FetchLatest) { $params["FetchLatest"] = $true }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-CrucialRoadmap.ps1") @params
+    }
+    "audit-roadmap" {
+        $params = @{}
+        if ($FetchLatest) { $params["FetchLatest"] = $true }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-CrucialRoadmap.ps1") @params
+    }
     "candidate-info" {
         if (-not $Argument) { Write-Host "Usage: task candidate-info <id>" -ForegroundColor Yellow; return }
         $store = Get-StateStore
@@ -444,6 +462,7 @@ switch ($Command.ToLower()) {
         Write-Host "  task dependencies <sha>  -> Show candidate prerequisite commits" -ForegroundColor Gray
         Write-Host "  task rank                -> Rank action queue by priority score" -ForegroundColor Gray
         Write-Host "  task next                -> Get next optimal candidate to investigate" -ForegroundColor Gray
+        Write-Host "  task roadmap-refresh     -> Research & audit available upstream commits [-FetchLatest]" -ForegroundColor Gray
         Write-Host "  task candidate-info <id> -> View detailed candidate state" -ForegroundColor Gray
         Write-Host "  task run-info <run-id>   -> View pipeline run execution record" -ForegroundColor Gray
         Write-Host "  task worktrees           -> List active candidate worktrees" -ForegroundColor Gray

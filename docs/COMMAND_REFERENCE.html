@@ -596,6 +596,16 @@ powershell.exe -ExecutionPolicy Bypass -File "C:\Users\Admin\AntigravityProfiles
 <td>None</td>
 <td>Gated Git tag creation; rejects release if any readiness gates fail.</td>
 </tr>
+<tr>
+<td><code>task roadmap-refresh</code></td>
+<td><code>task.ps1 roadmap-refresh [-FetchLatest]</code></td>
+<td>Fast</td>
+<td>Read/Write (Roadmap)</td>
+<td>None</td>
+<td>None</td>
+<td>None</td>
+<td>Audits all 7,300+ upstream commits, refreshes queue, and fetches latest commits.</td>
+</tr>
 </tbody></table>
 <hr>
 <h2>6. Verification Modes: FAST vs NORMAL vs DEEP</h2>
@@ -682,26 +692,76 @@ task.ps1 port 448df9ba0 -DryRun</code></pre>
 <li>Outputs complete execution plan: Bug verdict, priority score, resolved mode, required build profile, and dependency links.</li>
 </ul>
 <hr>
-<h2>9. Batch Porting &amp; Concurrency Controls</h2>
-<p>Batch commands allow efficient sequential or parallel candidate evaluation while adhering to the single-writer principle:</p>
-<pre><code class="language-powershell"># Port next 10 candidates filtered by Tier 1 (Crashes &amp; Security)
+<h2>9. Auto-Pilot Mode &amp; Autonomous Batch Processing</h2>
+<p>Auto-Pilot Mode enables hands-free, continuous candidate evaluation, bug proving, worktree provisioning, patch normalization, compatibility auditing, and candidate staging across multiple commits without manual per-commit intervention.</p>
+<h3>Running Auto-Pilot Mode: With Tier vs Without Tier</h3>
+<h4>A. Running WITH Tier Specification:</h4>
+<p>When you want to focus exclusively on a specific severity or architectural domain:</p>
+<pre><code class="language-powershell"># Port the next 10 Tier 1 candidates (Crashes, Leaks, Deadlocks, Exploits)
 task.ps1 port-batch 10 -Tier 1 -Mode Normal
 
-# Plan next 5 candidates without executing builds
-task.ps1 port-batch 5 -DryRun</code></pre>
-<h3>Batch Options:</h3>
+# Port the next 10 Tier 2 candidates (Combat Accuracy, Spells, Formulas)
+task.ps1 port-batch 10 -Tier 2 -Mode Normal</code></pre>
+<h4>B. Running WITHOUT Tier Specification:</h4>
+<p>When you omit the <code>-Tier</code> argument:</p>
+<pre><code class="language-powershell"># Auto-Pilot without tier: ports the next 10 highest-value candidates
+task.ps1 port-batch 10 -Mode Normal</code></pre>
+<h4>How Does Auto-Pilot Choose Commits Without a Tier?</h4>
+<p>1. <strong>Natural Architectural Hierarchy in <code>CRUCIAL_COMMITS_QUEUE.csv</code></strong>:</p>
+<p>   The master queue is pre-sorted by architectural urgency: <strong>Tier 1 (Crashes/Exploits)</strong> $\rightarrow$ <strong>Tier 2 (Combat/Spells)</strong> $\rightarrow$ <strong>Tier 3 (NPC/AI)</strong> $\rightarrow$ <strong>Tier 4 (Movement/Maps)</strong> $\rightarrow$ <strong>Tier 5 (General)</strong>. Without a tier filter, Auto-Pilot processes strictly down this natural hierarchy.</p>
+<p>2. <strong>Dynamic 12-Factor Priority Scoring Engine (<code>task rank</code> / <code>task next</code>)</strong>:</p>
+<p>   In addition to tier order, every candidate is scored dynamically from $0.0$ to $100.0$ by <code>PriorityEngine.ps1</code>:</p>
 <ul>
-<li><code>-MaxCandidates &lt;N&gt;</code>: Limits the maximum number of candidates evaluated in a single session.</li>
-<li><code>-Tier &lt;1-5&gt;</code>: Filters candidates by architectural tier:</li>
-<li><code>Tier 1</code>: Crashes, Memory Leaks, Auth Hardening, Deadlocks.</li>
-<li><code>Tier 2</code>: Combat Accuracy, Formulas, Spells, Auras, Resists.</li>
-<li><code>Tier 3</code>: Quests, Creatures, NPCs, Loot Tables, Gameobjects.</li>
-<li><code>Tier 4</code>: Movement, Pathfinding, Maps, Transports, VMAPs.</li>
-<li><code>Tier 5</code>: Minor Refactors, Formatting, Tooling.</li>
-<li><code>-MaxParallel &lt;N&gt;</code>: Controls concurrent read-only evaluation. Compiler passes remain sequentially queued.</li>
+<li>Crash Severity: $+25$ points</li>
+<li>High Player Impact: $+20$ points</li>
+<li>Security / Exploit Risk: $+20$ points</li>
+<li>Low Target File Churn: $+15$ points</li>
+<li>Dependency Satisfaction: $+10$ points</li>
+<li>Baseline Stability: $+10$ points</li>
+<li>Non-Applicable / Intentional Divergence: <strong>$0.0$ score hard gate</strong> (instantly skipped).</li>
+</ul>
+<p>   You can inspect this ranking at any time with <code>task rank</code> or retrieve the single best candidate with <code>task next</code>.</p>
+<p>3. <strong>State Store &amp; Git History Deduplication</strong>:</p>
+<p>   Auto-Pilot automatically cross-references <code>tools/state/state_store.json</code> and the target <code>tortoise-wow</code> git history. Any candidate that has already been evaluated (<code>ALREADY_FIXED</code>, <code>NOT_APPLICABLE</code>, <code>TURTLE_INTENTIONAL_DIVERGENCE</code>, <code>PACKAGE_READY</code>, or <code>RELEASED</code>) is <strong>automatically bypassed</strong>, ensuring zero redundant work.</p>
+<hr>
+<h3>The Recommended 3-Phase Auto-Pilot Runbook</h3>
+<p>To run Auto-Pilot with 100% safety and predictability:</p>
+<pre><code class="language-powershell"># Phase 1: Pre-Flight DryRun (Evaluates bug prover and outputs plan without writing files)
+task.ps1 port-batch 10 -DryRun
+
+# Phase 2: Isolated Autonomous Porting (Runs in .worktrees/PORT-XXXX/ with safety checks)
+task.ps1 port-batch 10 -Mode Normal
+
+# Phase 3: Single-Writer Candidate Build &amp; Branch Commit
+task.ps1 1</code></pre>
+<h3>Auto-Pilot Safety Guarantees:</h3>
+<ul>
+<li><strong>Zero Working Tree Contamination</strong>: All patch application and test compilation occur strictly in <code>.worktrees/PORT-XXXX/</code>. The main repository working tree remains 100% untouched.</li>
+<li><strong>Stale Package Auto-Invalidation</strong>: If the target repository HEAD advances during a batch run, any staged package whose pinned base SHA does not match is automatically invalidated.</li>
+<li><strong>Non-Destructive Rollback</strong>: If a patch fails compilation or invariant checks, the isolated worktree is safely deleted without ever executing <code>git reset --hard</code> or <code>git checkout .</code>.</li>
 </ul>
 <hr>
-<h2>10. Build Profiles &amp; Compiler Toolchain</h2>
+<h2>10. Roadmap Research, Commit Auditing &amp; Catching New Upstream Commits (<code>task roadmap-refresh</code>)</h2>
+<p>The upstream VMaNGOS repository (<code>vmangos/core</code>) continuously accepts new bugfixes and accuracy patches. The orchestration framework includes an automated research and auditing engine to catch, classify, and queue these new commits:</p>
+<pre><code class="language-powershell"># Audit all local upstream commits and regenerate the roadmap
+task.ps1 roadmap-refresh
+
+# Fetch new commits from GitHub upstream remote, merge development, and audit
+task.ps1 roadmap-refresh -FetchLatest</code></pre>
+<h3>How the Roadmap List Refreshes:</h3>
+<p>1. <strong>Upstream Remote Fetch (<code>-FetchLatest</code>)</strong>: When <code>-FetchLatest</code> is passed, the engine runs <code>git fetch origin</code> and <code>git merge --ff-only origin/development</code> inside <code>reference-upstreams/vmangos-core</code>, pulling down all new upstream commits.</p>
+<p>2. <strong>Donor Commit Scanning</strong>: Scans all 7,300+ upstream commits in repository history (newest to oldest).</p>
+<p>3. <strong>Cross-Referencing Port History</strong>: Compares every upstream commit SHA against commits already merged into <code>tortoise-wow</code> and documented in <code>docs/BACKPORT_HISTORY.md</code>.</p>
+<p>4. <strong>Older Superseded Duplicate Elimination</strong>: Detects intermediate or superseded fixes and removes older duplicates so only modern final fixes are queued.</p>
+<p>5. <strong>Architectural Tier Classification</strong>: Automatically assigns each commit to Tier 1 through Tier 5 based on modified subsystems and commit subjects.</p>
+<p>6. <strong>Artifact Generation</strong>:</p>
+<ul>
+<li>Updates <code>tools/porting/CRUCIAL_COMMITS_QUEUE.csv</code> (the active queue of 5,092 deduplicated crucial candidates).</li>
+<li>Updates <code>tools/porting/ALL_AVAILABLE_COMMITS_REFERENCE.csv</code> (complete 7,339-commit catalog).</li>
+<li>Re-renders <code>docs/ROADMAP.md</code> with updated metrics and live backlog status.</li>
+</ul>
+<hr>
+<h2>11. Build Profiles &amp; Compiler Toolchain</h2>
 <p>The build engine (<code>BuildEngine.ps1</code>) optimizes build times by targeting only the solution components touched by the candidate patch:</p>
 <table class="table"><thead><tr>
 <th>Build Profile</th>
@@ -741,7 +801,7 @@ task.ps1 port-batch 5 -DryRun</code></pre>
 </tr>
 </tbody></table>
 <hr>
-<h2>11. Baseline Health Check &amp; SHA Pinning</h2>
+<h2>12. Baseline Health Check &amp; SHA Pinning</h2>
 <p>The baseline checker (<code>BaselineChecker.ps1</code>) verifies the compile, link, and startup state of the unchanged target repository before applying candidate patches:</p>
 <pre><code class="language-powershell">task.ps1 baseline</code></pre>
 <ul>
@@ -753,7 +813,7 @@ task.ps1 port-batch 5 -DryRun</code></pre>
 <li><code>HEALTHY</code>: Compile, link, and startup all succeed.</li>
 </ul>
 <hr>
-<h2>12. Bug-Existence Proving Engine</h2>
+<h2>13. Bug-Existence Proving Engine</h2>
 <p>The bug prover (<code>BugProver.ps1</code>) executes deterministic analysis before any candidate is ported:</p>
 <pre><code class="language-powershell">task.ps1 prove 448df9ba0</code></pre>
 <h3>Deterministic Verdicts:</h3>
@@ -765,7 +825,7 @@ task.ps1 port-batch 5 -DryRun</code></pre>
 <li><code>UNCERTAIN</code>: Context has diverged significantly; requires manual or advisory AI review.</li>
 </ul>
 <hr>
-<h2>13. Database Safety, Schema Catalog &amp; Provenance</h2>
+<h2>14. Database Safety, Schema Catalog &amp; Provenance</h2>
 <p>Database migrations undergo rigorous automated static analysis against <code>config/schema_catalog.json</code> (413 verified tables):</p>
 <pre><code class="language-powershell">task.ps1 3 "sql/database_updates/world/20260507165648_world.sql"</code></pre>
 <h3>Enforced Rules:</h3>
@@ -775,7 +835,7 @@ task.ps1 port-batch 5 -DryRun</code></pre>
 <p>4. <strong>Statement Anchoring</strong>: Parser anchors table matching (<code>(?m)^\s<em></code>) to prevent false positives from quest text strings like </em>"update my count"*.</p>
 <p>5. <strong>Entity Provenance Tracking</strong>: Records source donor revision, target entity ID, original value, proposed value, and confidence rating in structured dossiers.</p>
 <hr>
-<h2>14. DBC, Client &amp; Core Parity Auditor</h2>
+<h2>15. DBC, Client &amp; Core Parity Auditor</h2>
 <p>The parity auditor (<code>ParityAuditor.ps1</code>) parses binary WDBC client data from <code>reference-upstreams/client-data-1.18.1/dbc</code> and verifies server constants:</p>
 <pre><code class="language-powershell">task.ps1 parity</code></pre>
 <ul>
@@ -785,7 +845,7 @@ task.ps1 port-batch 5 -DryRun</code></pre>
 <li><strong>ItemClass.dbc</strong>: Verifies item classification bitmasks.</li>
 </ul>
 <hr>
-<h2>15. Crash Dump &amp; Server Log Triage</h2>
+<h2>16. Crash Dump &amp; Server Log Triage</h2>
 <p>Automated triage engine (<code>TriageEngine.ps1</code>) categorizes runtime issues and crash dumps across 17 distinct failure categories:</p>
 <pre><code class="language-powershell"># Triage server startup or runtime log
 task.ps1 triage "tortoise-wow/bin/Release/Server.log"
@@ -795,7 +855,7 @@ task.ps1 crash "tortoise-wow/bin/Release/crash.dmp"</code></pre>
 <h3>Supported Failure Classifications:</h3>
 <p><code>ASSERTION_FAILURE</code>, <code>SEGMENTATION_FAULT</code>, <code>DATABASE_ERROR</code>, <code>DBC_ERROR</code>, <code>OPCODE_ERROR</code>, <code>MAP_LOAD_ERROR</code>, <code>SPELL_ERROR</code>, <code>SCRIPT_ERROR</code>, <code>NETWORK_ERROR</code>, <code>CONFIG_ERROR</code>, <code>AUTH_ERROR</code>, <code>MEMORY_LEAK</code>, <code>DEADLOCK</code>, <code>STARTUP_TIMEOUT</code>, <code>SHUTDOWN_HANG</code>, <code>CUSTOM_SYSTEM_ERROR</code>, <code>UNKNOWN_FAILURE</code>.</p>
 <hr>
-<h2>16. Worktree Isolation &amp; Cleanup Management</h2>
+<h2>17. Worktree Isolation &amp; Cleanup Management</h2>
 <p>All candidate modifications are strictly isolated to Git worktrees:</p>
 <pre><code class="language-powershell"># View all managed active worktrees
 task.ps1 worktree
@@ -810,7 +870,7 @@ task.ps1 worktree-cleanup</code></pre>
 <li>Safety check prevents deletion of any directory outside <code>.worktrees/</code>.</li>
 </ul>
 <hr>
-<h2>17. Run IDs, Idempotency &amp; Resumption</h2>
+<h2>18. Run IDs, Idempotency &amp; Resumption</h2>
 <p>Every pipeline execution generates a unique, sortable Run ID:</p>
 <pre><code class="language-text">RUN-yyyyMMdd-HHmmss-xxxx  (e.g., RUN-20260909-144022-7a1b)</code></pre>
 <ul>
@@ -818,7 +878,7 @@ task.ps1 worktree-cleanup</code></pre>
 <li>Interrupted runs resume from the last certified state without re-running deterministic proofs.</li>
 </ul>
 <hr>
-<h2>18. Canonical 30-State Machine</h2>
+<h2>19. Canonical 30-State Machine</h2>
 <p>Candidates transition through a strictly guarded 30-state lifecycle:</p>
 <table class="table"><thead><tr>
 <th>State</th>
@@ -1014,7 +1074,7 @@ task.ps1 worktree-cleanup</code></pre>
 </tr>
 </tbody></table>
 <hr>
-<h2>19. CI / GitHub Actions PR Workflows</h2>
+<h2>20. CI / GitHub Actions PR Workflows</h2>
 <p>Two GitHub Actions workflows automate continuous integration across orchestration tools and candidate server builds:</p>
 <p>1. <code>.github/workflows/orchestration-ci.yml</code>:</p>
 <ul>
@@ -1033,7 +1093,7 @@ task.ps1 worktree-cleanup</code></pre>
 <li>Uploads build logs and triage reports as artifacts.</li>
 </ul>
 <hr>
-<h2>20. Release Checkpoints &amp; Manifest Generation</h2>
+<h2>21. Release Checkpoints &amp; Manifest Generation</h2>
 <p>Release commands provide certification gates before tagging or publishing server releases:</p>
 <pre><code class="language-powershell"># Evaluate release readiness gates
 task.ps1 release-check
@@ -1047,13 +1107,13 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 <li>Manifests are saved to <code>docs/releases/&lt;name&gt;.json</code> with full commit SHAs, toolchain info, and test certifications.</li>
 </ul>
 <hr>
-<h2>21. Critical Safety Warnings</h2>
+<h2>22. Critical Safety Warnings</h2>
 <div class="alert alert-caution"><span class="alert-badge">caution</span><br>1. <strong>Single-Writer Constraint</strong>: Never invoke <code>-AutoBuild</code> or compiler tasks concurrently in multiple shells.
 2. <strong>Never Commit Directly to Extended Main</strong>: Candidate fixes must be isolated to candidate branches (<code>port/PORT-XXXX-&lt;sha&gt;</code>).
 3. <strong>Never Touch Working Tree</strong>: Never execute <code>git checkout .</code>, <code>git reset --hard</code>, or <code>git clean -fd</code> in <code>tortoise-wow</code>.
 4. <strong>No Secrets in Logs</strong>: Never print or commit API keys, authentication tokens, or private user passwords.</div>
 <hr>
-<h2>22. Troubleshooting &amp; Common Failure States</h2>
+<h2>23. Troubleshooting &amp; Common Failure States</h2>
 <table class="table"><thead><tr>
 <th>Error Code / Symptom</th>
 <th>Root Cause</th>
@@ -1091,7 +1151,7 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 </tr>
 </tbody></table>
 <hr>
-<h2>23. Expected Status &amp; Verdict Reference Values</h2>
+<h2>24. Expected Status &amp; Verdict Reference Values</h2>
 <table class="table"><thead><tr>
 <th>Category</th>
 <th>Canonical Allowed Values</th>
@@ -1126,6 +1186,82 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 <td><strong>Exit Codes</strong></td>
 <td><code>0</code> (PASS), <code>1</code> (VALIDATION_FAIL), <code>2</code> (TOOL_FAIL), <code>3</code> (SCHEMA_FAIL)</td>
 <td>Process return codes</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>25. Architectural Comparison: Why the 2.0 Build System is Vastly Superior to the Legacy 1.0 System</h2>
+<p>The 2.0 Total Revamp overhaul transforms the repository from a collection of fragile manual porting scripts into a high-assurance, non-destructive, enterprise-grade autonomous engineering framework:</p>
+<table class="table"><thead><tr>
+<th>Architectural Dimension</th>
+<th>Legacy 1.0 Porting System</th>
+<th>Revamp 2.0 Autonomous Architecture</th>
+<th>Tangible Engineering Advantage</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Git Working Tree Safety</strong></td>
+<td>Directly modified target repository working tree; polluted checkout.</td>
+<td>Strict Git worktree isolation in ephemeral <code>.worktrees/PORT-XXXX/</code>.</td>
+<td>Target repo checkout is <strong>100% clean and immune</strong> to accidental corruption or debris.</td>
+</tr>
+<tr>
+<td><strong>Rollback &amp; Cleanup</strong></td>
+<td>Ran destructive <code>git checkout .</code>, <code>git reset --hard</code>, and <code>git clean -fd</code>.</td>
+<td>Non-destructive: simply unlinks the worktree (<code>Remove-IsolatedWorktree</code>).</td>
+<td>Eliminates catastrophic data loss risk; never discards developer uncommitted work.</td>
+</tr>
+<tr>
+<td><strong>Commit Staging &amp; Branches</strong></td>
+<td>Committed directly to active target branch or left loose patches in folders.</td>
+<td>Changes committed exclusively to candidate branches (<code>port/PORT-XXXX-&lt;sha&gt;</code>).</td>
+<td>Enables clean PR reviews, branch audits, and CI smoke testing before merge.</td>
+</tr>
+<tr>
+<td><strong>Bug Existence Verification</strong></td>
+<td>Blindly applied patches; failed on Turtle custom code divergences.</td>
+<td>Deterministic Bug Prover (<code>BugProver.ps1</code> / <code>task prove</code>).</td>
+<td>Classifies <code>BUG_PRESENT</code>, <code>ALREADY_FIXED</code>, <code>NOT_APPLICABLE</code>, or <code>TURTLE_DIVERGENCE</code> before touching code.</td>
+</tr>
+<tr>
+<td><strong>Build Speed &amp; Disk Footprint</strong></td>
+<td>Recompiled full solution (<code>world</code> + <code>auth</code>) for every patch (~15-30 min per commit).</td>
+<td>Patch-Aware Build Profiles (<code>world</code>, <code>auth</code>, <code>sql-only</code>, <code>docs-only</code>).</td>
+<td>Bypasses compilation for SQL/docs (0s), targets single daemons (15-45s), saving hours of build time.</td>
+</tr>
+<tr>
+<td><strong>Database Migration Safety</strong></td>
+<td>Unverified SQL execution; potential collision with custom Turtle content.</td>
+<td>Cached 413-table schema catalog (<code>DbAuditor.ps1</code>) and strict boundary guards.</td>
+<td>Blocks forbidden progressive columns (<code>patch</code>, <code>build</code>) and protects custom ranges (<code>spell</code> $\ge 40k$, world $\ge 300k$).</td>
+</tr>
+<tr>
+<td><strong>Client Data Parity</strong></td>
+<td>Manual inspection or reliance on external assumptions.</td>
+<td>Automated binary WDBC parser (<code>ParityAuditor.ps1</code> / <code>task parity</code>).</td>
+<td>Guarantees code parity with 1.18.1 client DBCs (<code>MAX_RACES = 11</code>, maps, spell definitions).</td>
+</tr>
+<tr>
+<td><strong>State Tracking &amp; Resumption</strong></td>
+<td>Disparate queue directories with loose JSON files prone to desync.</td>
+<td>Atomic canonical JSON state store (<code>state_store.json</code>) with 30-state transition guards.</td>
+<td>Deterministic run IDs (<code>RUN-yyyyMMdd-HHmmss-xxxx</code>), transition guards, and resume capability.</td>
+</tr>
+<tr>
+<td><strong>AI Token Efficiency</strong></td>
+<td>Unbounded prompts; risked spending tokens on already-fixed candidates.</td>
+<td>Deterministic-first gating, bounded context ($\le 200$ lines), composite SHA256 caching.</td>
+<td>0 AI tokens spent on deterministic rejections; prevents hallucination via <code>ADVISORY_ONLY</code>.</td>
+</tr>
+<tr>
+<td><strong>Runtime Reliability</strong></td>
+<td>No startup validation; crashes only discovered after manual server launch.</td>
+<td>Disposable startup smoke tests (<code>SmokeTest.ps1</code>) and 17-category log triage.</td>
+<td>Catches assertion failures, heap corruptions, and missing DBCs before candidate commits are certified.</td>
+</tr>
+<tr>
+<td><strong>Automated Testing &amp; CI</strong></td>
+<td>Zero automated tests; scripts were untested in continuous integration.</td>
+<td>Comprehensive 38-spec Pester suite (<code>task test</code>) + 2 GitHub Actions CI workflows.</td>
+<td>Sub-7-second automated verification ensuring every invariant, schema, and command passes.</td>
 </tr>
 </tbody></table>
 

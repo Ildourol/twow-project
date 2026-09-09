@@ -167,9 +167,17 @@ The universal dispatcher [`tools/task.ps1`](tools/task.ps1) executes seamlessly 
 | **State Check** | `task state-check` | Verifies state store schema (`1.0.0`) and transition integrity. |
 | **Status Overview** | `task status` | Displays backlog overview, ready packages, and active state metrics. |
 | **State Summary** | `task state` | Displays active run IDs, registered candidates, and state counts. |
-| **Worktree Cleanup**| `task worktree-cleanup <id>` | Safely dismantles isolated worktree in `.worktrees/PORT-XXXX/`. |
+| **Roadmap Refresh**| `task roadmap-refresh [-FetchLatest]`| Audits upstream commits, refreshes queue, and fetches latest commits. |
 | **PDF Generation** | `task pdf` | Compiles markdown documentation into printable HTML and PDF references. |
 | **Legacy Aliases** | `task 1` through `task 6` | Preserved legacy shortcuts mapped to modern pipeline stages. |
+
+### Auto-Pilot Mode (Hands-Free Batch Execution)
+- **With Tier**: `task port-batch 10 -Tier 1` (Targets specific severity like crashes & exploits).
+- **Without Tier**: `task port-batch 10` (Picks next candidates via natural tier order & 12-factor priority algorithm in `task rank` / `task next`).
+- **3-Step Auto-Pilot Runbook**:
+  1. Dry-Run Check: `task port-batch 10 -DryRun`
+  2. Isolated Worktree Port: `task port-batch 10 -Mode Normal`
+  3. Single-Writer Build & Candidate Commit: `task 1`
 
 ---
 
