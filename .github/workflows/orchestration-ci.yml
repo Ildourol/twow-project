@@ -61,12 +61,8 @@ jobs:
       - name: Run Orchestration Pester Tests
         shell: powershell
         run: |
-          $p3 = Get-Module -ListAvailable Pester | Where-Object { $_.Version.Major -eq 3 } | Select-Object -First 1
-          if ($p3) {
-            Import-Module $p3.Path -Force
-          }
-          & powershell.exe -ExecutionPolicy Bypass -File "tools/task.ps1" test
-          if ($LASTEXITCODE -ne 0) { throw "Pester orchestration tests failed!" }
+          & powershell.exe -ExecutionPolicy Bypass -File "tests/run-all-tests.ps1"
+          if ($LASTEXITCODE -ne 0) { throw "Orchestration test suite failed!" }
 
       - name: Verify Compatibility Guard Exit Codes
         shell: powershell
