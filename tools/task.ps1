@@ -429,9 +429,26 @@ switch ($Command.ToLower()) {
             Write-Error "Test file not found at: $testFile"
             exit 2
         }
-        $pesterRes = Invoke-Pester -Script $testFile -PassThru
-        if ($pesterRes.FailedCount -gt 0) {
-            exit 1
+        $pMod = Get-Module Pester
+        if (-not $pMod) {
+            $p3 = Get-Module -ListAvailable Pester | Where-Object { $_.Version.Major -eq 3 } | Select-Object -First 1
+            if ($p3) {
+                $pMod = Import-Module $p3.Path -PassThru -Force
+            } else {
+                $pMod = Import-Module Pester -PassThru -ErrorAction SilentlyContinue
+            }
+        }
+        $pMajor = if ($pMod) { $pMod.Version.Major } else { 3 }
+        if ($pMajor -ge 5) {
+            $pCfg = New-PesterConfiguration
+            $pCfg.Run.Path = $testFile
+            $pCfg.Run.PassThru = $true
+            $pCfg.Output.Verbosity = "Detailed"
+            $pesterRes = Invoke-Pester -Configuration $pCfg
+            if ($pesterRes.FailedCount -gt 0) { exit 1 }
+        } else {
+            $pesterRes = Invoke-Pester -Script $testFile -PassThru
+            if ($pesterRes.FailedCount -gt 0) { exit 1 }
         }
         exit 0
     }

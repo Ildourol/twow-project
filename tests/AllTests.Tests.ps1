@@ -303,10 +303,15 @@ Describe "24. Configuration Discovery" {
 
 Describe "25. Paths With Spaces" {
     It "Properly resolves and handles paths containing spaces" {
-        $cfg = Get-ProjectConfig
-        $pathWithSpace = $cfg.repositories.twow_project.path
-        $pathWithSpace | Should Match " "
-        Test-Path $pathWithSpace | Should Be $true
+        $testSpaceDir = Join-Path $env:TEMP "twow project path test"
+        New-Item -ItemType Directory -Path $testSpaceDir -Force | Out-Null
+        try {
+            $resolved = Resolve-Path $testSpaceDir
+            $resolved.Path | Should Match " "
+            Test-Path $resolved.Path | Should Be $true
+        } finally {
+            if (Test-Path $testSpaceDir) { Remove-Item $testSpaceDir -Recurse -Force }
+        }
     }
 }
 

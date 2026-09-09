@@ -13,7 +13,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Position=0)]
-    [string]$TargetRepo = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow",
+    [string]$TargetRepo = "",
 
     [Parameter()]
     [string]$PatchFile = "",
@@ -26,7 +26,14 @@ param(
 )
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$ModulesDir = Join-Path (Split-Path -Parent $ScriptDir) "tools\modules"
+$ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..") -ErrorAction SilentlyContinue
+if (-not $ProjectRoot) { $ProjectRoot = (Get-Location).Path }
+
+if ([string]::IsNullOrEmpty($TargetRepo) -and [string]::IsNullOrEmpty($PatchFile) -and [string]::IsNullOrEmpty($WorktreePath)) {
+    $TargetRepo = Join-Path $ProjectRoot "tortoise-wow"
+}
+
+$ModulesDir = Join-Path $ProjectRoot "tools\modules"
 if (-not (Test-Path $ModulesDir)) {
     $ModulesDir = Join-Path $ScriptDir "..\modules"
 }
@@ -44,9 +51,11 @@ if (-not [string]::IsNullOrEmpty($PatchFile)) {
         Write-Host "[ERROR] Worktree path not found: $WorktreePath" -ForegroundColor Red
         exit $script:EXIT_CODE_TOOL_FAILURE
     }
-} elseif (-not (Test-Path $TargetRepo)) {
-    Write-Host "[ERROR] Target repository not found: $TargetRepo" -ForegroundColor Red
-    exit $script:EXIT_CODE_TOOL_FAILURE
+} elseif (-not [string]::IsNullOrEmpty($TargetRepo)) {
+    if (-not (Test-Path $TargetRepo)) {
+        Write-Host "[ERROR] Target repository not found: $TargetRepo" -ForegroundColor Red
+        exit $script:EXIT_CODE_TOOL_FAILURE
+    }
 }
 
 if (-not $AsJson) {

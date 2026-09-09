@@ -23,19 +23,53 @@ jobs:
           }
           Write-Host "All JSON configurations are valid." -ForegroundColor Green
 
+      - name: Provision Minimal CI Companion Stubs
+        shell: powershell
+        run: |
+          # 1. Setup tortoise-wow stub
+          $targetPath = "tortoise-wow"
+          if (-not (Test-Path $targetPath)) {
+            New-Item -ItemType Directory -Path "$targetPath/src/game" -Force | Out-Null
+            Set-Content -Path "$targetPath/src/game/SharedDefines.h" -Value "#define MAX_RACES 11`n"
+            Set-Content -Path "$targetPath/src/game/ScriptMgr.h" -Value "enum ScriptCommands { SCRIPT_COMMAND_TAKE_MONEY = 93 };`n"
+            git -C $targetPath init -b main
+            git -C $targetPath config user.name "CI Bot"
+            git -C $targetPath config user.email "ci@turtle-wow.org"
+            git -C $targetPath add .
+            git -C $targetPath commit -m "chore(baseline): initialize tortoise-wow stub for orchestration CI"
+          }
+
+          # 2. Setup vmangos-core donor stub
+          $donorPath = "reference-upstreams/vmangos-core"
+          if (-not (Test-Path $donorPath)) {
+            New-Item -ItemType Directory -Path "$donorPath/src/game" -Force | Out-Null
+            Set-Content -Path "$donorPath/src/game/SharedDefines.h" -Value "#define MAX_RACES 10`n"
+            git -C $donorPath init -b master
+            git -C $donorPath config user.name "CI Bot"
+            git -C $donorPath config user.email "ci@turtle-wow.org"
+            git -C $donorPath add .
+            git -C $donorPath commit -m "chore(donor): donor stub baseline commit"
+            git -C $donorPath tag 448df9ba0
+          }
+
+          # 3. Setup client data stub
+          $clientPath = "reference-upstreams/client-data-1.18.1/dbc"
+          if (-not (Test-Path $clientPath)) {
+            New-Item -ItemType Directory -Path $clientPath -Force | Out-Null
+          }
+
       - name: Run Orchestration Pester Tests
         shell: powershell
         run: |
-          $testFile = "tests/AllTests.Tests.ps1"
-          if (Test-Path $testFile) {
-            Invoke-Pester -Script $testFile -OutputFile "test-results.xml" -OutputFormat NUnitXml
-          } else {
-            Write-Host "Running custom test runner..."
-            & powershell.exe -ExecutionPolicy Bypass -File "tests/run-all-tests.ps1"
+          $p3 = Get-Module -ListAvailable Pester | Where-Object { $_.Version.Major -eq 3 } | Select-Object -First 1
+          if ($p3) {
+            Import-Module $p3.Path -Force
           }
+          & powershell.exe -ExecutionPolicy Bypass -File "tools/task.ps1" test
+          if ($LASTEXITCODE -ne 0) { throw "Pester orchestration tests failed!" }
 
       - name: Verify Compatibility Guard Exit Codes
         shell: powershell
         run: |
-          & powershell.exe -ExecutionPolicy Bypass -File "tools/porting/Verify-TurtleCompatibility.ps1"
+          & powershell.exe -ExecutionPolicy Bypass -File "tools/porting/Verify-TurtleCompatibility.ps1" -TargetRepo "tortoise-wow"
           if ($LASTEXITCODE -ne 0) { throw "Verify-TurtleCompatibility failed on clean tree" }

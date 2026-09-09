@@ -2,8 +2,10 @@
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $ScriptDir "ExitCodes.ps1")
+$ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..") -ErrorAction SilentlyContinue
+if (-not $ProjectRoot) { $ProjectRoot = (Get-Location).Path }
 
-$script:CompatibilityManifestPath = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\config\turtle-compatibility.json"
+$script:CompatibilityManifestPath = Join-Path $ProjectRoot "config\turtle-compatibility.json"
 
 function Build-SchemaCatalog {
     [CmdletBinding()]
@@ -11,7 +13,7 @@ function Build-SchemaCatalog {
         [Parameter(Mandatory=$true)][string]$TortoiseRepo
     )
 
-    $cachePath = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\config\schema_catalog.json"
+    $cachePath = Join-Path $ProjectRoot "config\schema_catalog.json"
     if (Test-Path $cachePath) {
         $raw = [System.IO.File]::ReadAllText($cachePath, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
         $cachedCatalog = @{}
