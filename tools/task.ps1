@@ -341,7 +341,7 @@ function Invoke-RecordPort {
     $subj = if ($Subject) { $Subject } else { $entry.subject }
     $dossierPath = Join-Path $ProjectRoot "docs\commits\${id}_${shortDonor}.md"
     
-    $bt = "`""
+    $bt = '`'
     $dossierContent = @"
 # Commit Dossier: $id ($shortTarget)
 

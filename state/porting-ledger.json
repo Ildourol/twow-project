@@ -7,11 +7,11 @@
     "metrics":  {
                     "total_audited":  43,
                     "pending":  14,
-                    "selected":  22,
+                    "selected":  21,
                     "in_progress":  0,
-                    "ported":  6,
-                    "verified":  6,
-                    "pushed":  6,
+                    "ported":  7,
+                    "verified":  7,
+                    "pushed":  7,
                     "skipped":  0,
                     "duplicate":  0,
                     "already_present":  0,
@@ -216,9 +216,13 @@
                                                                      "date":  "2026-09-10",
                                                                      "subject":  "Healing: Healer bots prioritize healing tanks over other roles",
                                                                      "audited_at":  "2026-09-10 17:15:15",
-                                                                     "status":  "PENDING",
+                                                                     "status":  "PORTED",
                                                                      "priority":  "P2",
-                                                                     "audit_mode":  "normal"
+                                                                     "audit_mode":  "normal",
+                                                                     "target_commit_sha":  "e9e0dfc98948025c2da004b160e6c44d52a9830c",
+                                                                     "ported_at":  "2026-09-10 19:19:42",
+                                                                     "verified":  true,
+                                                                     "pushed":  true
                                                                  },
                     "21c960e54ae2cbb06f8d6a2c3213d26efc657851":  {
                                                                      "source":  "vmangos",
