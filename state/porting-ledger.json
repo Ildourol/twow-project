@@ -7,11 +7,11 @@
     "metrics":  {
                     "total_audited":  43,
                     "pending":  14,
-                    "selected":  24,
+                    "selected":  23,
                     "in_progress":  0,
-                    "ported":  4,
-                    "verified":  4,
-                    "pushed":  4,
+                    "ported":  5,
+                    "verified":  5,
+                    "pushed":  5,
                     "skipped":  0,
                     "duplicate":  0,
                     "already_present":  0,
@@ -300,9 +300,13 @@
                                                                      "date":  "2026-09-09",
                                                                      "subject":  "Resurrect: Fix bots accepting resurrection",
                                                                      "audited_at":  "2026-09-10 17:15:15",
-                                                                     "status":  "RECOMMENDED",
+                                                                     "status":  "PORTED",
                                                                      "priority":  "P1",
-                                                                     "audit_mode":  "normal"
+                                                                     "audit_mode":  "normal",
+                                                                     "target_commit_sha":  "4de229eb28b7fdcc4b6ffb152511bc866abb64c0",
+                                                                     "ported_at":  "2026-09-10 19:16:56",
+                                                                     "verified":  true,
+                                                                     "pushed":  true
                                                                  },
                     "82589f97fff3f482803b412ee82524ed5fa7fecd":  {
                                                                      "source":  "vmangos",
