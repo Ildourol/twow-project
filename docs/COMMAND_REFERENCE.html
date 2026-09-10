@@ -1081,6 +1081,46 @@ task.ps1 roadmap-refresh -FetchLatest</code></pre>
 <li><strong>Binary Identity</strong>: The resulting binaries produced by all three options are identical bit-for-bit.</li>
 </ul>
 <hr>
+<h2>11.1. Reference Upstreams Organization, Remote Alignment &amp; Synchronization (<code>task update-upstreams</code>)</h2>
+<h3>Repository Topology &amp; Remote Alignment:</h3>
+<p>The target core product repository (<code>tortoise-wow</code>) is configured with the user's repository as primary <code>origin</code>:</p>
+<ul>
+<li><strong>Target Remote (<code>origin</code>)</strong>: <a href="https://github.com/Ildourol/tortoise-wow-extended"><code>https://github.com/Ildourol/tortoise-wow-extended.git</code></a> (active development branch: <code>extended</code>).</li>
+<li><strong>Upstream Donor (<code>upstream</code>)</strong>: <a href="https://github.com/Penqle/tortoise-wow"><code>https://github.com/Penqle/tortoise-wow.git</code></a> (tracking <code>upstream/main</code> for reference and base updates).</li>
+</ul>
+<h3>Reference Upstreams Directory (<code>reference-upstreams/</code>):</h3>
+<p>All read-only historical databases, DBC assets, and donor engines are organized under <code>reference-upstreams/</code>:</p>
+<ul>
+<li><code>reference-upstreams/vmangos-core</code>: <a href="https://github.com/vmangos/core"><code>https://github.com/vmangos/core.git</code></a> (branch: <code>development</code>). Primary bugfix mechanics donor.</li>
+<li><code>reference-upstreams/lights-hope-database-history</code>: <a href="https://github.com/brotalnia/database"><code>https://github.com/brotalnia/database.git</code></a> (branch: <code>master</code>). Historical database snapshots (<code>world_full_14_june_2021.sql</code>).</li>
+<li><code>reference-upstreams/elysium-core</code>: <a href="https://github.com/lduguid/core"><code>https://github.com/lduguid/core.git</code></a> (branch: <code>master</code>). Secondary core mechanics reference.</li>
+<li><code>reference-upstreams/tortoise-db-viewer</code>: <a href="https://github.com/Xian55/tortoise-db-viewer"><code>https://github.com/Xian55/tortoise-db-viewer.git</code></a> (branch: <code>main</code>). Interactive database schema and viewer tool.</li>
+<li><code>reference-upstreams/client-data-1.18.1</code>: <a href="https://github.com/Ildourol/Twow_data-1.18.1"><code>https://github.com/Ildourol/Twow_data-1.18.1.git</code></a> (branch: <code>main</code>). Binary WDBCs and map assets.</li>
+</ul>
+<h3>Automated Upstream Synchronization (<code>task update-upstreams</code>):</h3>
+<p>To fetch and pull all upstream donor and reference repositories locally:</p>
+<pre><code class="language-powershell">.\tools\task.ps1 update-upstreams              # Fast-forwards all reference upstreams
+.\tools\task.ps1 update-upstreams vmangos-core # Updates only vMaNGOS core</code></pre>
+<ul>
+<li><strong>Local Inspection</strong>: New incoming commits are reported with commit counts and git oneline logs for immediate local evaluation.</li>
+<li><strong>Active Worktree Protection</strong>: The active target repository <code>tortoise-wow</code> (branch: <code>extended</code>) is <strong>strictly protected</strong> and excluded from automated pulls to safeguard active development. Only <code>git fetch upstream</code> is run for <code>tortoise-wow</code> to keep upstream branch heads visible.</li>
+</ul>
+<h3>Comprehensive Ecosystem Reference Links:</h3>
+<ul>
+<li><strong>Turtle WoW Original</strong>: <a href="https://github.com/Penqle/tortoise-wow">Penqle/tortoise-wow</a></li>
+<li><strong>Turtle WoW with IKE3 Bots</strong>: <a href="https://github.com/Shyalya/tortoise-wow">Shyalya/tortoise-wow</a> &amp;bull; <a href="https://github.com/T-imothy/tortoise-wow">T-imothy/tortoise-wow</a></li>
+<li><strong>Turtle WoW with AC Bots</strong>: <a href="https://github.com/tortoise-wow-stack/TortoiseBots">tortoise-wow-stack/TortoiseBots</a></li>
+<li><strong>Turtle WoW Knowledge DB</strong>: <a href="https://github.com/tortoise-wow-stack/TortoiseWoWKnowledgeBase">tortoise-wow-stack/TortoiseWoWKnowledgeBase</a></li>
+<li><strong>Turtle Module Ecosystem</strong>: <a href="https://github.com/topics/tortoise-module">tortoise-module Topic</a> &amp;bull; <a href="https://github.com/Penqle/tortoise-wow/tree/main/modules/templates/basic">Turtle Module Template</a></li>
+<li><strong>vMaNGOS Core</strong>: <a href="https://github.com/vmangos/core">vmangos/core</a> &amp;bull; <a href="https://github.com/vmangos/core/releases">vMaNGOS Releases (db_latest)</a></li>
+<li><strong>vMaNGOS with PlayerBots</strong>: <a href="https://github.com/ileboii/core/tree/vmangos-ike3-playerbots">ileboii/core (vmangos-ike3-playerbots)</a></li>
+<li><strong>vMaNGOS Database</strong>: <a href="https://github.com/brotalnia/database/tree/master">brotalnia/database</a></li>
+<li><strong>cMaNGOS PlayerBots</strong>: <a href="https://github.com/cmangos/playerbots">cmangos/playerbots</a></li>
+<li><strong>Turtle DB Viewer</strong>: <a href="https://xian55.github.io/tortoise-db-viewer/?">Online DB Viewer</a> &amp;bull; <a href="https://github.com/Xian55/tortoise-db-viewer">Xian55/tortoise-db-viewer</a></li>
+<li><strong>User Product Repository</strong>: <a href="https://github.com/Ildourol/tortoise-wow-extended">Ildourol/tortoise-wow-extended</a></li>
+<li><strong>Fork Comparison</strong>: <a href="https://github.com/T-imothy/tortoise-wow/compare/mantech-turtle...Ildourol:tortoise-wow-extended:mantech-turtle">T-imothy vs Ildourol:mantech-turtle Comparison</a></li>
+</ul>
+<hr>
 <h2>12. System Pre-Flight &amp; Health Audit (<code>task system-check</code>)</h2>
 <p>Before operators, engineers, or automated agents begin development, porting, or building, the <strong>System Pre-Flight Audit</strong> (<a href="../tools/modules/SystemChecker.ps1"><code>tools/modules/SystemChecker.ps1</code></a>) verifies total project health across 6 core operational layers in two tailored modes:</p>
 <pre><code class="language-powershell"># 1. Light System Check (Default: ~1.7s fast pre-flight verification)

@@ -12,7 +12,7 @@ param(
     [string]$BranchName = "extended",
 
     [Parameter()]
-    [string]$RemoteName = "extended",
+    [string]$RemoteName = "origin",
 
     [Parameter()]
     [string]$BaseBranch = "main",

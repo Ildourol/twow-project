@@ -11,14 +11,15 @@
     },
     "tortoise_wow": {
       "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/tortoise-wow",
-      "default_branch": "main",
-      "expected_remote": "extended",
-      "upstream_remote": "origin",
+      "default_branch": "extended",
+      "expected_remote": "origin",
+      "upstream_remote": "upstream",
+      "git_remote_url": "https://github.com/Ildourol/tortoise-wow-extended.git",
       "baseline_sha": "b8f24bef6cfc69feafc5870ac6a8918a521253d7"
     },
     "penqle_reference": {
       "path": "https://github.com/Penqle/tortoise-wow.git",
-      "local_remote_name": "origin"
+      "local_remote_name": "upstream"
     },
     "vmangos_donor": {
       "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/reference-upstreams/vmangos-core",

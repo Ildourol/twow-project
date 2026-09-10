@@ -70,7 +70,7 @@ twow project/
 
 | Component | Target Local Path | Repository URL / Upstream Source | Description |
 | :--- | :--- | :--- | :--- |
-| **Server Code Repository** | `tortoise-wow/` | [`Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) | Active Turtle-WoW 1.18.1 C++ source tree (branch `main`). |
+| **Server Code Repository** | `tortoise-wow/` | [`Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) | Active Turtle-WoW 1.18.1 C++ source tree (branch `extended`, tracking `origin/extended`). |
 | **Database Dashboard & Viewer** | `tortoise-db-viewer/` | [`Xian55/tortoise-db-viewer`](https://github.com/Xian55/tortoise-db-viewer) | AoWoW-style database dashboard, SQLite engine & REST API (`https://xian55.github.io/tortoise-db-viewer/`). |
 | **Historical Reference Database**| `reference-upstreams/lights-hope-database-history/` | [`brotalnia/database`](https://github.com/brotalnia/database) | Main historical database snapshots (`world_full_14_june_2021.7z` / `.sql`) for unchanged vanilla items. |
 | **Forum Intelligence Archive** | `resources/forum/` | [`Ildourol/turtle-wow-forum-archive`](https://github.com/Ildourol/turtle-wow-forum-archive) | 22,155 historical official forum threads (2018–2026). |
@@ -175,6 +175,7 @@ The universal dispatcher [`tools/task.ps1`](tools/task.ps1) executes seamlessly 
 | **Status Overview** | `task status` | Displays backlog overview, ready packages, and active state metrics. |
 | **State Summary** | `task state` | Displays active run IDs, registered candidates, and state counts. |
 | **Roadmap Refresh**| `task roadmap-refresh [-FetchLatest]`| Audits upstream commits, refreshes queue, and fetches latest commits. |
+| **Update Upstreams**| `task update-upstreams [target]` | Fetches & fast-forwards all reference upstreams while protecting active work. |
 | **PDF Generation** | `task pdf` | Compiles markdown documentation into printable HTML and PDF references. |
 | **Core Shortcuts** | `task auto-pilot`, `task auto-port`, `task 2-6` | Direct command shortcuts mapped to pipeline stages. |
 
@@ -247,3 +248,23 @@ The complete engineering documentation suite is organized in [`docs/`](docs/):
 Orchestration and candidate builds are continuously validated through GitHub Actions:
 - **[`.github/workflows/orchestration-ci.yml`](.github/workflows/orchestration-ci.yml)**: Validates PowerShell syntax, project configuration schemas, canonical state transitions, and executes the complete 38-spec Pester test suite on every commit to `main`.
 - **[`.github/workflows/server-candidate-ci.yml`](.github/workflows/server-candidate-ci.yml)**: Automatically compiles candidate branch worktrees under MSVC 2022 and runs daemon startup smoke tests on `port/**` branch pushes.
+
+---
+
+## 9. Upstream Ecosystem Directory & Fork References
+
+| Repository / Resource | URL | Primary Role / Description |
+|:---|:---|:---|
+| **Turtle WoW Original** | [Penqle/tortoise-wow](https://github.com/Penqle/tortoise-wow) | Upstream core engine repository (retained as `upstream` remote in `tortoise-wow`). |
+| **Turtle WoW with IKE3 Bots** | [Shyalya/tortoise-wow](https://github.com/Shyalya/tortoise-wow)<br>[T-imothy/tortoise-wow](https://github.com/T-imothy/tortoise-wow) | Turtle-adapted playerbots reference implementations. |
+| **Turtle WoW with AC Bots** | [tortoise-wow-stack/TortoiseBots](https://github.com/tortoise-wow-stack/TortoiseBots) | Alternative bot system implementation. |
+| **Turtle WoW Knowledge DB** | [tortoise-wow-stack/TortoiseWoWKnowledgeBase](https://github.com/tortoise-wow-stack/TortoiseWoWKnowledgeBase) | Technical notes, packet structure, opcode tables. |
+| **Turtle Module Ecosystem** | [tortoise-module Topic](https://github.com/topics/tortoise-module)<br>[Basic Module Template](https://github.com/Penqle/tortoise-wow/tree/main/modules/templates/basic) | Modular architecture standards and templates. |
+| **vMaNGOS Core** | [vmangos/core](https://github.com/vmangos/core)<br>[vMaNGOS Releases (db_latest)](https://github.com/vmangos/core/releases) | Upstream vanilla 1.12.1 reference emulator and modern DB dumps (`reference-upstreams/vmangos-core`). |
+| **vMaNGOS with PlayerBots** | [ileboii/core (vmangos-ike3-playerbots)](https://github.com/ileboii/core/tree/vmangos-ike3-playerbots) | Primary donor repository for AI bugfixes and party improvements. |
+| **vMaNGOS Database** | [brotalnia/database](https://github.com/brotalnia/database/tree/master) | Historical database reference snapshots (`reference-upstreams/lights-hope-database-history`). |
+| **cMaNGOS PlayerBots** | [cmangos/playerbots](https://github.com/cmangos/playerbots) | CMaNGOS bot mechanics donor repository. |
+| **Turtle DB Viewer** | [Web Dashboard](https://xian55.github.io/tortoise-db-viewer/?)<br>[Xian55/tortoise-db-viewer](https://github.com/Xian55/tortoise-db-viewer) | Interactive online database search and schema comparison. |
+| **User Product Repository** | [Ildourol/tortoise-wow-extended](https://github.com/Ildourol/tortoise-wow-extended) | Active target repository (branch: `extended`, tracked as `origin`). |
+| **Fork Comparison** | [T-imothy vs Ildourol:mantech-turtle](https://github.com/T-imothy/tortoise-wow/compare/mantech-turtle...Ildourol:tortoise-wow-extended:mantech-turtle) | Live GitHub diff comparing upstream bot changes with target fork. |
+

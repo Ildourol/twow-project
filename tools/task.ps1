@@ -624,6 +624,18 @@ switch ($Command.ToLower()) {
         if ($DryRun) { $cmdArgs += "-NoPush" }
         & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
     }
+    "update-upstreams" {
+        $target = if ($Argument) { $Argument } else { "all" }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Update-ReferenceUpstreams.ps1") -TargetUpstream $target
+    }
+    "sync-upstreams" {
+        $target = if ($Argument) { $Argument } else { "all" }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Update-ReferenceUpstreams.ps1") -TargetUpstream $target
+    }
+    "pull-upstreams" {
+        $target = if ($Argument) { $Argument } else { "all" }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Update-ReferenceUpstreams.ps1") -TargetUpstream $target
+    }
     "test" {
         $runner = Join-Path $ProjectRoot "tests\run-all-tests.ps1"
         if (Test-Path $runner) {
@@ -651,6 +663,7 @@ switch ($Command.ToLower()) {
         Write-Host "  task build <profile>     -> Build profile (world, auth, sql-only, playerbots)" -ForegroundColor Gray
         Write-Host "  task build-packages      -> Build & commit all ready staged packages" -ForegroundColor Gray
         Write-Host "  task push-extended [br]  -> Push all passed commits to GitHub 'extended' branch [-DryRun]" -ForegroundColor Gray
+        Write-Host "  task update-upstreams    -> Fetch & fast-forward reference upstreams (vmangos, lights-hope, elysium, etc.)" -ForegroundColor Gray
         Write-Host "  task status              -> Show canonical pipeline state" -ForegroundColor Gray
         Write-Host "  task pdf                 -> Regenerate COMMAND_REFERENCE HTML & PDF" -ForegroundColor Gray
         Write-Host "`nAnalysis & Research Commands:" -ForegroundColor Yellow
