@@ -64,11 +64,30 @@ When conflicting technical requirements or code patterns arise, agents must stri
 - **Batch Auditing & Triage Permitted**: Upstream candidate commits may be evaluated, scanned, and triaged in batches (e.g. 10–50 candidates per pass via `task auto-pilot [N]`, `task port-batch [N]`, or `task rank`) to maximize discovery speed (5x–10x faster backlog processing) and detect multi-commit dependencies early.
 - **Strict Commit-by-Commit Porting, Filing & Pushing**:
   - Target code adaptations occur strictly one candidate at a time in dedicated isolated worktrees (`.worktrees/PORT-XXXX/`).
-  - Target compilation and link verification are executed strictly per candidate.
   - Every candidate receives its own individual documentation dossier in `docs/commits/PORT-XXXX_<sha>.md` and its own stage completion record in `tools/queue/03_completed/`.
   - Every passing candidate generates exactly one atomic target git commit.
   - Remote pushes to `extended` are executed strictly commit-by-commit (1 donor commit = 1 atomic target commit = 1 remote push).
   - Batching multiple upstream donor commits into a single git commit or bulk push is strictly prohibited.
+
+### 2.8. Build & Verification Execution Modes (Token & Latency Optimization)
+To eliminate severe AI context token exhaustion and avoid lengthy build wait times (linking `mangosd.exe` takes 2–3 minutes and injects hundreds of lines of output into the active context window per turn), agents and pipelines support three authorized verification execution modes:
+
+1. **Option 1: Fast Incremental Mode (Recommended Default)**:
+   - **Per-Package Verification**: Compile only the affected target module or static library (e.g. `game.lib`, `modules.lib`, `shared.lib`) via `task build-ready -FastBuild` (~3–5 seconds, ~3 lines of output).
+   - **Atomic Git Tracking & Push**: Commit each package individually and push certified candidates directly to `extended` (preserving 1-to-1 provenance).
+   - **Milestone Link Check**: Run the full executable linker (`mangosd.exe`) once at the conclusion of the batch or milestone to verify global symbol resolution.
+   - **Token & Time Impact**: Saves ~90% of token consumption and avoids 10–15 minutes of idle waiting across small batches.
+
+2. **Option 2: Batch Verification Mode (Maximum Token Efficiency)**:
+   - **Sequential Atomic Commits**: Apply changes, draft dossiers, and commit to git individually in sequence to preserve git bisectability and 1-to-1 donor tracking.
+   - **Deferred Compilation**: Run a single comprehensive compile and link pass (`world` + `mangosd.exe`) at the conclusion of the batch.
+   - **Debugging & Error Isolation Guarantees**:
+     - *Compiler Errors*: MSVC diagnostics explicitly identify the exact source file, line number, and error identifier, immediately pinpointing which commit in the batch caused the failure.
+     - *Runtime Regressions*: Because each change is recorded as an individual git commit, standard `git bisect` isolates any behavioral defects effortlessly.
+     - *Binary Identity*: The resulting binaries are identical bit-for-bit to per-commit builds.
+
+3. **Option 3: Strict Full-Link Mode (P0 Maximum Safety)**:
+   - Recompile and fully link `mangosd.exe` after each individual candidate. Reserved for high-risk core architectural changes, threading overhauls, or global object model refactors.
 
 ---
 

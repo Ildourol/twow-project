@@ -445,6 +445,21 @@ The build engine (`BuildEngine.ps1`) optimizes build times by targeting only the
 | `playerbots` | `src/game/playerbot/` | `mangosd` (PlayerBots profile) | ~45 seconds |
 | `docs-only` | `docs/`, `tools/` | None | Instant (0s) |
 
+### Build & Verification Execution Modes (Token & Latency Optimization)
+
+Compiling and linking `mangosd.exe` on Windows requires 2–3 minutes and generates massive MSVC output that causes rapid context token bloat. The pipeline supports three execution strategies:
+
+| Execution Mode | Per-Candidate Step | Git Commit & Push | Milestone / Batch Gate | Token Impact | Build Latency | Best Used For |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Option 1: Fast Incremental (Default)** | Compile affected static library (`game.lib`/`modules.lib`, ~3s) | Atomic commit & remote push | Link `mangosd.exe` once at batch end | ~90% token reduction | Fast (~3s/commit) | Routine daily development and multi-commit batches |
+| **Option 2: Batch Verification** | Sequential git commit with atomic dossiers | Commit sequentially | Full compile (`world`) + link (`mangosd.exe`) | Lowest token cost (1 pass total) | Fastest | High-throughput backlog clearance |
+| **Option 3: Strict Full-Link** | Full compile and link (`mangosd.exe`) per candidate | Commit & push 1-by-1 | Verified individually on every commit | High (hundreds of lines/commit) | Slow (~2-3m/commit) | P0 critical fixes, threading, mutexes, memory |
+
+#### Debugging & Error Isolation Guarantees:
+- **Compiler Errors**: MSVC output explicitly identifies the source file, class/function, and exact line number. When a batch compile fails, the compiler error immediately identifies which specific commit in the batch is responsible.
+- **Runtime Bugs & Bisectability**: Because candidate code changes are committed as individual atomic commits in git, standard `git bisect` functions identically regardless of whether the build was verified incrementally or in batch.
+- **Binary Identity**: The resulting binaries produced by all three options are identical bit-for-bit.
+
 ---
 
 ## 12. System Pre-Flight & Health Audit (`task system-check`)

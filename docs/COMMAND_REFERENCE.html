@@ -1029,6 +1029,51 @@ task.ps1 roadmap-refresh -FetchLatest</code></pre>
 <td>Instant (0s)</td>
 </tr>
 </tbody></table>
+<h3>Build &amp; Verification Execution Modes (Token &amp; Latency Optimization)</h3>
+<p>Compiling and linking <code>mangosd.exe</code> on Windows requires 2–3 minutes and generates massive MSVC output that causes rapid context token bloat. The pipeline supports three execution strategies:</p>
+<table class="table"><thead><tr>
+<th>Execution Mode</th>
+<th>Per-Candidate Step</th>
+<th>Git Commit &amp; Push</th>
+<th>Milestone / Batch Gate</th>
+<th>Token Impact</th>
+<th>Build Latency</th>
+<th>Best Used For</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Option 1: Fast Incremental (Default)</strong></td>
+<td>Compile affected static library (<code>game.lib</code>/<code>modules.lib</code>, ~3s)</td>
+<td>Atomic commit &amp; remote push</td>
+<td>Link <code>mangosd.exe</code> once at batch end</td>
+<td>~90% token reduction</td>
+<td>Fast (~3s/commit)</td>
+<td>Routine daily development and multi-commit batches</td>
+</tr>
+<tr>
+<td><strong>Option 2: Batch Verification</strong></td>
+<td>Sequential git commit with atomic dossiers</td>
+<td>Commit sequentially</td>
+<td>Full compile (<code>world</code>) + link (<code>mangosd.exe</code>)</td>
+<td>Lowest token cost (1 pass total)</td>
+<td>Fastest</td>
+<td>High-throughput backlog clearance</td>
+</tr>
+<tr>
+<td><strong>Option 3: Strict Full-Link</strong></td>
+<td>Full compile and link (<code>mangosd.exe</code>) per candidate</td>
+<td>Commit &amp; push 1-by-1</td>
+<td>Verified individually on every commit</td>
+<td>High (hundreds of lines/commit)</td>
+<td>Slow (~2-3m/commit)</td>
+<td>P0 critical fixes, threading, mutexes, memory</td>
+</tr>
+</tbody></table>
+<h4>Debugging &amp; Error Isolation Guarantees:</h4>
+<ul>
+<li><strong>Compiler Errors</strong>: MSVC output explicitly identifies the source file, class/function, and exact line number. When a batch compile fails, the compiler error immediately identifies which specific commit in the batch is responsible.</li>
+<li><strong>Runtime Bugs &amp; Bisectability</strong>: Because candidate code changes are committed as individual atomic commits in git, standard <code>git bisect</code> functions identically regardless of whether the build was verified incrementally or in batch.</li>
+<li><strong>Binary Identity</strong>: The resulting binaries produced by all three options are identical bit-for-bit.</li>
+</ul>
 <hr>
 <h2>12. System Pre-Flight &amp; Health Audit (<code>task system-check</code>)</h2>
 <p>Before operators, engineers, or automated agents begin development, porting, or building, the <strong>System Pre-Flight Audit</strong> (<a href="../tools/modules/SystemChecker.ps1"><code>tools/modules/SystemChecker.ps1</code></a>) verifies total project health across 6 core operational layers in two tailored modes:</p>

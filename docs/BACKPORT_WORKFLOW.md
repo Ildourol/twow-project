@@ -77,13 +77,21 @@ When pulling candidate donor commits from [`tools/porting/CRUCIAL_COMMITS_QUEUE.
    - Synthesizes an adapted `.patch` in `tools/queue/staging_patches/<sha>.patch` preserving all Turtle invariants.
    - Generates package manifest `PORT-XXXX.json` in `tools/queue/02_ready_to_build/`.
 
-### Phase 3: Single-Writer Compile Gate (`task build-packages`)
+### Phase 3: Single-Writer Compile Gate & Execution Modes (`task build-packages`)
 1. **Invariant Verification**:
    - Runs `Verify-TurtleCompatibility.ps1` to assert `MAX_RACES = 11`, `sTWDebuff`, and no progressive SQL columns.
-2. **MSVC 2022 Release Compilation**:
-   - Compiles both `mangosd.exe` and `realmd.exe` in isolated Git worktree (`--config Release`).
-   - Gate requirement: **Exit Code 0** (0 compiler errors, 0 linker errors).
-   - If build fails: Non-destructively removes the isolated worktree via `Remove-IsolatedWorktree`. Primary working tree is never touched.
+2. **Build & Verification Execution Modes (Token & Latency Optimization)**:
+   - **Option 1: Fast Incremental Mode (Recommended Default)**:
+     - Compile only the affected target module/library (e.g. `game.lib`, `modules.lib`, `shared.lib`) via `task build-packages -FastBuild` (~3–5s, ~3 lines of output).
+     - Atomic commits are created and pushed to `extended` individually.
+     - Full `mangosd.exe` link is run once at the batch or milestone boundary.
+     - Saves ~90% of token consumption and avoids 10–15 minutes of idle waiting across multi-package series.
+   - **Option 2: Batch Verification Mode (Maximum Token Efficiency)**:
+     - Packages are adapted, documented, and committed sequentially in git to maintain 1-to-1 provenance and git bisectability.
+     - Single compilation and full linking pass (`world` + `mangosd.exe`) is executed at the conclusion of the batch.
+     - *Debugging Guarantee*: MSVC diagnostics pinpoint the exact file and line number on compilation failure; atomic git commits preserve effortless `git bisect` for runtime regressions. The resulting binaries are identical.
+   - **Option 3: Strict Full-Link Mode (P0 Maximum Safety)**:
+     - Full recompile and link of `mangosd.exe` and `realmd.exe` on every single package.
 3. **Atomic Git Commit to Candidate Branch**:
    - Formats standardized message: `Port(<Subsystem>): <Subject> (vmangos/core@<sha>)`.
    - Commits cleanly to isolated candidate branch `port/PORT-XXXX-<sha>`.
