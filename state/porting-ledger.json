@@ -7,11 +7,11 @@
     "metrics":  {
                     "total_audited":  43,
                     "pending":  14,
-                    "selected":  26,
+                    "selected":  25,
                     "in_progress":  0,
-                    "ported":  2,
-                    "verified":  2,
-                    "pushed":  2,
+                    "ported":  3,
+                    "verified":  3,
+                    "pushed":  3,
                     "skipped":  0,
                     "duplicate":  0,
                     "already_present":  0,
@@ -360,9 +360,13 @@
                                                                      "date":  "2026-09-09",
                                                                      "subject":  "Item: Fix server freese from using various bot commands",
                                                                      "audited_at":  "2026-09-10 17:15:15",
-                                                                     "status":  "RECOMMENDED",
+                                                                     "status":  "PORTED",
                                                                      "priority":  "P1",
-                                                                     "audit_mode":  "normal"
+                                                                     "audit_mode":  "normal",
+                                                                     "target_commit_sha":  "b36766d85bdad35aeb7f256aa7d7aed96c91b430",
+                                                                     "ported_at":  "2026-09-10 18:58:54",
+                                                                     "verified":  true,
+                                                                     "pushed":  true
                                                                  },
                     "6909d279e6b3b93d0be97dbcffb9e1caba3ddc34":  {
                                                                      "source":  "vmangos",
