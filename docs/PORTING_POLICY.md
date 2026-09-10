@@ -13,6 +13,11 @@
    - Protected custom entities: Spells $\ge 40000$, Creatures/Objects/Items/Quests $\ge 300000$.
    - 64-bit debuff streaming (`sTWDebuff`).
    - Protected managers: `sLFTMgr`, `sTransmogMgr`, `sCustomMerchantMgr`.
+5. **Strict Vanilla / Classic Exclusivity (Absolute Prohibition on TBC & WotLK)**:
+   - This project is **strictly Vanilla** (Classic 1.12.1 / Turtle WoW 1.18.1 Classic+).
+   - Porting **ANY** mechanics, spells, talents, strategies, items, or opcodes from TBC, WotLK, or later expansions is **STRICTLY PROHIBITED**.
+   - Only changes directly relevant to Vanilla / Classic are allowed.
+   - Any upstream commit targeting or relying on post-Vanilla mechanics must be completely disqualified (`EXPANSION_INCOMPATIBLE`).
 
 ---
 
@@ -23,7 +28,7 @@ CMaNGOS is actively developed and frequently incorporates enhancements spanning 
 - **Always a Native Manual Port**.
 - **Audit Steps**:
   1. Inspect upstream diff, commit subject, and commit body.
-  2. Filter out multi-expansion branches (`#if defined(MANGOSBOT_ONE) || defined(MANGOSBOT_TWO)`).
+  2. **Mandatory Vanilla Filter**: Check for and completely reject multi-expansion branches (`#if defined(MANGOSBOT_ONE) || defined(MANGOSBOT_TWO)` or `#ifdef TBC`/`WOTLK`). If a commit introduces TBC/WotLK mechanics, mark it `EXPANSION_INCOMPATIBLE` immediately.
   3. Map affected symbols using `cmangos-compat-shim.h` or target-native equivalents (`ObjectGuidSet`, `AreaEntry`, `Transport`).
   4. Implement changes within `modules/mod-playerbots/src/playerbot/`.
   5. Check impact on `modules/mod-dungeon-clear`.

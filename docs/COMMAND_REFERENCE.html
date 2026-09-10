@@ -451,6 +451,20 @@
       </td>
       <td>Console summary of commit granularity standards.</td>
     </tr>
+    <tr>
+      <td>
+        <span class="cmd-name">vanilla-mandate</span>
+        <span class="badge badge-warn">Vanilla Invariant</span>
+      </td>
+      <td>
+        <div class="cmd-syntax">.\task.ps1 vanilla-mandate</div>
+        <div class="cmd-notes">Prints ADR-008 expansion mandate.</div>
+      </td>
+      <td>
+        <div class="cmd-desc">Displays the binding rules of <b>ADR-008</b>: Target is strictly Vanilla (Classic 1.12.1 / Turtle WoW 1.18.1 Classic+). Porting anything from TBC or WotLK is <b>STRICTLY PROHIBITED</b>. Only changes to Vanilla and Classic-related mechanics are permitted. All post-Vanilla commits are automatically disqualified as <code>EXPANSION_INCOMPATIBLE</code>.</div>
+      </td>
+      <td>Console summary of strict Vanilla exclusivity mandate.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -486,7 +500,7 @@
     <tr>
       <td><span class="badge badge-p3">P3</span></td>
       <td><strong>DISQUALIFIED</strong></td>
-      <td>TBC/WotLK expansion mechanics, Arena teams, flying mounts, post-Vanilla raid scripts, cosmetic reformatting, duplicate code.</td>
+      <td><b>TBC / WotLK expansion mechanics (STRICTLY PROHIBITED)</b>, Arena teams, flying mounts, post-Vanilla raid scripts, cosmetic reformatting, duplicate code.</td>
       <td>Disqualified and recorded as REJECTED or EXPANSION_INCOMPATIBLE in ledger.</td>
     </tr>
   </tbody>
@@ -499,12 +513,17 @@
 </div>
 
 <div class="policy-strip red">
-  <strong>2. Scope Boundary Invariant & Double-Confirmation Gate (ADR-006):</strong>
+  <strong>2. Strict Vanilla / Classic Exclusivity Mandate (ADR-008):</strong>
+  This project is exclusively dedicated to <b>Vanilla / Classic WoW</b> (Classic 1.12.1 / Turtle WoW 1.18.1 Classic+). Porting <b>ANY</b> feature, spell, talent, combat rating, resilience mechanic, item, opcode, or strategy from The Burning Crusade (TBC 2.x), Wrath of the Lich King (WotLK 3.x), or later expansions is <b>STRICTLY PROHIBITED</b>. Only changes to Vanilla and Classic-related mechanics are permitted. Zero post-Vanilla pollution.
+</div>
+
+<div class="policy-strip red">
+  <strong>3. Scope Boundary Invariant & Double-Confirmation Gate (ADR-006):</strong>
   Widening the scan scope into historical donor backlogs beyond the active watermarks is strictly <b>PROHIBITED</b>. Scanning unbounded historical commits risks scope explosion, merge regressions, and TBC/WotLK pollution. The framework will never widen scope automatically; any expansion request requires an explicit operator warning and mandatory double-confirmation.
 </div>
 
 <div class="policy-strip">
-  <strong>3. Level 3 Verification Gate & Turtle WoW Invariants:</strong>
+  <strong>4. Level 3 Verification Gate & Turtle WoW Invariants:</strong>
   A module file compiling successfully is never sufficient proof of validity. <code>mangosd.exe</code> must link cleanly without unresolved symbols before any commit is marked verified. All ports must preserve Turtle WoW contracts: 11 playable races (Goblins & High Elves with custom starting zone spawn handling), 64-bit debuff streaming (<code>sTWDebuff</code>), custom entities (spells &ge; 40000, items &ge; 300000), and complete compatibility with <code>modules/mod-dungeon-clear</code>.
 </div>
 

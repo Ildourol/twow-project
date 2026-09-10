@@ -23,8 +23,8 @@ This is **not a blind cherry-picking project**. Upstream commits represent evide
    Never replace native Turtle / vMaNGOS systems or data structures with foreign upstream architecture merely to simplify a patch. Port behavior and intent, not alien dependencies.
 2. **Dungeon Clear Protection**:
    `modules/mod-dungeon-clear` is a critical protected target subsystem. All bot changes touching instance lifecycle, reset, group composition, movement, follower states, death/repop, teleportation, or gossip must preserve Dungeon Clear contracts.
-3. **Vanilla / Turtle Expansion Invariant**:
-   TBC/WotLK assumptions (e.g. post-Vanilla spells, talents, item classes, or arenas) must be adapted or rejected. Target supports Vanilla/Turtle 1.18.1 mechanics.
+3. **Strict Vanilla / Classic Exclusivity Invariant (Absolute Prohibition on TBC / WotLK)**:
+   This project is strictly and exclusively dedicated to **Vanilla / Classic WoW** (Classic 1.12.1 / Turtle WoW 1.18.1 Classic+). Porting anything from TBC, WotLK, or any later expansion is **STRICTLY PROHIBITED**. Only changes, mechanics, and bugfixes directly related to Vanilla and Classic are permitted. All TBC/WotLK spells, talents, combat ratings, resilience, arenas, flying mounts, and expansion-specific logic must be completely rejected or stripped before any code is considered. Zero tolerance for post-Vanilla expansion pollution.
 4. **Single-Writer Safety**:
    Target repository modifications follow a strict single-writer lock. No concurrent tasks may edit the same target files.
 5. **Durable Ledger Principle**:

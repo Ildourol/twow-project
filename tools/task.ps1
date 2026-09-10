@@ -92,6 +92,7 @@ function Show-Status {
     Write-Host "   Branch:       $targetBranch (expected: $($Sources.target.branch))"
     Write-Host "   HEAD:         $targetHead"
     Write-Host "   Worktree:     $targetClean"
+    Write-Host "   Expansion:    STRICT VANILLA / CLASSIC (TBC & WotLK strictly prohibited)" -ForegroundColor Green
     Write-Host ""
 
     $cmangosPath = $Sources.upstreams.cmangos.path
@@ -167,14 +168,15 @@ function Invoke-ScanSource([string]$sourceKey, [string]$scanMode) {
         $priority = "P2"
         $reason = "Awaiting manual/AI audit"
 
-        if ($subject -match "(?i)\b(crash|corruption|uaf|lifetime|null\s*pointer|segfault|assert)\b") {
+        # ADR-008: Strict Vanilla / Classic Mandate - check TBC/WotLK FIRST to prevent any post-Vanilla port
+        if ($subject -match "(?i)\b(tbc|wotlk|wrath|burning\s*crusade|outland|northrend|arena\s*team|flying\s*mount|deathknight|dk|malchezaar|illidan|arthas|resilience|jewelcrafting|socket)\b") {
+            $status = "EXPANSION_INCOMPATIBLE"
+            $priority = "P3"
+            $reason = "Strict Vanilla Mandate (ADR-008): Post-Vanilla TBC/WotLK content is strictly prohibited"
+        } elseif ($subject -match "(?i)\b(crash|corruption|uaf|lifetime|null\s*pointer|segfault|assert)\b") {
             $status = "CRITICAL"
             $priority = "P0"
             $reason = "Stability/crash fix detected from keywords"
-        } elseif ($subject -match "(?i)\b(tbc|wotlk|arena\s*team|flying|deathknight|dk|malchezaar)\b") {
-            $status = "EXPANSION_INCOMPATIBLE"
-            $priority = "P3"
-            $reason = "Post-Vanilla TBC/WotLK expansion mechanics"
         } elseif ($subject -match "(?i)\b(fix|heal|threat|combat|stance|path|movement|travel|resurrect|cure|dispel)\b") {
             $status = "RECOMMENDED"
             $priority = "P1"
@@ -293,8 +295,18 @@ switch ($Command.ToLower()) {
         Write-Host " 4. Target Branch:  mantech-turtle on tortoise-wow-extended." -ForegroundColor Yellow
         Write-Host "============================================================" -ForegroundColor Cyan
     }
+    "vanilla-mandate" {
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host " STRICT VANILLA / CLASSIC MANDATE (ADR-008 / AGENTS.md 2.7)" -ForegroundColor Cyan
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host " 1. Target Lineage:  Strictly Vanilla (Classic 1.12.1 / Turtle WoW 1.18.1 Classic+)." -ForegroundColor Green
+        Write-Host " 2. TBC & WotLK:     STRICTLY PROHIBITED. Zero tolerance for post-Vanilla code." -ForegroundColor Red
+        Write-Host " 3. Permitted Scope: ONLY Vanilla and Classic-related changes/fixes." -ForegroundColor Yellow
+        Write-Host " 4. Rejection Rule:  Any post-Vanilla commit is auto-tagged EXPANSION_INCOMPATIBLE (P3)." -ForegroundColor DarkGray
+        Write-Host "============================================================" -ForegroundColor Cyan
+    }
     default {
-        Write-Host "Available commands: status, scan, verify-quick, verify-full, roadmap, ledger, commit-policy." -ForegroundColor Yellow
-        Write-Host "Notice: Audits may be batched, but all commits and pushes must be done commit-by-commit." -ForegroundColor Cyan
+        Write-Host "Available commands: status, scan, verify-quick, verify-full, roadmap, ledger, commit-policy, vanilla-mandate." -ForegroundColor Yellow
+        Write-Host "Notice: Strict Vanilla/Classic only (no TBC/WotLK). Audits in batch; commits commit-by-commit." -ForegroundColor Cyan
     }
 }

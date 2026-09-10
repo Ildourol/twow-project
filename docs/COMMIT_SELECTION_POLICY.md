@@ -17,8 +17,10 @@ Upstream commits are categorized and triaged strictly by impact, correctness, an
 
 Commits exhibiting any of the following traits are automatically disqualified:
 
-1. **Expansion Incompatible (`EXPANSION_INCOMPATIBLE`)**:
-   - TBC / WotLK spells, talents, or mechanics (e.g. Death Knights, flying mounts, Arena teams, post-Vanilla raid scripts like Karazhan/Malchezaar).
+1. **Strict Vanilla Mandate & Expansion Incompatibility (`EXPANSION_INCOMPATIBLE`)**:
+   - **Absolute Prohibition**: Target is strictly Vanilla / Classic (1.12.1 / Turtle WoW 1.18.1 Classic+). Any commit from TBC (2.x), WotLK (3.x), or later expansions is **STRICTLY DISQUALIFIED**.
+   - Disqualified traits include: post-Vanilla spells, talents, combat ratings, resilience, jewelcrafting, Arena teams, flying mounts, Death Knights, post-Vanilla dungeon/raid scripts (Karazhan, Gruul, Naxx-80, Ulduar, ICC), and multi-expansion conditional code.
+   - Only changes that are strictly Vanilla / Classic relevant are eligible for porting.
 2. **Architecturally Incompatible (`ARCHITECTURALLY_INCOMPATIBLE`)**:
    - Upstream changes assuming foreign core memory layouts, alien packet formats, or external third-party libraries not in target.
 3. **Cosmetic / Formatting / Noise (`REJECTED`)**:

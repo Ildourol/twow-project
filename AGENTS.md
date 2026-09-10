@@ -54,6 +54,15 @@ When conflicting technical information or implementation patterns arise, agents 
 - Each commit pushed to `mantech-turtle` must correspond to exactly one upstream donor commit with full individual provenance (source repository, upstream commit SHA, subsystem, priority).
 - **No Batch Pushing**: Every individual commit must be pushed immediately to `mantech-turtle` upon passing verification before moving to the next candidate commit.
 
+### 2.7. Absolute Vanilla / Classic Exclusivity Mandate (Strict Prohibition on TBC and WotLK)
+- **Strict Vanilla / Classic Target**: This project targets exclusively **Vanilla / Classic WoW** (Classic 1.12.1 / Turtle WoW 1.18.1 Classic+).
+- **Absolute Prohibition on TBC & WotLK**: Porting **ANY** mechanics, spells, talents, strategies, items, opcodes, or assumptions from The Burning Crusade (TBC 2.x), Wrath of the Lich King (WotLK 3.x), or any later expansion is **STRICTLY PROHIBITED**.
+- **Vanilla-Only Permitted Changes**: Only changes, bugfixes, and enhancements directly relevant to Vanilla / Classic are permitted.
+- **Handling Multi-Expansion Upstream Code**: If an upstream commit contains multi-expansion branching (`#if defined(MANGOSBOT_ONE) || defined(MANGOSBOT_TWO)`, `#ifdef TBC`, WotLK checks, etc.):
+  1. All non-Vanilla branches, post-Vanilla spells, talents, arenas, flying mounts, and expansion logic must be completely stripped out.
+  2. If an upstream fix exists primarily for or relies upon TBC/WotLK mechanics, it is immediately **DISQUALIFIED** with status `EXPANSION_INCOMPATIBLE` and priority `P3`.
+- **Zero Tolerance**: Under no circumstances may any TBC or WotLK content enter `modules/mod-playerbots` or target branch `mantech-turtle`.
+
 ---
 
 ## 3. Specialized Agent Roles

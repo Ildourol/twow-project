@@ -16,7 +16,17 @@ All scan and synchronization commands support three execution modes. When omitte
 
 ---
 
-## 2. Command Specifications
+## 2. Strict Vanilla / Classic Exclusivity Mandate
+
+All commands and automated pipelines operate under a strict, non-negotiable **Vanilla / Classic Exclusivity Invariant**:
+- **Target Lineage**: Vanilla WoW (Classic 1.12.1 / Turtle WoW 1.18.1 Classic+).
+- **Absolute Prohibition on TBC & WotLK**: Porting **ANY** features, spells, talents, combat mechanics, or opcodes from The Burning Crusade (TBC 2.x), Wrath of the Lich King (WotLK 3.x), or any later expansion is **STRICTLY PROHIBITED**.
+- **Permitted Scope**: Only changes, bugfixes, and AI enhancements directly relevant to Vanilla and Classic mechanics are eligible for porting.
+- **Automated Rejection**: Any upstream candidate commit that targets or requires post-Vanilla expansion systems is automatically classified as `EXPANSION_INCOMPATIBLE` (P3) and excluded from synchronization.
+
+---
+
+## 3. Command Specifications
 
 ### 2.1. STATUS
 ```powershell

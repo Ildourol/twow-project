@@ -60,3 +60,11 @@
 - **Context**: Porting multiple fixes in batched commits complicates regression attribution, git bisect operations, upstream provenance tracking, and cherry-picking between branches (`extended` and `mantech-turtle`).
 - **Decision**: While candidate commits may be audited and triaged in batches during scanning passes, all actual ports, code adaptations, build verifications, git commits, and remote pushes must be executed strictly **commit-by-commit** (1 upstream donor commit = 1 target git commit = 1 remote push). Grouping, combining, or squashing multiple upstream donor fixes into a single target git commit or single push is strictly prohibited.
 - **Consequences**: Guarantees clean git history, precise regression isolation, full auditability, and 1-to-1 provenance traceability back to upstream donor repositories.
+
+---
+
+## ADR-008: Strict Vanilla / Classic Exclusivity Mandate (Absolute Prohibition on TBC & WotLK)
+- **Status**: Accepted (Binding Directive)
+- **Context**: Upstream donor repositories (especially `cmangos/playerbots`) actively develop across Classic, The Burning Crusade (TBC 2.4.3), and Wrath of the Lich King (WotLK 3.3.5a). Ingesting post-Vanilla spells, talents, combat mechanics, or expansion-specific logic introduces severe corruption, compile failures, and game balance disruption on Turtle WoW 1.18.1.
+- **Decision**: Formally establish the **Strict Vanilla / Classic Exclusivity Invariant**. Porting ANY mechanics, features, spells, talents, strategies, or assumptions from TBC or WotLK is **STRICTLY PROHIBITED**. Only changes directly relevant to Vanilla and Classic (1.12.1 / Turtle WoW 1.18.1 Classic+) are permitted. Any candidate commit that touches or requires post-Vanilla systems must be either strictly stripped of all non-Vanilla code or completely disqualified with status `EXPANSION_INCOMPATIBLE` (P3).
+- **Consequences**: Guarantees pristine Vanilla / Classic game mechanics, prevents TBC/WotLK code pollution, and ensures seamless compatibility with Turtle WoW contracts.
