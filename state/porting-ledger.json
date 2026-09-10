@@ -7,11 +7,11 @@
     "metrics":  {
                     "total_audited":  43,
                     "pending":  14,
-                    "selected":  28,
+                    "selected":  26,
                     "in_progress":  0,
-                    "ported":  0,
-                    "verified":  0,
-                    "pushed":  0,
+                    "ported":  2,
+                    "verified":  2,
+                    "pushed":  2,
                     "skipped":  0,
                     "duplicate":  0,
                     "already_present":  0,
@@ -52,9 +52,13 @@
                                                                      "date":  "2026-09-08",
                                                                      "subject":  "Debug: Fixed crash when getting object location of a player that does not exists.",
                                                                      "audited_at":  "2026-09-10 17:15:15",
-                                                                     "status":  "CRITICAL",
+                                                                     "status":  "PORTED",
                                                                      "priority":  "P0",
-                                                                     "audit_mode":  "normal"
+                                                                     "audit_mode":  "normal",
+                                                                     "target_commit_sha":  "ede29a3f01b8bbfd5573ca7b524796baeeef2116",
+                                                                     "ported_at":  "2026-09-10 17:44:25",
+                                                                     "verified":  true,
+                                                                     "pushed":  true
                                                                  },
                     "084a1368749e50a36079877aa687b15d31e1aa18":  {
                                                                      "source":  "cmangos",
@@ -76,9 +80,13 @@
                                                                      "date":  "2026-09-08",
                                                                      "subject":  "Corpse: Fixed crash when corpse does not exists or is at 0,0,0,0",
                                                                      "audited_at":  "2026-09-10 17:15:15",
-                                                                     "status":  "CRITICAL",
+                                                                     "status":  "PORTED",
                                                                      "priority":  "P0",
-                                                                     "audit_mode":  "normal"
+                                                                     "audit_mode":  "normal",
+                                                                     "target_commit_sha":  "ede29a3f01b8bbfd5573ca7b524796baeeef2116",
+                                                                     "ported_at":  "2026-09-10 17:44:25",
+                                                                     "verified":  true,
+                                                                     "pushed":  true
                                                                  },
                     "993f18091e67565986cf55c4d9b8e6eae11223f9":  {
                                                                      "source":  "cmangos",
