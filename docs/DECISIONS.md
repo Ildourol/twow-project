@@ -68,3 +68,14 @@
 - **Context**: Upstream donor repositories (especially `cmangos/playerbots`) actively develop across Classic, The Burning Crusade (TBC 2.4.3), and Wrath of the Lich King (WotLK 3.3.5a). Ingesting post-Vanilla spells, talents, combat mechanics, or expansion-specific logic introduces severe corruption, compile failures, and game balance disruption on Turtle WoW 1.18.1.
 - **Decision**: Formally establish the **Strict Vanilla / Classic Exclusivity Invariant**. Porting ANY mechanics, features, spells, talents, strategies, or assumptions from TBC or WotLK is **STRICTLY PROHIBITED**. Only changes directly relevant to Vanilla and Classic (1.12.1 / Turtle WoW 1.18.1 Classic+) are permitted. Any candidate commit that touches or requires post-Vanilla systems must be either strictly stripped of all non-Vanilla code or completely disqualified with status `EXPANSION_INCOMPATIBLE` (P3).
 - **Consequences**: Guarantees pristine Vanilla / Classic game mechanics, prevents TBC/WotLK code pollution, and ensures seamless compatibility with Turtle WoW contracts.
+
+---
+
+## ADR-009: Verification Pipeline Execution Modes for Token and Latency Optimization
+- **Status**: Accepted (Binding Directive)
+- **Context**: Compiling and linking `mangosd.exe` with MSVC 2022 on Windows requires 2–3 minutes per run and emits hundreds of lines of output into active context. Performing a full link cycle for every single commit incurs massive token waste and 10–15 minutes of idle waiting across small batches.
+- **Decision**: Authorize two optimized verification modes alongside Strict Full-Link Mode:
+  1. **Option 1: Fast Incremental Mode (Recommended Default)**: Compile the isolated library target `modules` / `modules_playerbots` per commit (~3s, ~3 lines of output). Push the atomic commit immediately to `mantech-turtle`. Execute the full `mangosd.exe` link once at the batch or milestone boundary.
+  2. **Option 2: Batch Verification Mode**: Apply and commit code changes sequentially in git to maintain 1-to-1 provenance and git bisectability, but execute a single compile and link pass (`modules` + `mangosd.exe`) at the conclusion of the batch.
+  3. **Option 3: Strict Full-Link Mode**: Retained as an explicit option for P0 core architectural overhauls.
+- **Consequences**: Yields ~90% reduction in context token consumption and build latency while preserving 1-to-1 git commit granularity, bisectability, and compiler diagnostic precision.

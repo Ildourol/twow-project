@@ -369,31 +369,59 @@
     </tr>
     <tr>
       <td>
-        <span class="cmd-name">verify-quick</span>
-        <span class="badge badge-gate">Fast Verification</span>
+        <span class="cmd-name">verify-fast</span>
+        <span class="badge badge-gate">Option 1 Default</span>
       </td>
       <td>
-        <div class="cmd-syntax">.\task.ps1 verify-quick</div>
-        <div class="cmd-notes">Runs MSVC 2022 compiler on static target.</div>
+        <div class="cmd-syntax">.\task.ps1 verify-fast</div>
+        <div class="cmd-notes">Alias: verify-quick. Compiles modules.lib.</div>
       </td>
       <td>
-        <div class="cmd-desc">Triggers rapid compilation of affected static module code (<code>modules.lib</code>) using CMake parallel build (4 threads). Validates syntax, type signatures, template instantiations, and header inclusion correctness in ~8–12 seconds.</div>
+        <div class="cmd-desc">Triggers rapid compilation of affected static module code (<code>modules.lib</code>) using CMake parallel build (4 threads). Validates syntax, type signatures, template instantiations, and header inclusion in ~3 seconds with minimal token output (~3 lines).</div>
       </td>
       <td>Reports PASS/FAIL on <code>modules.lib</code>.</td>
     </tr>
     <tr>
       <td>
         <span class="cmd-name">verify-full</span>
-        <span class="badge badge-gate">Full Gate</span>
+        <span class="badge badge-gate">Full Gate / Option 3</span>
       </td>
       <td>
         <div class="cmd-syntax">.\task.ps1 verify-full</div>
         <div class="cmd-notes">Compiles modules and links server daemon.</div>
       </td>
       <td>
-        <div class="cmd-desc">Compiles all modules and links the complete target server binary (<code>mangosd.exe</code>). Ensures there are zero unresolved external symbols, linker collisions, or missing virtual table entries across PlayerBots, Dungeon Clear, and core engine.</div>
+        <div class="cmd-desc">Compiles all modules and links the complete target server binary (<code>mangosd.exe</code>). Ensures there are zero unresolved external symbols, linker collisions, or missing virtual table entries across PlayerBots, Dungeon Clear, and core engine (~2–3 minutes).</div>
       </td>
       <td>Reports PASS/FAIL on <code>mangosd.exe</code> linkage.</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="cmd-name">verify-batch</span>
+        <span class="badge badge-gate">Option 2 Batch</span>
+      </td>
+      <td>
+        <div class="cmd-syntax">.\task.ps1 verify-batch</div>
+        <div class="cmd-notes">Full compile & link pass for multi-commit batch.</div>
+      </td>
+      <td>
+        <div class="cmd-desc">Executes a single combined verification pass across a series of sequentially committed fixes. Compiles <code>modules.lib</code> then links <code>mangosd.exe</code> to verify the entire batch together, saving massive token output and turnaround latency.</div>
+      </td>
+      <td>Reports PASS/FAIL on batch modules and mangosd.</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="cmd-name">build-options</span>
+        <span class="badge badge-core">Information</span>
+      </td>
+      <td>
+        <div class="cmd-syntax">.\task.ps1 build-options</div>
+        <div class="cmd-notes">Displays ADR-009 verification modes.</div>
+      </td>
+      <td>
+        <div class="cmd-desc">Summarizes the three authorized verification execution modes (Option 1: Fast Incremental, Option 2: Batch Verification, Option 3: Strict Full-Link) and provides guidance on token optimization and debugging workflows.</div>
+      </td>
+      <td>Console explanation of verification execution modes.</td>
     </tr>
     <tr>
       <td>
@@ -468,7 +496,43 @@
   </tbody>
 </table>
 
-<h2>3. Candidate Triage & Classification Hierarchy</h2>
+<h2>3. Build & Verification Execution Modes & Token Optimization (ADR-009)</h2>
+<table class="ref-table">
+  <thead>
+    <tr>
+      <th style="width: 18%;">Execution Mode</th>
+      <th style="width: 22%;">Per-Commit Step</th>
+      <th style="width: 24%;">Batch / Milestone Gate</th>
+      <th style="width: 18%;">Token & Time Cost</th>
+      <th style="width: 18%;">Debugging & Guarantees</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Option 1: Fast Incremental</strong><br><span class="badge badge-p1">Recommended</span></td>
+      <td>Compile <code>modules.lib</code> via <code>.\task.ps1 verify-fast</code> (~3 sec). Commit & push 1-by-1.</td>
+      <td>Full <code>mangosd.exe</code> link via <code>.\task.ps1 verify-full</code> at end of batch/phase.</td>
+      <td>~90% token reduction; ~3 sec latency per commit.</td>
+      <td>Compiler errors give exact file/line. Atomic commits preserve full <code>git bisect</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>Option 2: Batch Verification</strong><br><span class="badge badge-p2">High Throughput</span></td>
+      <td>Sequential git commits with atomic dossiers. Compilation deferred.</td>
+      <td>Single comprehensive pass: compile <code>modules.lib</code> + link <code>mangosd.exe</code> via <code>verify-batch</code>.</td>
+      <td>Lowest token cost (1 build pass per batch); fastest execution.</td>
+      <td>MSVC output pinpoints exact file/line on failure. Atomic commits preserve bisectability.</td>
+    </tr>
+    <tr>
+      <td><strong>Option 3: Strict Full-Link</strong><br><span class="badge badge-p0">P0 Safety</span></td>
+      <td>Compile <code>modules.lib</code> and link <code>mangosd.exe</code> after every single commit.</td>
+      <td>Verified independently on every commit before git push.</td>
+      <td>High token usage (hundreds of lines/commit); ~2–3 min per commit.</td>
+      <td>Instant per-commit link proof. Reserved for P0 threading, mutexes, and engine overhauls.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>4. Candidate Triage & Classification Hierarchy</h2>
 <table class="ref-table">
   <thead>
     <tr>
@@ -506,7 +570,7 @@
   </tbody>
 </table>
 
-<h2>4. Architectural Governance & Safety Invariants</h2>
+<h2>5. Architectural Governance & Safety Invariants</h2>
 <div class="policy-strip green">
   <strong>1. Mandatory 1-to-1 Commit Granularity (ADR-007):</strong>
   Batch auditing is permitted for scanning efficiency. However, all target code modifications, verification builds, git commits, documentation dossiers, and remote pushes must occur strictly <b>commit-by-commit</b>. 1 Upstream Donor Commit = 1 Target Commit = 1 Remote Push to <code>mantech-turtle</code>. Squashing or batching donor commits into composite commits is strictly prohibited.

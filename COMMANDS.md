@@ -111,13 +111,15 @@ Directly ports an explicitly requested commit and its required dependencies.
 
 ---
 
-### 2.7. VERIFY QUICK & VERIFY FULL
+### 2.7. VERIFY FAST, VERIFY FULL & VERIFY BATCH (BUILD EXECUTION OPTIONS)
 ```powershell
-.\task.ps1 verify-quick
-.\task.ps1 verify-full
+.\task.ps1 verify-fast   # (Alias: verify-quick) Rapid compilation of modules.lib (~3s)
+.\task.ps1 verify-full   # Complete target server link (mangosd.exe, ~2-3m)
+.\task.ps1 verify-batch  # Batch verification pass across multi-commit series
 ```
-- `verify-quick`: Rapid syntax and module compilation (`modules.lib`).
-- `verify-full`: Complete target server link (`mangosd.exe`) and test execution.
+- **Option 1: Fast Incremental (Recommended Default)**: Run `verify-fast` after each individual commit. Eliminates 90% of token bloat and build wait time (~3s per commit). Run `verify-full` once at the end of the batch/phase.
+- **Option 2: Batch Verification**: Commit candidate fixes sequentially to git to preserve 1-to-1 provenance and git bisectability. Defer compilation and run `verify-batch` (or `verify-full`) once all commits in the batch are applied.
+- **Option 3: Strict Full-Link**: Run `verify-full` after each individual commit. Reserved for P0 core threading and engine refactors.
 
 ---
 

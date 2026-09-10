@@ -61,7 +61,22 @@ When conflicting technical information or implementation patterns arise, agents 
 - **Handling Multi-Expansion Upstream Code**: If an upstream commit contains multi-expansion branching (`#if defined(MANGOSBOT_ONE) || defined(MANGOSBOT_TWO)`, `#ifdef TBC`, WotLK checks, etc.):
   1. All non-Vanilla branches, post-Vanilla spells, talents, arenas, flying mounts, and expansion logic must be completely stripped out.
   2. If an upstream fix exists primarily for or relies upon TBC/WotLK mechanics, it is immediately **DISQUALIFIED** with status `EXPANSION_INCOMPATIBLE` and priority `P3`.
-- **Zero Tolerance**: Under no circumstances may any TBC or WotLK content enter `modules/mod-playerbots` or target branch `mantech-turtle`.
+### 2.8. Build & Verification Execution Modes (Token & Performance Optimization)
+To prevent context token exhaustion and avoid excessive build wait times (linking `mangosd.exe` takes 2–3 minutes and injects hundreds of lines of linker output into context per turn), agents are authorized to operate under three defined verification modes:
+
+1. **Option 1: Fast Incremental Mode (Recommended Default)**:
+   - **Per-Commit Verification**: Compile only the module target `modules` / `modules_playerbots` (`cmake --build build --target modules --config Release --parallel 4`). This takes ~3 seconds and produces only 2–3 output lines, keeping active context compact.
+   - **Atomic Git Commit & Push**: Commit and push each donor fix individually to `mantech-turtle` (preserving ADR-007 1-to-1 provenance).
+   - **Milestone Link Check**: Run the full executable linker (`mangosd.exe`) once at the conclusion of the phase or batch to verify global symbol resolution.
+   - **Token & Time Savings**: Eliminates ~90% of compiler context bloat and saves 10–15 minutes per batch.
+
+2. **Option 2: Batch Verification Mode (Maximum Token Efficiency)**:
+   - **Sequential Atomic Commits**: Apply changes, draft dossiers, and commit to git individually in sequence to preserve git bisectability and 1-to-1 donor tracking.
+   - **Deferred Compilation**: Run a single comprehensive compile and link pass (`modules` + `mangosd.exe`) at the conclusion of the batch.
+   - **Debugging & Error Isolation**: If compilation fails, MSVC compiler output specifies the exact file, line number, and error identifier, immediately identifying the offending commit. For runtime regressions, atomic git commits ensure `git bisect` functions identically to per-commit builds. The resulting binaries and code are identical.
+
+3. **Option 3: Strict Full-Link Mode (P0 Maximum Paranoia)**:
+   - Recompile `modules.lib` and fully link `mangosd.exe` after every single commit. Recommended only when modifying core engine headers, threading primitives, or global object models.
 
 ---
 

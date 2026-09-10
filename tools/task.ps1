@@ -222,7 +222,7 @@ function Invoke-ScanSource([string]$sourceKey, [string]$scanMode) {
 }
 
 function Invoke-VerifyQuick {
-    Write-Host "=== VERIFY QUICK: Compiling target modules.lib ===" -ForegroundColor Cyan
+    Write-Host "=== VERIFY FAST: Compiling target modules.lib ===" -ForegroundColor Cyan
     $cmake = $Sources.target.build_configuration.cmake_executable
     $buildDir = Join-Path $Sources.target.path "build"
     & $cmake --build $buildDir --target modules --config Release --parallel 4
@@ -245,6 +245,14 @@ function Invoke-VerifyFull {
     }
 }
 
+function Invoke-VerifyBatch {
+    Write-Host "=== VERIFY BATCH: Executing batch compilation & full link ===" -ForegroundColor Cyan
+    Invoke-VerifyQuick
+    if ($LASTEXITCODE -eq 0) {
+        Invoke-VerifyFull
+    }
+}
+
 switch ($Command.ToLower()) {
     "status" {
         Show-Status
@@ -258,8 +266,28 @@ switch ($Command.ToLower()) {
     "verify-quick" {
         Invoke-VerifyQuick
     }
+    "verify-fast" {
+        Invoke-VerifyQuick
+    }
     "verify-full" {
         Invoke-VerifyFull
+    }
+    "verify-batch" {
+        Invoke-VerifyBatch
+    }
+    "build-options" {
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host " BUILD & VERIFICATION EXECUTION OPTIONS (ADR-009)" -ForegroundColor Cyan
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host " Option 1: Fast Incremental Mode (Recommended Default)" -ForegroundColor Green
+        Write-Host "   - Per-commit: compile modules.lib (~3s, minimal tokens)."
+        Write-Host "   - Batch end: link mangosd.exe once."
+        Write-Host " Option 2: Batch Verification Mode (High Throughput)" -ForegroundColor Yellow
+        Write-Host "   - Per-commit: commit to git sequentially (preserves bisect)."
+        Write-Host "   - Batch end: run verify-batch (single compile + link pass)."
+        Write-Host " Option 3: Strict Full-Link Mode (P0 Safety)" -ForegroundColor Magenta
+        Write-Host "   - Per-commit: full compile and link mangosd.exe (~2-3m)."
+        Write-Host "============================================================" -ForegroundColor Cyan
     }
     "roadmap" {
         Get-Content (Join-Path $ProjectRoot "ROADMAP.md")
@@ -306,7 +334,7 @@ switch ($Command.ToLower()) {
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     default {
-        Write-Host "Available commands: status, scan, verify-quick, verify-full, roadmap, ledger, commit-policy, vanilla-mandate." -ForegroundColor Yellow
+        Write-Host "Available commands: status, scan, verify-fast, verify-full, verify-batch, build-options, roadmap, ledger, commit-policy, vanilla-mandate." -ForegroundColor Yellow
         Write-Host "Notice: Strict Vanilla/Classic only (no TBC/WotLK). Audits in batch; commits commit-by-commit." -ForegroundColor Cyan
     }
 }

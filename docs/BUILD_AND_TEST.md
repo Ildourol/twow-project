@@ -56,3 +56,20 @@ flowchart TD
   1. Record it as `BASELINE_FAILURE` in the audit notes.
   2. Do not expand porting scope to fix unrelated baseline issues without explicit instruction.
   3. If a failure is introduced by the candidate, it is a `PORT_CAUSED_FAILURE` and must be resolved before proceeding.
+
+---
+
+## 3. Verification Execution Modes & Token Optimization (ADR-009)
+
+Linking `mangosd.exe` with MSVC 2022 takes 2–3 minutes and emits hundreds of lines of output into the active context window, causing rapid token bloat. The following three operational modes balance verification rigor with token and performance efficiency:
+
+| Execution Mode | Per-Commit Verification | Push Cadence | Milestone / Batch Verification | Token Cost | Build Latency | Use Case |
+|:---|:---|:---|:---|:---|:---|:---|
+| **Option 1: Fast Incremental (Recommended)** | Compile `modules.lib` (~3s) | Atomic 1-to-1 Push | Full link `mangosd.exe` at batch end | Minimal (~3 lines/commit) | Fast (~3s/commit) | Standard daily porting across multi-commit phases |
+| **Option 2: Batch Verification** | None (deferred) | Sequentially committed | Full compile `modules` + link `mangosd` at batch end | Lowest (1 pass total) | Fastest | Rapid multi-commit backlog clearance |
+| **Option 3: Strict Full-Link** | Full `modules` + `mangosd` | Atomic 1-to-1 Push | Verified on every commit | High (hundreds of lines/commit) | Slow (~3m/commit) | P0 critical fixes, threading, core headers |
+
+### Debugging & Error Isolation Guarantees:
+- **Compiler Errors**: In all modes, MSVC compiler output explicitly identifies the source file, function name, and line number. A compilation failure in a batch of 5 commits points directly to the exact file touched by one specific commit.
+- **Runtime Bugs & Bisectability**: Because code changes are always committed to git as individual atomic commits with 1-to-1 provenance, standard `git bisect` and localized git logs pinpoint defects effortlessly regardless of which verification mode was used.
+- **Binary Identity**: The resulting binaries produced by all three modes are identical bit-for-bit.
