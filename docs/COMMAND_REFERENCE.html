@@ -453,6 +453,20 @@
     </tr>
     <tr>
       <td>
+        <span class="cmd-name">update-upstreams</span>
+        <span class="badge badge-gate">Sync / Fetch</span>
+      </td>
+      <td>
+        <div class="cmd-syntax">.\task.ps1 update-upstreams [cmangos|vmangos|all]</div>
+        <div class="cmd-notes">Aliases: sync-upstreams, pull-upstreams</div>
+      </td>
+      <td>
+        <div class="cmd-desc">Fetches and fast-forwards all upstream donor clones in <code>reference-upstreams/</code> (<code>core</code> and <code>playerbots</code>). Displays count and summary of new incoming commits for immediate local inspection. Protects working tree of <code>tortoise-wow-extended</code>.</div>
+      </td>
+      <td>Updates local reference donor clones safely.</td>
+    </tr>
+    <tr>
+      <td>
         <span class="cmd-name">ledger</span>
         <span class="badge badge-core">Reporting</span>
       </td>

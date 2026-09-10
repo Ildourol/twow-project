@@ -30,7 +30,7 @@
   "upstreams": {
     "cmangos": {
       "source_name": "cmangos-playerbots",
-      "path": "C:/Users/Admin/AntigravityProfiles/Projects/Module-playerbots/playerbots",
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/Module-playerbots/reference-upstreams/playerbots",
       "git_remote_url": "https://github.com/cmangos/playerbots.git",
       "remote_name": "origin",
       "branch": "master",
@@ -40,7 +40,7 @@
     },
     "vmangos": {
       "source_name": "vmangos-playerbots-core",
-      "path": "C:/Users/Admin/AntigravityProfiles/Projects/Module-playerbots/core",
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/Module-playerbots/reference-upstreams/core",
       "git_remote_url": "https://github.com/ileboii/core.git",
       "remote_name": "origin",
       "branch": "vmangos-ike3-playerbots",

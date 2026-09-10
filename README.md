@@ -11,14 +11,14 @@ The project systematically audits, adapts, verifies, and integrates fixes and im
 | Repository Role | Local Directory | Upstream Git Remote | Branch | Primary Function |
 | :--- | :--- | :--- | :--- | :--- |
 | **TARGET** | `tortoise-wow-extended` | `https://github.com/Ildourol/tortoise-wow-extended.git` | `mantech-turtle` | Product repository. PlayerBots module (`modules/mod-playerbots`) and Dungeon Clear (`modules/mod-dungeon-clear`). |
-| **UPSTREAM 1** | `playerbots` | `https://github.com/cmangos/playerbots.git` | `master` | Donor repository for CMaNGOS PlayerBots. High-velocity AI, travel, and combat fixes. |
-| **UPSTREAM 2** | `core` | `https://github.com/ileboii/core.git` | `vmangos-ike3-playerbots` | Donor repository for vMaNGOS PlayerBots. Core-integrated lifecycle, healing, and stance fixes. |
+| **UPSTREAM 1** | `reference-upstreams/playerbots` *(junction at `playerbots/`)* | `https://github.com/cmangos/playerbots.git` | `master` | Donor repository for CMaNGOS PlayerBots. High-velocity AI, travel, and combat fixes. |
+| **UPSTREAM 2** | `reference-upstreams/core` *(junction at `core/`)* | `https://github.com/ileboii/core.git` | `vmangos-ike3-playerbots` | Donor repository for vMaNGOS PlayerBots. Core-integrated lifecycle, healing, and stance fixes. |
 
 ---
 
 ## 2. How to Install & Setup
 
-This repository contains the orchestration, automation, documentation, and state tracking framework. The underlying server and donor repositories are tracked separately and must be cloned into the project root:
+This repository contains the orchestration, automation, documentation, and state tracking framework. The underlying server and donor repositories are tracked separately and organized under `reference-upstreams/` and root:
 
 ### Step 1: Clone the Management Framework
 ```powershell
@@ -33,11 +33,14 @@ Run the following commands inside the `Module-playerbots` directory:
 # 1. Target Product Repository (Turtle WoW Extended)
 git clone -b mantech-turtle https://github.com/Ildourol/tortoise-wow-extended.git tortoise-wow-extended
 
-# 2. Upstream CMaNGOS PlayerBots Donor Repository
-git clone https://github.com/cmangos/playerbots.git playerbots
+# 2. Reference Upstreams (organized in reference-upstreams/ with root junctions)
+New-Item -ItemType Directory -Path "reference-upstreams" -Force | Out-Null
+git clone https://github.com/cmangos/playerbots.git reference-upstreams/playerbots
+git clone -b vmangos-ike3-playerbots https://github.com/ileboii/core.git reference-upstreams/core
 
-# 3. Upstream vMaNGOS PlayerBots Donor Repository
-git clone -b vmangos-ike3-playerbots https://github.com/ileboii/core.git core
+# Create root directory junctions for seamless cross-tool compatibility
+New-Item -ItemType Junction -Path "playerbots" -Target "reference-upstreams\playerbots"
+New-Item -ItemType Junction -Path "core" -Target "reference-upstreams\core"
 ```
 
 ### Step 3: Prerequisites & Toolchain Setup
@@ -137,4 +140,27 @@ Module-playerbots/
 
 # Inspect porting ledger
 .\task.ps1 ledger [cmangos|vmangos]
+
+# Fetch and pull latest upstream donor commits
+.\task.ps1 update-upstreams [cmangos|vmangos|all]
 ```
+
+---
+
+## 6. Upstream Ecosystem Directory & Fork References
+
+| Repository / Resource | URL | Primary Role / Description |
+|:---|:---|:---|
+| **Turtle WoW Original** | [Penqle/tortoise-wow](https://github.com/Penqle/tortoise-wow) | Upstream core engine repository. |
+| **Turtle WoW with IKE3 Bots** | [Shyalya/tortoise-wow](https://github.com/Shyalya/tortoise-wow)<br>[T-imothy/tortoise-wow](https://github.com/T-imothy/tortoise-wow) | Turtle-adapted playerbots reference implementations. |
+| **Turtle WoW with AC Bots** | [tortoise-wow-stack/TortoiseBots](https://github.com/tortoise-wow-stack/TortoiseBots) | Alternative bot system implementation. |
+| **Turtle WoW Knowledge DB** | [tortoise-wow-stack/TortoiseWoWKnowledgeBase](https://github.com/tortoise-wow-stack/TortoiseWoWKnowledgeBase) | Turtle WoW technical notes, packet structure, opcode tables. |
+| **Turtle Module Ecosystem** | [tortoise-module Topic](https://github.com/topics/tortoise-module)<br>[Basic Module Template](https://github.com/Penqle/tortoise-wow/tree/main/modules/templates/basic) | Modular architecture standards and templates. |
+| **vMaNGOS Core** | [vmangos/core](https://github.com/vmangos/core)<br>[vMaNGOS Releases (db_latest)](https://github.com/vmangos/core/releases) | Upstream vanilla 1.12.1 reference emulator and modern DB dumps. |
+| **vMaNGOS PlayerBots (IKE3)** | [ileboii/core (vmangos-ike3-playerbots)](https://github.com/ileboii/core/tree/vmangos-ike3-playerbots) | Primary donor repository for AI bugfixes and party improvements. |
+| **vMaNGOS Database** | [brotalnia/database](https://github.com/brotalnia/database/tree/master) | Historical database reference snapshots. |
+| **cMaNGOS PlayerBots** | [cmangos/playerbots](https://github.com/cmangos/playerbots) | CMaNGOS bot mechanics donor repository. |
+| **Turtle DB Viewer** | [Web Dashboard](https://xian55.github.io/tortoise-db-viewer/?)<br>[Xian55/tortoise-db-viewer](https://github.com/Xian55/tortoise-db-viewer) | Interactive online database search and schema comparison. |
+| **User Product Repository** | [Ildourol/tortoise-wow-extended](https://github.com/Ildourol/tortoise-wow-extended) | Active target repository (branch: `mantech-turtle`). |
+| **Fork Comparison** | [T-imothy vs Ildourol:mantech-turtle](https://github.com/T-imothy/tortoise-wow/compare/mantech-turtle...Ildourol:tortoise-wow-extended:mantech-turtle) | Live GitHub diff comparing upstream bot changes with target fork. |
+

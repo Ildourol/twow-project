@@ -165,3 +165,17 @@ Displays current phase progress, prioritized backlog, and active porting tracks.
 ```
 Displays tabular status of all audited, ported, skipped, duplicate, and rejected commits from `state/porting-ledger.json`.
 
+---
+
+### 2.13. UPDATE-UPSTREAMS (UPSTREAM SYNCHRONIZATION)
+```powershell
+.\task.ps1 update-upstreams [cmangos|vmangos|all]
+```
+*(Aliases: `sync-upstreams`, `pull-upstreams`)*
+
+Fetches and fast-forwards upstream donor clones in `reference-upstreams/` (`core` and `playerbots`):
+- Runs `git fetch --all --prune --tags` and `git pull --ff-only` on the upstream tracking branch.
+- Displays the count and log of newly arrived commits so developers/agents can immediately inspect upstream changes with `git show <sha>`.
+- **Safety**: Working project `tortoise-wow-extended` is strictly excluded from checkout/pull operations to protect active development.
+
+

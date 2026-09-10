@@ -5,6 +5,7 @@
 # Cloned External Repositories (installed separately via README instructions)
 core/
 playerbots/
+reference-upstreams/
 tortoise-wow-extended/
 
 # Build Outputs, Binaries & Object Files

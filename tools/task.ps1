@@ -426,6 +426,72 @@ function Invoke-CommitAndPush {
     Write-Host "`n[COMPLETE] 1-to-1 port cycle finished cleanly: $DonorSha -> $shortTarget" -ForegroundColor Green
 }
 
+function Invoke-UpdateUpstreams {
+    param(
+        [string]$TargetUpstream = "all"
+    )
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host " UPDATE REFERENCE UPSTREAMS (Module-playerbots)" -ForegroundColor Cyan
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host "Policy: Fetches and fast-forwards read-only upstream donor clones." -ForegroundColor Gray
+    Write-Host "Safety: Active target repo 'tortoise-wow-extended' is EXCLUDED." -ForegroundColor Green
+    Write-Host ""
+
+    $keys = @("cmangos", "vmangos")
+    if ($TargetUpstream -and $TargetUpstream -ne "all") {
+        if ($keys -contains $TargetUpstream.ToLower()) {
+            $keys = @($TargetUpstream.ToLower())
+        } else {
+            Write-Host "[ERROR] Unknown upstream '$TargetUpstream'. Valid options: cmangos, vmangos, all" -ForegroundColor Red
+            return
+        }
+    }
+
+    foreach ($k in $keys) {
+        $u = $Sources.upstreams.$k
+        $repoPath = $u.path
+        $branch = $u.branch
+        $remote = if ($u.remote_name) { $u.remote_name } else { "origin" }
+        Write-Host ">>> Updating [$k] ($($u.source_name)) at $repoPath ..." -ForegroundColor Cyan
+        
+        if (-not (Test-Path $repoPath)) {
+            Write-Host "  [WARN] Path does not exist: $repoPath" -ForegroundColor Yellow
+            continue
+        }
+        
+        $oldHead = (Get-GitOutput $repoPath @("rev-parse", "HEAD")).Stdout
+        
+        # Fetch remote updates
+        Write-Host "  Fetching latest from $remote..." -ForegroundColor DarkGray
+        $fetchOut = & git.exe -C "$repoPath" fetch --all --prune --tags 2>&1
+        
+        # Check current branch
+        $currBranch = (Get-GitOutput $repoPath @("branch", "--show-current")).Stdout
+        if ($currBranch -ne $branch) {
+            Write-Host "  Checking out tracking branch '$branch'..." -ForegroundColor DarkGray
+            & git.exe -C "$repoPath" checkout "$branch" 2>&1 | Out-Null
+        }
+        
+        # Fast-forward pull
+        Write-Host "  Pulling fast-forward updates on '$branch'..." -ForegroundColor DarkGray
+        $pullOut = & git.exe -C "$repoPath" pull --ff-only $remote $branch 2>&1
+        
+        $newHead = (Get-GitOutput $repoPath @("rev-parse", "HEAD")).Stdout
+        if ($oldHead -ne $newHead) {
+            $count = (Get-GitOutput $repoPath @("rev-list", "--count", "$oldHead..$newHead")).Stdout
+            Write-Host "  [UPDATED] $count new commit(s) fetched! (HEAD: $($newHead.Substring(0,8)))" -ForegroundColor Green
+            Write-Host "  Recent incoming commits:" -ForegroundColor Yellow
+            & git.exe -C "$repoPath" log -n 5 "$oldHead..$newHead" --oneline | ForEach-Object { Write-Host "    $_" -ForegroundColor Gray }
+        } else {
+            Write-Host "  [UP-TO-DATE] Already at latest commit ($($newHead.Substring(0,8)))." -ForegroundColor Green
+        }
+        Write-Host ""
+    }
+    
+    Write-Host "Excluded active project working repo: 'tortoise-wow-extended' (protected)." -ForegroundColor DarkGray
+    Write-Host "[DONE] Reference upstreams update completed." -ForegroundColor Green
+}
+
 switch ($Command.ToLower()) {
     "status" {
         Show-Status
@@ -518,8 +584,20 @@ switch ($Command.ToLower()) {
         $tSha = if ($TargetSha) { $TargetSha } else { $SecondaryArgument }
         Invoke-RecordPort -DonorSha $dSha -TargetSha $tSha -Subsystem $Subsystem -Priority $Priority -Subject $Subject -Rationale $Rationale
     }
+    "update-upstreams" {
+        $tgt = if ($Argument) { $Argument } else { "all" }
+        Invoke-UpdateUpstreams -TargetUpstream $tgt
+    }
+    "sync-upstreams" {
+        $tgt = if ($Argument) { $Argument } else { "all" }
+        Invoke-UpdateUpstreams -TargetUpstream $tgt
+    }
+    "pull-upstreams" {
+        $tgt = if ($Argument) { $Argument } else { "all" }
+        Invoke-UpdateUpstreams -TargetUpstream $tgt
+    }
     default {
-        Write-Host "Available commands: status, scan, verify-fast, verify-full, verify-batch, build-options, commit-and-push, record-port, roadmap, ledger, commit-policy, vanilla-mandate." -ForegroundColor Yellow
+        Write-Host "Available commands: status, scan, update-upstreams, verify-fast, verify-full, verify-batch, build-options, commit-and-push, record-port, roadmap, ledger, commit-policy, vanilla-mandate." -ForegroundColor Yellow
         Write-Host "Notice: Strict Vanilla/Classic only (no TBC/WotLK). Audits in batch; commits commit-by-commit." -ForegroundColor Cyan
     }
 }

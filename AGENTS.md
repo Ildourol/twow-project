@@ -86,6 +86,35 @@ To prevent context token exhaustion and avoid lengthy build wait times (linking 
 3. **Option 3: Strict Full-Link Mode (P0 Maximum Paranoia)**:
    - Recompile `modules.lib` and fully link `mangosd.exe` after every single commit. Recommended only when modifying core engine headers, threading primitives, or global object models.
 
+### 2.9. Reference Upstreams Organization, Synchronization & Ecosystem Links
+All upstream donor repositories are organized under `reference-upstreams/` (with root junctions maintained for backwards compatibility):
+- `reference-upstreams/core`: Cloned from `https://github.com/ileboii/core.git` (branch `vmangos-ike3-playerbots`). Primary donor for PlayerBots AI fixes, healing priorities, and movement mechanics.
+- `reference-upstreams/playerbots`: Cloned from `https://github.com/cmangos/playerbots.git` (branch `master`). Reference donor for CMaNGOS bot logic.
+
+#### Automated Upstream Synchronization (`task update-upstreams`):
+To fetch and integrate new upstream donor commits locally without touching the working project:
+```powershell
+.\tools\task.ps1 update-upstreams           # Fast-forwards all reference upstreams
+.\tools\task.ps1 update-upstreams vmangos   # Updates only vMaNGOS PlayerBots core
+.\tools\task.ps1 update-upstreams cmangos   # Updates only CMaNGOS PlayerBots
+```
+- **Local Commits Inspection**: When new commits are detected, `task update-upstreams` outputs the commit count and recent git oneline logs, allowing immediate inspection with `git -C reference-upstreams/core show <sha>`.
+- **Target Repository Exclusion & Protection**: Active target repo `tortoise-wow-extended` (branch `mantech-turtle`) is **strictly excluded** from automated pulls or checkouts to prevent dirtying or overwriting active development work.
+
+#### Essential Ecosystem Links & Comparison References:
+- **Turtle WoW Original**: [Penqle/tortoise-wow](https://github.com/Penqle/tortoise-wow)
+- **Turtle WoW with IKE3 Bots**: [Shyalya/tortoise-wow](https://github.com/Shyalya/tortoise-wow) &bull; [T-imothy/tortoise-wow](https://github.com/T-imothy/tortoise-wow)
+- **Turtle WoW with AC Bots**: [tortoise-wow-stack/TortoiseBots](https://github.com/tortoise-wow-stack/TortoiseBots)
+- **Turtle WoW Knowledge DB**: [tortoise-wow-stack/TortoiseWoWKnowledgeBase](https://github.com/tortoise-wow-stack/TortoiseWoWKnowledgeBase)
+- **Turtle Module Topics & Template**: [tortoise-module Topic](https://github.com/topics/tortoise-module) &bull; [Turtle Module Template](https://github.com/Penqle/tortoise-wow/tree/main/modules/templates/basic)
+- **vMaNGOS Core & Upstream**: [vmangos/core](https://github.com/vmangos/core) &bull; [vMaNGOS Releases (db_latest)](https://github.com/vmangos/core/releases)
+- **vMaNGOS with PlayerBots (IKE3)**: [ileboii/core (vmangos-ike3-playerbots)](https://github.com/ileboii/core/tree/vmangos-ike3-playerbots)
+- **vMaNGOS Database**: [brotalnia/database](https://github.com/brotalnia/database/tree/master)
+- **cMaNGOS PlayerBots**: [cmangos/playerbots](https://github.com/cmangos/playerbots)
+- **Turtle DB Viewer**: [Online DB Viewer](https://xian55.github.io/tortoise-db-viewer/?) &bull; [Xian55/tortoise-db-viewer](https://github.com/Xian55/tortoise-db-viewer)
+- **User Working Target Repository**: [Ildourol/tortoise-wow-extended](https://github.com/Ildourol/tortoise-wow-extended)
+- **Fork Comparison**: [T-imothy vs Ildourol:mantech-turtle Comparison](https://github.com/T-imothy/tortoise-wow/compare/mantech-turtle...Ildourol:tortoise-wow-extended:mantech-turtle)
+
 ---
 
 ## 3. Specialized Agent Roles
