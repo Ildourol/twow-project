@@ -15,7 +15,7 @@ When conflicting technical requirements or code patterns arise, agents must stri
 5. **Tier 5: Current vMaNGOS Donor Source & Commit History** (`reference-upstreams/vmangos-core`) - Bugfix mechanics and donor diffs.
 6. **Tier 6: Shyalya References** (`Shyalya/tortoise-wow`) - PlayerBots and Turtle bot integrations.
 7. **Tier 7: TortoiseBots & Knowledge-Base Materials** - Supporting documentation and issue notes.
-8. **Tier 8: Historical Vanilla Databases & Cores** (`brotalnia/database`, `db_latest`, `classicdb`).
+8. **Tier 8: Historical & Vanilla Reference Databases** (Main Historic DB: `brotalnia/database` with `world_full_14_june_2021.7z` / `.sql` for original vanilla entities unchanged by Turtle WoW; Backup: `vmangos/core db_latest` `mangos.sql` for modern updates; Viewer & Scalper: `tortoise-db-viewer`).
 9. **Tier 9: Conceptual References** (AzerothCore, TrinityCore, CMaNGOS).
 
 ---
@@ -35,9 +35,13 @@ When conflicting technical requirements or code patterns arise, agents must stri
 - If an isolated worktree fails compilation or tests, remove the worktree via `Remove-IsolatedWorktree`. The main working tree is never touched.
 
 ### 2.3. Repository Targets & Commit Safety
-- **Primary Server Target**: All fixes, investigations, and commits target **Tortoise-WoW Extended** (`https://github.com/Ildourol/tortoise-wow-extended`). Candidates are committed strictly to candidate branches: `port/PORT-XXXX-<sha>`.
+- **Primary Server Target**: All fixes, investigations, and commits target **Tortoise-WoW Extended** (`https://github.com/Ildourol/tortoise-wow-extended`). Candidates are committed strictly to candidate branches: `worktree/PORT-XXXX`.
 - **Local Orchestration Workspace**: All orchestration tooling, scripts, and state management operate exclusively as a local workspace. It has no remote connections, and all workflows run strictly on the local machine.
-- Do not push or commit to remote main branches (`origin/main` or `extended/main`) without explicit user authorization in the current session.
+- **Strict Remote Push Policy**:
+  - Remote pushes to `extended` are **strictly restricted**: they trigger **ONLY** via `task auto-pilot`, `task auto-port`, commands explicitly passing `-AutoCommit`, or the explicit operator command `task push-extended`.
+  - When triggered, all certified, passing candidate commits are automatically integrated and pushed directly to the remote development branch: [`https://github.com/Ildourol/tortoise-wow-extended/tree/extended`](https://github.com/Ildourol/tortoise-wow-extended/tree/extended).
+  - Manual triage and staging commands (`task port`, `task port-batch`, `task build-packages`, dry runs) will **NEVER** push to remote.
+  - Never push or commit to remote `main` without explicit, separate user authorization in the current session.
 
 ### 2.4. Read-Only Research Agents
 - Agents 2 (Forum Scout), 3 (DB Scalper), 4 (AI Context Assembler), 5 (Core Restorer), and 6 (Online DB Oracle) are **strictly read-only**. They inspect, scalp, assemble evidence, and stage package manifests in `tools/queue/02_ready_to_build/`.
@@ -77,6 +81,22 @@ Before writing code or applying patches, the deterministic bug prover (`task pro
 - Fast $\rightarrow$ Normal: Database migration detected, dependencies detected, or bug confidence $< 0.85$.
 - Normal $\rightarrow$ Deep: Security/crash keywords (`crash`, `packet`, `opcode`, `mutex`, `auth`), networking, or concurrency.
 - **No Downgrade Rule**: Higher requested verification modes are never downgraded.
+
+### 3.3. Smart Path Mapping & Target Tree Normalization
+Upstream VMaNGOS and Tortoise-WoW have diverged directory hierarchies (e.g., `src/scripts/eastern_kingdoms/<zone>/<dungeon>/` vs `src/scripts/dungeons/<dungeon>/`, `contrib/` vs `tools/`, and `cmake/find/` vs `cmake/`).
+- The pipeline utilizes [`tools/modules/PathMapper.ps1`](tools/modules/PathMapper.ps1) to dynamically and statically translate donor file paths into the canonical Tortoise-WoW layout across 519+ tracked file reorganizations.
+- `BugProver.ps1`, `EncodingHelper.ps1`, and `Invoke-PortPipeline.ps1` automatically normalize patch headers and file lookups during `task auto-pilot`, preventing false `NOT_APPLICABLE` or `No such file or directory` rejections for valid upstream bugfixes.
+
+### 3.4. AI-Powered Semantic Conflict & Regression Audit Gate
+Static keyword matching is insufficient to catch subtle semantic divergence. Every candidate backport is subjected to an active **AI Semantic Conflict Audit** ([`tools/modules/AiConflictAuditor.ps1`](tools/modules/AiConflictAuditor.ps1)) across six invariant dimensions:
+1. **Race Dimension**: Bounded loops/arrays must accommodate Turtle's 11 races (`MAX_RACES = 11`, High Elf & Goblin).
+2. **Debuff Dimension**: Aura masks must preserve Turtle's 64-bit `sTWDebuff` streaming without truncating to 32-bit.
+3. **Manager & Opcode Dimension**: Protected managers (`sLFTMgr`, `sTransmogMgr`, `sCustomMerchantMgr`) and opcodes (`SCRIPT_COMMAND_TAKE_MONEY = 93`) must never be clobbered.
+4. **Entity Range Dimension**: Custom spell IDs ($\ge 40,000$) and world entity IDs ($\ge 300,000$) are strictly protected.
+5. **AST & Call-Site Signature Dimension**: Validates that donor call-sites do not omit Turtle custom parameters (such as `inGurubashiArena`, teleport flags, or broadcaster guards).
+6. **Concurrency & Threading Dimension**: Checks lock acquisition ordering (`m_mapLock`, `m_objectLock`) to eliminate potential AB-BA deadlocks.
+
+If any semantic conflict is detected, the candidate is automatically rejected with `AI_SEMANTIC_CONFLICT` before staging or compiling.
 
 ---
 
@@ -130,12 +150,13 @@ Agents must distinguish between four distinct levels of verification:
 A candidate fix or topic restoration is officially **DONE** when:
 1. Deterministic bug proof verifies `BUG_PRESENT` (or native core restoration requirements verified against forum lore).
 2. Compatibility invariants and database safety checks pass (Exit Code 0).
-3. Candidate compiles cleanly in an isolated worktree with 0 errors, 0 fatal warnings under the resolved build profile.
-4. Disposable startup smoke test passes without assert or crash.
-5. Fix is committed cleanly to isolated candidate branch `port/PORT-XXXX-<sha>`.
-6. State store (`tools/state/state_store.json`) updates candidate state to `COMPLETE`.
-7. Candidate manifest and dossier are saved locally to `docs/commits/` and `docs/BACKPORT_HISTORY.md`.
-8. Orchestration test suite (`task test`) passes 38/38 tests.
+3. **AI Semantic Conflict Audit certifies `PASS` with zero conflicts or regressions across all 6 invariant dimensions.**
+4. Candidate compiles cleanly in an isolated worktree with 0 errors, 0 fatal warnings under the resolved build profile.
+5. Disposable startup smoke test passes without assert or crash.
+6. Fix is committed cleanly to isolated candidate branch `port/PORT-XXXX-<sha>`.
+7. State store (`tools/state/state_store.json`) updates candidate state to `COMPLETE`.
+8. Candidate manifest and dossier are saved locally to `docs/commits/` and `docs/BACKPORT_HISTORY.md`.
+9. Orchestration test suite (`task test`) passes 39/39 tests.
 
 ---
 
@@ -145,12 +166,14 @@ Agents and operators execute workflows through the canonical dispatcher ([`tools
 
 | Purpose | Command Syntax | Description |
 | :--- | :--- | :--- |
-| **Autonomous Batch Porting** | `task auto-pilot [N] [Tier]` | Runs complete pipeline (Scout, DB audit, AI context, build, isolated branch commit) for $N$ candidates. |
-| **Autonomous Single Porting** | `task auto-port <sha>` | Runs complete pipeline for single commit and commits in candidate worktree branch. |
+| **System Pre-Flight Audit** | `task system-check [light\|full]` | Validates total project health (docs, locations, goals, instructions, configs, worktrees, tests) before operating. |
+| **Autonomous Batch Porting** | `task auto-pilot [N] [Tier]` | Runs complete pipeline (triage, DB audit, MSVC build, candidate commit, and auto-push passing fixes to GitHub `extended` branch) for $N$ candidates. |
+| **Autonomous Single Porting** | `task auto-port <sha>` | Runs complete pipeline for single commit and auto-pushes verified fix to GitHub `extended` branch. |
+| **Push Passed Commits** | `task push-extended [branch]` | Integrates and pushes all verified passing candidate commits to remote `extended` branch (`extended/extended`). |
 | **Deterministic Bug Proof** | `task prove <sha>` | Verifies defect pattern exists in target without modifying files. |
 | **Target Build Execution** | `task build <profile>` | Compiles server under specified profile (`world`, `auth`, `sql-only`, `playerbots`). |
-| **Worktree Build & Commit** | `task build-packages` | Compiles and commits all ready staged packages in isolated worktrees. |
+| **Worktree Build & Commit** | `task build-packages` | Compiles and commits all ready staged packages in isolated worktrees (local only, never auto-pushes). |
 | **Invariant & State Audit** | `task compatibility`, `task db-audit`, `task parity` | Verifies hard compatibility, DB ID ranges, and client DBC alignment. |
-| **Automated Verification** | `task test` | Runs the full 38-suite orchestration test suite. |
+| **Automated Verification** | `task test` | Runs the full 39-suite orchestration test suite. |
 | **Pipeline State & Queue** | `task status`, `task next`, `task rank` | Displays backlog metrics, candidate ranking, and optimal next target. |
 

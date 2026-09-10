@@ -1,5 +1,7 @@
 [CmdletBinding()]
-param()
+param(
+    [string]$Branch = "refs/heads/extended"
+)
 
 $TortoisePath = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow"
 $CommitsDir = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\docs\commits"
@@ -39,7 +41,7 @@ if (Test-Path $UploadedLedger) {
 
 # Get commits from git log (oldest first)
 $baseSha = "b8f24bef6cfc69feafc5870ac6a8918a521253d7"
-$commits = git -C $TortoisePath log --reverse --pretty=format:"%h|%H|%an|%ad|%s" --date=short "${baseSha}..HEAD"
+$commits = git -C $TortoisePath log --reverse --pretty=format:"%h|%H|%an|%ad|%s" --date=short "${baseSha}..${Branch}"
 
 $createdCount = 0
 

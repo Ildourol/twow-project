@@ -2,9 +2,9 @@ name: Tortoise-WoW Extended Candidate CI
 
 on:
   push:
-    branches: [ "port/**" ]
+    branches: [ "port/**", "extended" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "extended", "main" ]
 
 jobs:
   build-server-msvc:

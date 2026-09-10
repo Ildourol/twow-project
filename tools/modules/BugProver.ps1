@@ -6,6 +6,8 @@ if (-not $ProjectRoot) { $ProjectRoot = (Get-Location).Path }
 . (Join-Path $ScriptDir "ExitCodes.ps1")
 . (Join-Path $ScriptDir "ProjectConfig.ps1")
 . (Join-Path $ScriptDir "CompatibilityChecker.ps1")
+if (Test-Path (Join-Path $ScriptDir "PathMapper.ps1")) { . (Join-Path $ScriptDir "PathMapper.ps1") }
+if (Test-Path (Join-Path $ScriptDir "EncodingHelper.ps1")) { . (Join-Path $ScriptDir "EncodingHelper.ps1") }
 
 function Invoke-BugExistenceProof {
     [CmdletBinding()]
@@ -109,7 +111,7 @@ function Invoke-BugExistenceProof {
         }
     }
 
-    # 4. Check file existence in target
+    # 4. Check file existence in target (with Smart Path Mapping)
     $existing = [System.Collections.Generic.List[string]]::new()
     $missing = [System.Collections.Generic.List[string]]::new()
 
@@ -119,7 +121,17 @@ function Invoke-BugExistenceProof {
         if (Test-Path $tgtPath) {
             [void]$existing.Add($tf)
         } else {
-            [void]$missing.Add($tf)
+            # Try smart path mapping
+            $mappedTf = if (Get-Command "Get-MappedTargetPath" -ErrorAction SilentlyContinue) {
+                Get-MappedTargetPath -DonorFilePath $tf -TargetRepo $TargetRepo
+            } else { $tf }
+
+            $mappedTgtPath = Join-Path $TargetRepo $mappedTf
+            if ($mappedTf -ne $tf -and (Test-Path $mappedTgtPath)) {
+                [void]$existing.Add($mappedTf)
+            } else {
+                [void]$missing.Add($tf)
+            }
         }
     }
     $evidence.existing_files = @($existing)
@@ -196,13 +208,13 @@ function Invoke-BugExistenceProof {
         }
     }
 
-    # If neither exact match was found, check patch applicability via git apply --check
+    # If neither exact match was found, check patch applicability via git apply --check (with Smart Path Mapping)
     $tmpPatch = Join-Path $TargetRepo ".git\temp_prove_$shortSha.patch"
     cmd.exe /c "git -C ""$DonorRepo"" format-patch -1 --stdout $fullSha > ""$tmpPatch"""
     $applies = $false
     if (Test-Path $tmpPatch) {
-        cmd.exe /c "git -C ""$TargetRepo"" apply --check ""$tmpPatch"" 2>&1" | Out-Null
-        $applies = ($LASTEXITCODE -eq 0)
+        $testRes = Test-GitPatchSafely -RepoPath $TargetRepo -PatchPath $tmpPatch
+        $applies = [bool]$testRes.AppliesCleanly
         Remove-Item $tmpPatch -Force -ErrorAction SilentlyContinue
     }
 

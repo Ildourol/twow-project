@@ -60,6 +60,7 @@ if (-not (Test-Path $ModulesDir)) { $ModulesDir = Join-Path $ScriptDir "..\modul
 . (Join-Path $ModulesDir "PriorityEngine.ps1")
 . (Join-Path $ModulesDir "ModeEngine.ps1")
 . (Join-Path $ModulesDir "AiController.ps1")
+. (Join-Path $ModulesDir "AiConflictAuditor.ps1")
 
 $cfg = Get-ProjectConfig
 $ProjectRoot = $cfg.repositories.twow_project.path
@@ -113,6 +114,13 @@ if ($DonorSha.Count -gt 0) {
 } else {
     Write-Host "Usage: task port <sha> [-Mode Fast|Normal|Deep] [-DryRun]" -ForegroundColor Yellow
     Write-Host "       task port-batch <N> [-Tier T] [-Subsystem S] [-Mode Fast|Normal|Deep] [-DryRun]" -ForegroundColor Yellow
+    exit $script:EXIT_CODE_PASS
+}
+
+if ($shasToProcess.Count -eq 0) {
+    Write-Host "`n[WARNING] OUT OF CANDIDATES: All available commits matching your criteria have already been processed!" -ForegroundColor Yellow
+    Write-Host "  * Check 'task status' to inspect the full pipeline state breakdown." -ForegroundColor Gray
+    Write-Host "  * Check 'task roadmap-refresh' to scan for new donor commits." -ForegroundColor Gray
     exit $script:EXIT_CODE_PASS
 }
 
@@ -190,9 +198,9 @@ foreach ($sha in $shasToProcess) {
         Write-Host "  [ESCALATION] Mode escalated to $($modeRes.EffectiveMode): $($modeRes.EscalationReason)" -ForegroundColor Yellow
     }
 
-    # 4. Safe Patch Export
+    # 4. Safe Patch Export (with Smart Path Mapping)
     $patchFile = Join-Path $StagingPatches "$sha.patch"
-    Export-GitPatchSafely -RepoPath $VmangosRepo -Sha $sha -DestinationPatchPath $patchFile | Out-Null
+    Export-GitPatchSafely -RepoPath $VmangosRepo -Sha $sha -DestinationPatchPath $patchFile -TargetRepo $TortoiseRepo | Out-Null
 
     # 5. Turtle Invariant Verification
     $compat = Test-TurtleCompatibility -PatchFile $patchFile
@@ -243,10 +251,21 @@ foreach ($sha in $shasToProcess) {
         }
     }
 
-    # --- Task 4: AI Context Assembly & Semantic Dossier ---
+    # --- Task 4: AI Semantic Conflict & Regression Audit Gate ---
+    Write-Host "  [Task 4 AI Conflict Audit] Running deep AI semantic conflict audit across 6 invariant dimensions..." -ForegroundColor DarkGray
+    $aiAudit = Invoke-AiSemanticConflictAudit -DonorSha $sha -DonorRepo $VmangosRepo -TargetRepo $TortoiseRepo -PatchFile $patchFile -TargetBaseSha $targetBaseSha
+    if ($aiAudit.ConflictDetected) {
+        $violMsg = $aiAudit.Violations -join "; "
+        Write-Host "  [FAIL] AI Semantic Conflict Detected: $violMsg" -ForegroundColor Red
+        Update-CandidateState -CandidateId $sha -ToState "REJECTED" -ReasonCode "AI_SEMANTIC_CONFLICT" -Verdict "CONFLICT_DETECTED" -Evidence @{ Violations = $aiAudit.Violations; Summary = $aiAudit.AuditSummary } | Out-Null
+        continue
+    } else {
+        Write-Host "  [PASS] AI Semantic Conflict Audit Cleared (Confidence: $($aiAudit.Confidence), Risk: $($aiAudit.RiskLevel))" -ForegroundColor Green
+    }
+
+    # Generate AI context assembly dossier
     $aiAuditScript = Join-Path $ScriptDir "Invoke-AiAudit.ps1"
     if (Test-Path $aiAuditScript) {
-        Write-Host "  [Task 4 AI Context] Generating AI semantic audit dossier..." -ForegroundColor DarkGray
         & powershell.exe -ExecutionPolicy Bypass -File $aiAuditScript -DonorSha $sha 2>&1 | Out-Null
     }
 
@@ -256,12 +275,18 @@ foreach ($sha in $shasToProcess) {
     $commitSubject = $proof.Evidence.subject
     $subsystemName = if ($commitSubject -match '^(\w+):') { $Matches[1] } else { "Core" }
 
-    $stageResult = New-StageResult -RunId $runId -CandidateId $portId -Stage "PORT_STAGING" -DonorSha $sha -DonorFullSha $proof.Evidence.donor_full_sha -DonorRepo "reference-upstreams/vmangos-core" -TargetRepo "tortoise-wow" -TargetBaseSha $targetBaseSha -RequestedMode $Mode -EffectiveMode $modeRes.EffectiveMode -Status "PATCH_READY" -Verdict "BUG_PRESENT" -Confidence $proof.Confidence -ReasonCodes @("BUG_PROVEN_DETERMINISTIC") -Evidence $proof.Evidence -StartedAt $startedAt -CompletedAt (Get-Date)
+    $stageResult = New-StageResult -RunId $runId -CandidateId $portId -Stage "PORT_STAGING" -DonorSha $sha -DonorFullSha $proof.Evidence.donor_full_sha -DonorRepo "reference-upstreams/vmangos-core" -TargetRepo "tortoise-wow" -TargetBaseSha $targetBaseSha -RequestedMode $Mode -EffectiveMode $modeRes.EffectiveMode -Status "PATCH_READY" -Verdict "BUG_PRESENT" -Confidence $proof.Confidence -ReasonCodes @("BUG_PROVEN_DETERMINISTIC", "AI_SEMANTIC_AUDIT_PASSED") -Evidence $proof.Evidence -StartedAt $startedAt -CompletedAt (Get-Date)
 
     $stageResult["patch_file"] = "tools/queue/staging_patches/$sha.patch"
     $stageResult["title"] = $commitSubject
     $stageResult["subsystem"] = $subsystemName
     $stageResult["commit_msg"] = "Port($subsystemName): $commitSubject (vmangos/core@$sha)"
+    $stageResult["ai_semantic_audit"] = @{
+        Verdict    = $aiAudit.Verdict
+        RiskLevel  = $aiAudit.RiskLevel
+        Confidence = $aiAudit.Confidence
+        Summary    = $aiAudit.AuditSummary
+    }
     if ($stagedSqlRel) {
         $stageResult["sql_file"] = $stagedSqlRel
     }
@@ -279,6 +304,12 @@ if (($AutoBuild -or $AutoCommit) -and -not $DryRun) {
     $buildArgs = @((Join-Path $PortingDir "Build-ReadyPackages.ps1"))
     if ($SkipBuild) { $buildArgs += "-SkipBuild" }
     & powershell.exe -ExecutionPolicy Bypass -File @buildArgs
+
+    if ($AutoCommit) {
+        Write-Host "`n[Auto-Pilot] AutoCommit enabled: Integrating and pushing passed packages to remote 'extended' branch..." -ForegroundColor Cyan
+        $pushArgs = @((Join-Path $PortingDir "Push-PassingCandidates.ps1"), "-BranchName", "extended", "-RemoteName", "extended")
+        & powershell.exe -ExecutionPolicy Bypass -File @pushArgs
+    }
 }
 
 Write-Host "`n================================================================================" -ForegroundColor Cyan

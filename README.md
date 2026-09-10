@@ -54,13 +54,15 @@ twow project/
 │   └── task.ps1                       [Universal CLI Dispatcher]
 │
 ├── tortoise-wow/                      [LOCAL CLONE: Target Turtle-WoW Server Core C++]
+├── tortoise-db-viewer/                [LOCAL CLONE: AoWoW-style DB Dashboard & SQLite Engine]
 ├── resources/
 │   ├── FORUM_RESOURCE_GUIDE.md
 │   └── forum/                         [LOCAL CLONE: 22,155 Archived Forum Threads]
 └── reference-upstreams/               [LOCAL CLONE: Donors, DBCs & Historical References]
     ├── vmangos-core/                  [LOCAL CLONE: VMaNGOS Donor C++ & SQL]
+    ├── lights-hope-database-history/  [LOCAL CLONE: Brotalnia Historical DB Snapshots (world_full_14_june_2021.sql & .7z)]
     ├── client-data-1.18.1/            [LOCAL CLONE: 158 Client DBCs, Maps, Vmaps, Mmaps]
-    ├── lights-hope-database-history/  [LOCAL CLONE: Brotalnia Vanilla World DB]
+    ├── tortoise-db-viewer/            [JUNCTION: DB Dashboard & Reference Engine]
     └── elysium-core/                  [LOCAL CLONE: Historical Elysium Reference Core]
 ```
 
@@ -69,9 +71,10 @@ twow project/
 | Component | Target Local Path | Repository URL / Upstream Source | Description |
 | :--- | :--- | :--- | :--- |
 | **Server Code Repository** | `tortoise-wow/` | [`Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) | Active Turtle-WoW 1.18.1 C++ source tree (branch `main`). |
+| **Database Dashboard & Viewer** | `tortoise-db-viewer/` | [`Xian55/tortoise-db-viewer`](https://github.com/Xian55/tortoise-db-viewer) | AoWoW-style database dashboard, SQLite engine & REST API (`https://xian55.github.io/tortoise-db-viewer/`). |
+| **Historical Reference Database**| `reference-upstreams/lights-hope-database-history/` | [`brotalnia/database`](https://github.com/brotalnia/database) | Main historical database snapshots (`world_full_14_june_2021.7z` / `.sql`) for unchanged vanilla items. |
 | **Forum Intelligence Archive** | `resources/forum/` | [`Ildourol/turtle-wow-forum-archive`](https://github.com/Ildourol/turtle-wow-forum-archive) | 22,155 historical official forum threads (2018–2026). |
 | **Client Assets (1.18.1)** | `reference-upstreams/client-data-1.18.1/` | [`Ildourol/Twow_data-1.18.1`](https://github.com/Ildourol/Twow_data-1.18.1) | 158 DBCs, 2,805 maps, 2,133 mmaps, 6,921 vmaps. |
-| **Historical World Database** | `reference-upstreams/lights-hope-database-history/` | [`Ildourol/database`](https://github.com/Ildourol/database) | Authoritative Brotalnia vanilla DB (`world_full_14_june_2021.sql`). |
 | **Primary Donor Core** | `reference-upstreams/vmangos-core/` | [`vmangos/core`](https://github.com/vmangos/core) | Upstream vanilla 1.12.1 emulator (development branch). |
 > [!IMPORTANT]
 > **Primary Server Target**:
@@ -91,8 +94,9 @@ New-Item -ItemType Directory -Path "reference-upstreams" -Force | Out-Null
 
 # 4. Clone donor and reference repositories
 git clone https://github.com/vmangos/core.git reference-upstreams/vmangos-core
+git clone https://github.com/brotalnia/database.git reference-upstreams/lights-hope-database-history
 git clone https://github.com/Ildourol/Twow_data-1.18.1.git reference-upstreams/client-data-1.18.1
-git clone https://github.com/Ildourol/database.git reference-upstreams/lights-hope-database-history
+git clone https://github.com/Xian55/tortoise-db-viewer.git tortoise-db-viewer
 git clone https://github.com/lduguid/core.git reference-upstreams/elysium-core
 ```
 

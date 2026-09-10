@@ -112,7 +112,7 @@ Tortoise-WoW operates on a Nostalrius-derived world database schema and preserve
    - `spell_template` entries $\ge 40000$ are reserved for Turtle custom spells (e.g. Holy Strike, Moonfury, custom racials).
    - World template IDs $\ge 300000$ in `item_template`, `creature_template`, `gameobject_template`, and `quest_template` belong exclusively to custom Turtle content (e.g. High Elf / Goblin items, custom quests, new dungeons). Never overwrite or delete entries within these ranges during vanilla backporting.
 3. **Reference Database Hierarchy**:
-   - **Choice 1**: `brotalnia/database` (`reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql`) — primary reference for vanilla table schemas and historical Nostalrius data.
+   - **Choice 1**: `tortoise-db-viewer` (`tortoise-db-viewer/` / `https://xian55.github.io/tortoise-db-viewer/`) — primary reference for authoritative Turtle database entities, vanilla catalogs, tooltips, and drops.
    - **Choice 2**: `vmangos/core db_latest` (`reference-upstreams/vmangos-core/db_latest/mysql-dump/mangos.sql`) — secondary reference for modern column definitions (e.g. `spell_template.script_name`).
 4. **C++ Engine Schema Alignment**: Ensure any column actively queried by the C++ engine (such as `SELECT DISTINCT(script_name) FROM spell_template`) is present in both `sql/base/` and the migration pipeline.
 5. **Mandatory Automated Audit**: All migration files must be validated using `.\tools\porting\Audit-DatabaseMigrations.ps1` before committing.
@@ -227,8 +227,10 @@ Apply the correction while ensuring `CustomMerchantMgr` vendor templates are not
 Inspect the upstream migration in `reference-upstreams/vmangos-core/sql/migrations/YYYYMMDDHHMMSS_world.sql`. Identify target tables, affected columns, and entity IDs.
 
 #### Step 2: Cross-Reference Reference Databases
-1. Consult **Choice 1**: `brotalnia/database` (`reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql`) to verify vanilla entry definitions and historical baseline values.
-2. If the migration introduces new columns or Brotalnia is not relevant, consult **Choice 2**: `vmangos/core db_latest` (`reference-upstreams/vmangos-core/db_latest/mysql-dump/mangos.sql`) for column definitions and data types.
+1. Consult **Main / Authoritative Database**: Turtle-WoW base catalog (`tortoise-wow/sql/base/`).
+2. Consult **Choice 1 (Main Historic DB)**: Brotalnia `brotalnia/database` (`reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql` from `world_full_14_june_2021.7z`) for original vanilla entities unchanged by Turtle WoW.
+3. Consult **Choice 2 (Backup Updated Donor DB)**: `vmangos/core db_latest` (`reference-upstreams/vmangos-core/db_latest/mysql-dump/mangos.sql`) for updated column definitions, constraints, and vanilla defaults.
+4. Consult **Interactive Viewer & Dashboard**: `tortoise-db-viewer` (`task scalp <tbl> <id> -Diff` or `task dashboard <id>`) for instant tooltips and 3D assets.
 
 #### Step 3: Sanitize Schema & Strip Progressive Columns
 1. Strip all progressive columns (`` `patch` ``, `` `build` ``, `` `patch_min` ``, `` `patch_max` ``) from `INSERT` and `UPDATE` statements.
@@ -260,8 +262,9 @@ Execute the scalper engine from any directory:
 ```powershell
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" scalp item 19019 -Diff
 ```
-- The engine searches `world_full_14_june_2021.sql` (Brotalnia Choice 1) and `mangos.sql` (VMaNGOS Choice 2).
-- Automatically compares every single column against `tortoise-wow/sql/base/world.sql`.
+- The engine queries Turtle base SQL as primary, cross-references Brotalnia's `world_full_14_june_2021.sql` (Main Historic DB) for original vanilla values, and falls back to `mangos.sql` (VMaNGOS Choice 2 backup).
+- Simultaneously fetches live model, tooltip, and relation metadata from `tortoise-db-viewer` (`https://api.tortoiseclothing.org`).
+- Automatically compares every single column against `tortoise-wow/sql/base/`.
 - Disambiguates rows by comparing column counts and parsing table schema definitions.
 
 #### Step 2: Progressive Column Stripping & Turtle Column Preservation
@@ -319,5 +322,5 @@ Compatibility Notes:
 - Verified sTWDebuff preservation.
 - Checked against custom Turtle managers.
 - Cross-referenced with Turtle forum archive (resources/forum/).
-- Database Verified: Checked against brotalnia/database & db_latest; Audit-DatabaseMigrations.ps1 PASS.
+- Database Verified: Checked against Brotalnia (world_full_14_june_2021.sql), vmangos db_latest & tortoise-db-viewer; Audit-DatabaseMigrations.ps1 PASS.
 ```

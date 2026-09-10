@@ -15,19 +15,21 @@
 ## 1. Primary Objectives
 
 ### A. Database Scalping & Entity Extraction Engine (`task scalp` / `task extract`)
-1. Instantly extract entity records from multi-gigabyte monolithic SQL dumps (`world_full_14_june_2021.sql`) and 150+ partitioned Turtle base files (`tw_world_*.sql`).
+1. Instantly extract entity records from Turtle base SQL (`sql/base/tw_world_*.sql`), Brotalnia (`world_full_14_june_2021.sql` from `world_full_14_june_2021.7z`) for unchanged vanilla items, and `tortoise-db-viewer` (REST API & dashboard).
 2. Compare donor vs. host field-by-field:
    - Identify custom Turtle modifications (e.g. `sTWDebuff`, custom stats, spell balancing).
    - Strip progressive patch columns (`patch`, `patch_min`, `patch_max`, `build`) before database insertion.
    - Detect Turtle exclusive columns (`mount_display_id`, `wrapped_gift`, `script_name`).
 3. Auto-generate sanitized `REPLACE INTO` SQL migrations ready for staging in `tools/queue/staging_sql/`.
-4. Launch browser tooltip/3D model inspection in Online DB Viewer (`-OpenViewer`).
+4. Launch browser tooltip/3D model inspection in Online DB Viewer (`-OpenViewer` / `task dashboard`).
 
 ### B. Database Migration Authoring & Sanitization (`task 3 <sha>`)
 1. Inspect candidate donor commits touching database tables (`creature_template`, `spell_template`, `item_template`, etc.).
 2. Cross-reference changes against:
-   - **Choice 1**: `reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql` (Historical vanilla baseline).
-   - **Choice 2**: `reference-upstreams/vmangos-core/db_latest/mysql-dump/mangos.sql` (Modern VMaNGOS schema & definitions).
+   - **Main / Authoritative**: `tortoise-wow/sql/base/` (Checked-out Turtle base catalog).
+   - **Choice 1 (Main Historic DB)**: `brotalnia/database` (`reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql` from `world_full_14_june_2021.7z`) for original vanilla entities unchanged by Turtle WoW.
+   - **Choice 2 (Backup Updated Donor DB)**: `reference-upstreams/vmangos-core/db_latest/mysql-dump/mangos.sql` (Modern VMaNGOS schema & definitions).
+   - **Viewer & Dashboard**: `tortoise-db-viewer` (`https://xian55.github.io/tortoise-db-viewer/` and REST API).
 3. Sanitize SQL migrations for Turtle-WoW 1.18.1:
    - Strip progressive columns: `` `patch` ``, `` `build` ``, `` `patch_min` ``, `` `patch_max` ``.
    - Remove stored procedures (`CALL AddMigration(...)`) and `DELIMITER` blocks.
@@ -61,7 +63,7 @@
    git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\reference-upstreams\vmangos-core" show <sha> -- "sql/*"
    ```
 2. **Cross-Check Baselines**:
-   Verify against `reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql`.
+   Verify against `tortoise-db-viewer` (`task scalp <tbl> <id> -Diff` or `task 6 <id>`).
 3. **Write Sanitized Migration**:
    Save to `tools\queue\staging_sql\<sha>_world.sql`.
 4. **Validate Schema**:

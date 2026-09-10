@@ -70,7 +70,7 @@ Launches Microsoft Edge or default browser directly to the interactive 3D viewer
 - **Compiler Lock Collisions**: Running an unsupervised `-AutoBuild` during database lookups or scalper queries would unnecessarily invoke MSVC, monopolizing the compiler lock and colliding with Agent 1's single-writer build gate.
 
 ### 4.2. Integration with the Database Scalper (`task scalp -OpenViewer`)
-When scalping an entity from `brotalnia/database` or `vmangos/core`:
+When scalping an entity via `task scalp` or inspecting an upstream donor:
 ```powershell
 & "...\tools\task.ps1" scalp item 19019 -Diff -OpenViewer
 ```

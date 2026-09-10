@@ -9,7 +9,7 @@
     { "rank": 5, "source": "vmangos_donor_source", "rule": "Current vMaNGOS donor source and commit history." },
     { "rank": 6, "source": "shyalya_playerbots", "rule": "Shyalya fork references for PlayerBots/Turtle-specific bot integrations." },
     { "rank": 7, "source": "tortoise_kb_material", "rule": "TortoiseBots / Turtle knowledge-base documentation." },
-    { "rank": 8, "source": "historical_vanilla_db", "rule": "Historical Vanilla databases (Brotalnia, Lights Hope, Elysium) are donor evidence only." },
+    { "rank": 8, "source": "historical_vanilla_db", "rule": "Historical & Vanilla databases (Main: Brotalnia world_full_14_june_2021.7z/sql for unchanged vanilla items; Backup: vmangos/core db_latest; Viewer: tortoise-db-viewer) are donor evidence only." },
     { "rank": 9, "source": "conceptual_upstream_cores", "rule": "AzerothCore / TrinityCore / CMaNGOS conceptual references." }
   ],
   "subsystem_overrides": {
@@ -25,7 +25,7 @@
   },
   "forbidden_actions": [
     "historical_vanilla_overwrite_turtle_custom",
-    "brotalnia_data_clobber_turtle_rows",
+    "donor_db_data_clobber_turtle_rows",
     "generic_acore_trinity_concept_import_without_target_validation"
   ]
 }

@@ -99,6 +99,9 @@ function Invoke-TargetBuild {
 
     # Check binaries exist
     $binDir = Join-Path $TargetRepo "bin\$Configuration"
+    if (-not (Test-Path $binDir) -and $cfg.repositories.tortoise_wow.path) {
+        $binDir = Join-Path $cfg.repositories.tortoise_wow.path "bin\$Configuration"
+    }
     $mangosdBin = Join-Path $binDir "mangosd.exe"
     $realmdBin  = Join-Path $binDir "realmd.exe"
 

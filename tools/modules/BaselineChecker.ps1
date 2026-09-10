@@ -20,9 +20,9 @@ function Get-BaselineStatus {
 
     $store = Get-StateStore -Path $StateStorePath
     $bCache = $store.baseline_cache
-    if ($bCache -is [System.Collections.IDictionary] -and $bCache.ContainsKey($TargetBaseSha)) {
+    if ($bCache -is [System.Collections.IDictionary] -and $bCache.Contains($TargetBaseSha)) {
         return $bCache[$TargetBaseSha]
-    } elseif ($null -ne $bCache.$TargetBaseSha) {
+    } elseif ($null -ne $bCache -and $null -ne $bCache.$TargetBaseSha) {
         return $bCache.$TargetBaseSha
     }
 

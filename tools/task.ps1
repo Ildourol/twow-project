@@ -15,6 +15,9 @@ param(
     [Parameter(Position = 2)]
     [string]$SecondaryArgument = "",
 
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$RemainingArgs = @(),
+
     [Parameter()]
     [ValidateSet("Fast", "Normal", "Deep")]
     [string]$Mode = "Normal",
@@ -86,6 +89,7 @@ $ProjectRoot = Split-Path -Parent $ScriptDir
 . (Join-Path $ModulesDir "TriageEngine.ps1")
 . (Join-Path $ModulesDir "ReleaseManager.ps1")
 . (Join-Path $ModulesDir "DbAuditor.ps1")
+. (Join-Path $ModulesDir "SystemChecker.ps1")
 
 switch ($Command.ToLower()) {
     # --- Core Automation Commands ---
@@ -104,9 +108,13 @@ switch ($Command.ToLower()) {
     }
     "3" {
         $tableAliases = @("item", "items", "creature", "mob", "npc", "spell", "spells", "quest", "quests", "gameobject", "go", "loot", "creature_loot", "item_loot", "go_loot", "skinning", "fishing", "vendor", "trainer")
-        if ($Argument -and ($tableAliases -contains $Argument.ToLower() -or $Argument -like "*_template" -or $SecondaryArgument)) {
-            $cmdArgs = @((Join-Path $PortingDir "Extract-DbEntity.ps1"), "-Table", $Argument)
-            if ($SecondaryArgument) { $cmdArgs += @("-Query", $SecondaryArgument) }
+        if ($Argument -and ($tableAliases -contains $Argument.ToLower() -or $Argument -like "*_template" -or $SecondaryArgument -or ($Argument -match '^\d+$'))) {
+            $cmdArgs = @((Join-Path $PortingDir "Extract-DbEntity.ps1"))
+            if ($SecondaryArgument) {
+                $cmdArgs += @("-Table", $Argument, "-Query", $SecondaryArgument)
+            } else {
+                $cmdArgs += @("-Query", $Argument)
+            }
             if ($Diff) { $cmdArgs += "-Diff" }
             if ($Export) { $cmdArgs += "-Export" }
             if ($OpenViewer) { $cmdArgs += "-OpenViewer" }
@@ -118,22 +126,40 @@ switch ($Command.ToLower()) {
         }
     }
     "scalp" {
-        if (-not $Argument) { Write-Host "Usage: task scalp <tbl> <id> [-Diff] [-Export]" -ForegroundColor Yellow; return }
-        $cmdArgs = @((Join-Path $PortingDir "Extract-DbEntity.ps1"), "-Table", $Argument)
-        if ($SecondaryArgument) { $cmdArgs += @("-Query", $SecondaryArgument) }
+        if (-not $Argument) { Write-Host "Usage: task scalp [tbl] <id|name> [-Diff] [-Export] [-OpenViewer]" -ForegroundColor Yellow; return }
+        $cmdArgs = @((Join-Path $PortingDir "Extract-DbEntity.ps1"))
+        if ($SecondaryArgument) {
+            $cmdArgs += @("-Table", $Argument, "-Query", $SecondaryArgument)
+        } else {
+            $cmdArgs += @("-Query", $Argument)
+        }
         if ($Diff) { $cmdArgs += "-Diff" }
         if ($Export) { $cmdArgs += "-Export" }
         if ($OpenViewer) { $cmdArgs += "-OpenViewer" }
         & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
     }
     "extract" {
-        if (-not $Argument) { Write-Host "Usage: task extract <tbl> <id> [-Diff] [-Export]" -ForegroundColor Yellow; return }
-        $cmdArgs = @((Join-Path $PortingDir "Extract-DbEntity.ps1"), "-Table", $Argument)
-        if ($SecondaryArgument) { $cmdArgs += @("-Query", $SecondaryArgument) }
+        if (-not $Argument) { Write-Host "Usage: task extract [tbl] <id|name> [-Diff] [-Export] [-OpenViewer]" -ForegroundColor Yellow; return }
+        $cmdArgs = @((Join-Path $PortingDir "Extract-DbEntity.ps1"))
+        if ($SecondaryArgument) {
+            $cmdArgs += @("-Table", $Argument, "-Query", $SecondaryArgument)
+        } else {
+            $cmdArgs += @("-Query", $Argument)
+        }
         if ($Diff) { $cmdArgs += "-Diff" }
         if ($Export) { $cmdArgs += "-Export" }
         if ($OpenViewer) { $cmdArgs += "-OpenViewer" }
         & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
+    }
+    "dashboard" {
+        $params = @{ OpenBrowser = $true }
+        if ($Argument) { $params["Query"] = $Argument }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Query-OnlineDbViewer.ps1") @params
+    }
+    "viewer" {
+        $params = @{ OpenBrowser = $true }
+        if ($Argument) { $params["Query"] = $Argument }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Query-OnlineDbViewer.ps1") @params
     }
     "4" {
         if (-not $Argument) { Write-Host "Usage: task 4 <sha>" -ForegroundColor Yellow; return }
@@ -183,10 +209,27 @@ switch ($Command.ToLower()) {
         & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
     }
     "port-batch" {
-        $count = if ($Argument) { [int]$Argument } else { 10 }
-        if ($Tier -le 0 -and $SecondaryArgument -and ($SecondaryArgument -as [int])) {
-            $Tier = [int]$SecondaryArgument
+        $count = 0
+        $allArgs = @()
+        if ($Argument) { $allArgs += $Argument }
+        if ($SecondaryArgument) { $allArgs += $SecondaryArgument }
+        if ($RemainingArgs) { $allArgs += $RemainingArgs }
+        for ($i = 0; $i -lt $allArgs.Count; $i++) {
+            $a = $allArgs[$i]
+            if ($a -like "*tier*") {
+                if ($i + 1 -lt $allArgs.Count -and ($allArgs[$i+1] -as [int])) {
+                    $Tier = [int]$allArgs[$i+1]
+                    $i++
+                }
+            } elseif ($a -as [int]) {
+                if ($count -eq 0) {
+                    $count = [int]$a
+                } elseif ($Tier -le 0) {
+                    $Tier = [int]$a
+                }
+            }
         }
+        if ($count -le 0) { $count = 10 }
         $cmdArgs = @((Join-Path $PortingDir "Invoke-PortPipeline.ps1"), "-BatchCount", $count, "-Mode", $Mode, "-MaxCandidates", $MaxCandidates, "-MaxParallel", $MaxParallel)
         if ($Tier -gt 0) { $cmdArgs += @("-Tier", $Tier) }
         if (-not [string]::IsNullOrEmpty($Subsystem)) { $cmdArgs += @("-Subsystem", $Subsystem) }
@@ -224,8 +267,9 @@ switch ($Command.ToLower()) {
         & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
     }
     "auto-pilot" {
-        $count = if ($Argument -and ($Argument -as [int])) { [int]$Argument } else { 0 }
-        $shaArg = if ($Argument -and -not ($Argument -as [int])) { $Argument } else { "" }
+        $isSha = ($Argument -and $Argument.Length -ge 7 -and $Argument -match '^[0-9a-fA-F]{7,40}$')
+        $shaArg = if ($isSha) { $Argument } else { "" }
+        $count = 0
 
         if ($shaArg) {
             Write-Host "================================================================================" -ForegroundColor Cyan
@@ -237,10 +281,26 @@ switch ($Command.ToLower()) {
             if ($SkipBuild) { $cmdArgs += "-SkipBuild" }
             & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
         } else {
-            if ($count -le 0) { $count = 10 }
-            if ($Tier -le 0 -and $SecondaryArgument -and ($SecondaryArgument -as [int])) {
-                $Tier = [int]$SecondaryArgument
+            $allArgs = @()
+            if ($Argument) { $allArgs += $Argument }
+            if ($SecondaryArgument) { $allArgs += $SecondaryArgument }
+            if ($RemainingArgs) { $allArgs += $RemainingArgs }
+            for ($i = 0; $i -lt $allArgs.Count; $i++) {
+                $a = $allArgs[$i]
+                if ($a -like "*tier*") {
+                    if ($i + 1 -lt $allArgs.Count -and ($allArgs[$i+1] -as [int])) {
+                        $Tier = [int]$allArgs[$i+1]
+                        $i++
+                    }
+                } elseif ($a -as [int]) {
+                    if ($count -eq 0) {
+                        $count = [int]$a
+                    } elseif ($Tier -le 0) {
+                        $Tier = [int]$a
+                    }
+                }
             }
+            if ($count -le 0) { $count = 10 }
             $tierMsg = if ($Tier -gt 0) { " (Tier $Tier Filter Active)" } else { " (All Tiers / Natural Priority)" }
             Write-Host "================================================================================" -ForegroundColor Cyan
             Write-Host "  AUTO-PILOT: Autonomous Batch Mode for $count Candidate(s)$tierMsg" -ForegroundColor Cyan
@@ -292,6 +352,22 @@ switch ($Command.ToLower()) {
         $store = Get-StateStore
         Write-Host "Canonical state store valid. Schema: $($store.schema_version), Tool: $($store.tool_version)" -ForegroundColor Green
         Write-Host "Candidates: $(if ($store.candidates) { ($store.candidates.Keys).Count } else { 0 }), Runs: $(if ($store.runs) { ($store.runs.Keys).Count } else { 0 })" -ForegroundColor DarkGray
+    }
+    "system-check" {
+        $subMode = if ($Argument -and $Argument.ToLower() -eq "full") { "Full" } else { "Light" }
+        Invoke-SystemCheck -Mode $subMode
+    }
+    "systemcheck" {
+        $subMode = if ($Argument -and $Argument.ToLower() -eq "full") { "Full" } else { "Light" }
+        Invoke-SystemCheck -Mode $subMode
+    }
+    "syscheck" {
+        $subMode = if ($Argument -and $Argument.ToLower() -eq "full") { "Full" } else { "Light" }
+        Invoke-SystemCheck -Mode $subMode
+    }
+    "check" {
+        $subMode = if ($Argument -and $Argument.ToLower() -eq "full") { "Full" } else { "Light" }
+        Invoke-SystemCheck -Mode $subMode
     }
     "baseline" {
         Invoke-TargetBaselineCheck -TargetRepo $TortoiseDir $(if ($Force) { "-Force" })
@@ -499,6 +575,24 @@ switch ($Command.ToLower()) {
         if (-not $Argument) { Write-Host "Usage: task tag-release <name>" -ForegroundColor Yellow; return }
         Invoke-TagRelease -ReleaseName $Argument -TargetRepo $TortoiseDir
     }
+    "push-extended" {
+        $branch = if ($Argument) { $Argument } else { "extended" }
+        $cmdArgs = @((Join-Path $PortingDir "Push-PassingCandidates.ps1"), "-BranchName", $branch)
+        if ($DryRun) { $cmdArgs += "-NoPush" }
+        & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
+    }
+    "push-dev" {
+        $branch = if ($Argument) { $Argument } else { "extended" }
+        $cmdArgs = @((Join-Path $PortingDir "Push-PassingCandidates.ps1"), "-BranchName", $branch)
+        if ($DryRun) { $cmdArgs += "-NoPush" }
+        & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
+    }
+    "sync-dev" {
+        $branch = if ($Argument) { $Argument } else { "extended" }
+        $cmdArgs = @((Join-Path $PortingDir "Push-PassingCandidates.ps1"), "-BranchName", $branch)
+        if ($DryRun) { $cmdArgs += "-NoPush" }
+        & powershell.exe -ExecutionPolicy Bypass -File @cmdArgs
+    }
     "test" {
         $runner = Join-Path $ProjectRoot "tests\run-all-tests.ps1"
         if (Test-Path $runner) {
@@ -525,17 +619,20 @@ switch ($Command.ToLower()) {
         Write-Host "  task port-batch <N> [T]  -> Batch port [-Mode Fast|Normal|Deep] [-Tier T] [-AutoCommit]" -ForegroundColor Gray
         Write-Host "  task build <profile>     -> Build profile (world, auth, sql-only, playerbots)" -ForegroundColor Gray
         Write-Host "  task build-packages      -> Build & commit all ready staged packages" -ForegroundColor Gray
+        Write-Host "  task push-extended [br]  -> Push all passed commits to GitHub 'extended' branch [-DryRun]" -ForegroundColor Gray
         Write-Host "  task status              -> Show canonical pipeline state" -ForegroundColor Gray
         Write-Host "  task pdf                 -> Regenerate COMMAND_REFERENCE HTML & PDF" -ForegroundColor Gray
         Write-Host "`nAnalysis & Research Commands:" -ForegroundColor Yellow
         Write-Host "  task 2 <sha/topic>       -> Search forum archive" -ForegroundColor Gray
-        Write-Host "  task 3 [tbl] [id]        -> Audit migrations or scalp entity" -ForegroundColor Gray
+        Write-Host "  task 3 [tbl] [id]        -> Audit migrations or scalp entity via tortoise-db-viewer" -ForegroundColor Gray
         Write-Host "  task 4 <sha>             -> AI context assembler" -ForegroundColor Gray
         Write-Host "  task 5 <topic>           -> Core restorer" -ForegroundColor Gray
-        Write-Host "  task 6 <query>           -> Query online DB viewer" -ForegroundColor Gray
-        Write-Host "  task scalp <tbl> <id>    -> Scalp & diff DB entity" -ForegroundColor Gray
-        Write-Host "  task extract <tbl> <id>  -> Extract entity" -ForegroundColor Gray
+        Write-Host "  task 6 <query>           -> Query tortoise-db-viewer & live CDN [-OpenBrowser]" -ForegroundColor Gray
+        Write-Host "  task scalp [tbl] <id>    -> Scalp & diff DB entity via tortoise-db-viewer [-Diff] [-Export]" -ForegroundColor Gray
+        Write-Host "  task extract [tbl] <id>  -> Extract entity alias for task scalp" -ForegroundColor Gray
+        Write-Host "  task dashboard           -> Launch tortoise-db-viewer web dashboard in browser" -ForegroundColor Gray
         Write-Host "`nEngineering & Quality Assurance Commands:" -ForegroundColor Yellow
+        Write-Host "  task system-check [light|full] -> Pre-flight audit (docs, locations, goals, tests)" -ForegroundColor Gray
         Write-Host "  task config              -> View project configuration" -ForegroundColor Gray
         Write-Host "  task config-check        -> Validate project configuration" -ForegroundColor Gray
         Write-Host "  task state-check         -> Validate machine-readable state store" -ForegroundColor Gray

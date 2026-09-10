@@ -3,6 +3,7 @@
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $ScriptDir "ExitCodes.ps1")
 . (Join-Path $ScriptDir "ProjectConfig.ps1")
+. (Join-Path $ScriptDir "StructuredResult.ps1")
 . (Join-Path $ScriptDir "StateStore.ps1")
 
 function Get-AiCacheKey {
@@ -82,9 +83,9 @@ function Query-AiAuditCache {
 
     $store = Get-StateStore -Path $StateStorePath
     $cache = $store.ai_call_cache
-    if ($cache -is [System.Collections.IDictionary] -and $cache.ContainsKey($CacheKey)) {
+    if ($cache -is [System.Collections.IDictionary] -and $cache.Contains($CacheKey)) {
         return $cache[$CacheKey]
-    } elseif ($null -ne $cache.$CacheKey) {
+    } elseif ($null -ne $cache -and $null -ne $cache.$CacheKey) {
         return $cache.$CacheKey
     }
     return $null

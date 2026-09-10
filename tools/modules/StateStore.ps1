@@ -11,6 +11,33 @@ function New-RunId {
     return "RUN-$($now.ToString('yyyyMMdd-HHmmss'))-$rnd"
 }
 
+function Convert-PSCustomObjectToHashtable {
+    param($InputObject)
+    if ($null -eq $InputObject) { return $null }
+    if ($InputObject -is [System.Collections.IDictionary]) {
+        $ht = [ordered]@{}
+        foreach ($k in $InputObject.Keys) {
+            $ht[$k] = Convert-PSCustomObjectToHashtable $InputObject[$k]
+        }
+        return $ht
+    }
+    if ($InputObject -is [System.Collections.IList] -or $InputObject -is [System.Array]) {
+        $list = [System.Collections.ArrayList]::new()
+        foreach ($item in $InputObject) {
+            [void]$list.Add((Convert-PSCustomObjectToHashtable $item))
+        }
+        return $list
+    }
+    if ($InputObject -is [System.Management.Automation.PSCustomObject]) {
+        $ht = [ordered]@{}
+        foreach ($p in $InputObject.PSObject.Properties) {
+            $ht[$p.Name] = Convert-PSCustomObjectToHashtable $p.Value
+        }
+        return $ht
+    }
+    return $InputObject
+}
+
 function Get-StateStore {
     [CmdletBinding()]
     param(
@@ -20,7 +47,7 @@ function Get-StateStore {
     if (Test-Path $Path) {
         $raw = [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
         $store = $raw | ConvertFrom-Json
-        return $store
+        return (Convert-PSCustomObjectToHashtable $store)
     }
 
     # Initialize new empty store structure
@@ -126,8 +153,14 @@ function Register-Candidate {
         if ($candidates -is [System.Collections.IDictionary]) {
             $candidates[$CandidateId] = $candidateObj
         } else {
-            $store.candidates = [ordered]@{}
-            $store.candidates[$CandidateId] = $candidateObj
+            $newCandidates = [ordered]@{}
+            if ($candidates) {
+                foreach ($prop in $candidates.PSObject.Properties) {
+                    $newCandidates[$prop.Name] = $prop.Value
+                }
+            }
+            $newCandidates[$CandidateId] = $candidateObj
+            $store.candidates = $newCandidates
         }
 
         Save-StateStore -Store $store -Path $Path
@@ -163,8 +196,23 @@ function Update-CandidateState {
     if ($Confidence -ge 0.0) { $c.confidence = $Confidence }
     if (-not [string]::IsNullOrEmpty($Verdict)) { $c.verdict = $Verdict }
     if ($null -ne $Evidence) {
-        foreach ($k in $Evidence.Keys) {
-            $c.evidence[$k] = $Evidence[$k]
+        if ($c.evidence -is [System.Collections.IDictionary]) {
+            foreach ($k in $Evidence.Keys) {
+                $c.evidence[$k] = $Evidence[$k]
+            }
+        } elseif ($c.evidence -is [System.Management.Automation.PSCustomObject]) {
+            foreach ($k in $Evidence.Keys) {
+                if ($c.evidence.PSObject.Properties[$k]) {
+                    $c.evidence.$k = $Evidence[$k]
+                } else {
+                    $c.evidence | Add-Member -MemberType NoteProperty -Name $k -Value $Evidence[$k] -Force
+                }
+            }
+        } else {
+            $c.evidence = [ordered]@{}
+            foreach ($k in $Evidence.Keys) {
+                $c.evidence[$k] = $Evidence[$k]
+            }
         }
     }
 

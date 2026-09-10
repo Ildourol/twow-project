@@ -1,10 +1,11 @@
-<#
+﻿<#
 .SYNOPSIS
-    Queries the Tortoise-WoW Online Database Viewer (task 6 / task db-viewer).
+    Queries the Tortoise-WoW Online Database Viewer & REST API (task 6 / task db-viewer / task dashboard).
 .DESCRIPTION
     Provides instant online database verification against https://xian55.github.io/tortoise-db-viewer/
-    and live CDN changelogs (xian55/tortoise-db-viewer cdn-dev). Cross-references local SQL
-    definitions with the online 1.18.1 client/server database.
+    and live REST API (https://api.tortoiseclothing.org). Cross-references local SQL definitions with
+    the online 1.18.1 client/server database, displays rich entity stats, drop tables, abilities,
+    and supports opening the interactive web dashboard in the browser.
 .PARAMETER Query
     The item name, spell name, creature name, quest name, or numeric ID to inspect.
 .PARAMETER Type
@@ -18,6 +19,7 @@
     task 6 "Holy Strike" -Type Spell
     task 6 changelog
     task 6 19019 -OpenBrowser
+    task dashboard
 #>
 [CmdletBinding()]
 param(
@@ -39,13 +41,17 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..")
 $BaseSqlDir = Join-Path $ProjectRoot "tortoise-wow\sql\base"
+$LocalViewerDir = Join-Path $ProjectRoot "tortoise-db-viewer"
 
 $BaseUrl = "https://xian55.github.io/tortoise-db-viewer/"
+$ApiBase = "https://api.tortoiseclothing.org"
 $CdnChangelogUrl = "https://raw.githubusercontent.com/xian55/tortoise-db-viewer/cdn-dev/data/changelog.json"
 $CdnVersionUrl = "https://raw.githubusercontent.com/xian55/tortoise-db-viewer/cdn-dev/data/version.json"
 
 Write-Host "================================================================================" -ForegroundColor Cyan
-Write-Host "  Agent 6: Online Database Oracle (https://xian55.github.io/tortoise-db-viewer/)" -ForegroundColor Cyan
+Write-Host "  Agent 6: Tortoise Database Oracle & Dashboard Explorer                        " -ForegroundColor Cyan
+Write-Host "  Web Dashboard: $BaseUrl" -ForegroundColor DarkCyan
+Write-Host "  Local Clone  : $LocalViewerDir" -ForegroundColor DarkGray
 Write-Host "================================================================================" -ForegroundColor Cyan
 
 # Mode 1: Fetch and display live changelog
@@ -84,29 +90,37 @@ if ($Changelog -or ($Query -eq "changelog")) {
     return
 }
 
+# Mode 2: Empty query - open dashboard or show help
 if ([string]::IsNullOrWhiteSpace($Query)) {
+    if ($OpenBrowser) {
+        Write-Host "`nLaunching default browser to Tortoise Database Dashboard: $BaseUrl" -ForegroundColor Cyan
+        Start-Process $BaseUrl
+        return
+    }
     Write-Host "Usage: task 6 <id_or_name> [-Type Item|NPC|Spell|Quest|Object] [-OpenBrowser]" -ForegroundColor Yellow
     Write-Host "       task 6 changelog" -ForegroundColor Yellow
+    Write-Host "       task dashboard       -> Launches interactive web dashboard" -ForegroundColor Yellow
     Write-Host "`nDirect Web Access: $BaseUrl" -ForegroundColor Cyan
     return
 }
 
-# Mode 2: Query entity by ID or name
+# Mode 3: Query entity by ID or name
 $isNumeric = ($Query -match '^\d+$')
 $targetUrl = ""
+$apiEndpoint = ""
 
 if ($isNumeric) {
     $numericId = [int]$Query
     switch ($Type.ToLower()) {
-        'item'   { $targetUrl = "${BaseUrl}?item=$numericId" }
-        'npc'    { $targetUrl = "${BaseUrl}?npc=$numericId" }
-        'spell'  { $targetUrl = "${BaseUrl}?spell=$numericId" }
-        'quest'  { $targetUrl = "${BaseUrl}?quest=$numericId" }
+        'item'   { $targetUrl = "${BaseUrl}?item=$numericId";   $apiEndpoint = "$ApiBase/i/$numericId" }
+        'npc'    { $targetUrl = "${BaseUrl}?npc=$numericId";    $apiEndpoint = "$ApiBase/n/$numericId" }
+        'spell'  { $targetUrl = "${BaseUrl}?spell=$numericId";  $apiEndpoint = "$ApiBase/s/$numericId" }
+        'quest'  { $targetUrl = "${BaseUrl}?quest=$numericId";  $apiEndpoint = "$ApiBase/q/$numericId" }
         'object' { $targetUrl = "${BaseUrl}?object=$numericId" }
         default  {
-            # Auto-detect entity type by checking local SQL tables
-            $typeGuess = "item"
+            # Try item first
             $targetUrl = "${BaseUrl}?item=$numericId"
+            $apiEndpoint = "$ApiBase/i/$numericId"
         }
     }
 } else {
@@ -114,11 +128,89 @@ if ($isNumeric) {
     $targetUrl = "${BaseUrl}?search=$encodedQuery"
 }
 
-Write-Host "`n[QUERY] Searching Online Database Viewer: '$Query'" -ForegroundColor Yellow
-Write-Host "Target URL: $targetUrl" -ForegroundColor Cyan
+Write-Host "`n[QUERY] Inspecting Entity: '$Query'" -ForegroundColor Yellow
+Write-Host "  * Target URL : $targetUrl" -ForegroundColor Cyan
+
+# Fetch JSON API if available
+$apiRecord = $null
+if ($apiEndpoint) {
+    try {
+        $apiRecord = Invoke-RestMethod -Uri $apiEndpoint -TimeoutSec 5 -ErrorAction SilentlyContinue
+    } catch { }
+
+    # If item returned 404, test NPC
+    if (-not $apiRecord -and $isNumeric -and $Type -eq "Auto") {
+        try {
+            $apiRecord = Invoke-RestMethod -Uri "$ApiBase/n/$numericId" -TimeoutSec 3 -ErrorAction SilentlyContinue
+            if ($apiRecord) {
+                $targetUrl = "${BaseUrl}?npc=$numericId"
+            }
+        } catch { }
+    }
+    # If still not found, test spell
+    if (-not $apiRecord -and $isNumeric -and $Type -eq "Auto") {
+        try {
+            $apiRecord = Invoke-RestMethod -Uri "$ApiBase/s/$numericId" -TimeoutSec 3 -ErrorAction SilentlyContinue
+            if ($apiRecord) {
+                $targetUrl = "${BaseUrl}?spell=$numericId"
+            }
+        } catch { }
+    }
+    # If still not found, test quest
+    if (-not $apiRecord -and $isNumeric -and $Type -eq "Auto") {
+        try {
+            $apiRecord = Invoke-RestMethod -Uri "$ApiBase/q/$numericId" -TimeoutSec 3 -ErrorAction SilentlyContinue
+            if ($apiRecord) {
+                $targetUrl = "${BaseUrl}?quest=$numericId"
+            }
+        } catch { }
+    }
+}
+
+if ($apiRecord) {
+    Write-Host "`n[DATABASE VIEWER ENTITY RECORD]" -ForegroundColor Green
+    if ($apiRecord.type -eq "item") {
+        Write-Host "  Name         : $($apiRecord.name) [$($apiRecord.id)] ($($apiRecord.quality.name))" -ForegroundColor White
+        Write-Host "  Type / Slot  : $($apiRecord.class.name) - $($apiRecord.subclass.name) ($($apiRecord.slot.name))" -ForegroundColor Gray
+        Write-Host "  Item Level   : $($apiRecord.itemLevel) (Req Level: $($apiRecord.requiredLevel))" -ForegroundColor Gray
+        if ($apiRecord.stats) {
+            $stList = @()
+            foreach ($p in $apiRecord.stats.PSObject.Properties) { $stList += "$($p.Name): $($p.Value)" }
+            Write-Host "  Combat Stats : $($stList -join ', ')" -ForegroundColor Yellow
+        }
+        if ($apiRecord.price) {
+            Write-Host "  Economy      : Buy: $($apiRecord.price.buy)c | Sell: $($apiRecord.price.sell)c" -ForegroundColor DarkGray
+        }
+        if ($apiRecord.sources.quests -and $apiRecord.sources.quests.Count -gt 0) {
+            $q = $apiRecord.sources.quests[0]
+            Write-Host "  Quest Reward : [$($q.quest.id)] $($q.quest.title)" -ForegroundColor Cyan
+        }
+    } elseif ($apiRecord.type -eq "npc") {
+        Write-Host "  Name         : $($apiRecord.name) [$($apiRecord.id)] (Level $($apiRecord.level) $($apiRecord.rank))" -ForegroundColor White
+        Write-Host "  Health       : $($apiRecord.health.min) - Armor: $($apiRecord.stats.armor)" -ForegroundColor Gray
+        Write-Host "  Melee Damage : $($apiRecord.stats.damage.min) - $($apiRecord.stats.damage.max) (Speed: $($apiRecord.stats.attackSpeed)ms)" -ForegroundColor Yellow
+        if ($apiRecord.drops -and $apiRecord.drops.Count -gt 0) {
+            Write-Host "  Top Drops    :" -ForegroundColor Cyan
+            foreach ($d in ($apiRecord.drops | Select-Object -First 4)) {
+                $chanceFmt = "{0:N1}%" -f $d.chance
+                Write-Host "    - [$($d.item.id)] $($d.item.name) ($chanceFmt chance)" -ForegroundColor DarkGray
+            }
+        }
+    } elseif ($apiRecord.type -eq "spell") {
+        Write-Host "  Spell Name   : $($apiRecord.name) [$($apiRecord.id)]" -ForegroundColor White
+        Write-Host "  Attributes   : Skill: $($apiRecord.skill), Icon: $($apiRecord.icon)" -ForegroundColor Gray
+        if ($apiRecord.description) {
+            Write-Host "  Description  : $($apiRecord.description)" -ForegroundColor Yellow
+        }
+    } elseif ($apiRecord.type -eq "quest") {
+        Write-Host "  Quest Title  : $($apiRecord.title) [$($apiRecord.id)]" -ForegroundColor White
+        Write-Host "  Level        : Level $($apiRecord.level) (Min: $($apiRecord.minLevel)) - Zone: $($apiRecord.zone)" -ForegroundColor Gray
+        Write-Host "  Rewards      : XP: $($apiRecord.rewards.xp), Money: $($apiRecord.rewards.money)c" -ForegroundColor Yellow
+    }
+}
 
 # Cross-reference local SQL database in tortoise-wow/sql/base
-Write-Host "`n[LOCAL CROSS-REFERENCE] Searching local tortoise-wow SQL..." -ForegroundColor Yellow
+Write-Host "`n[LOCAL BASE CROSS-REFERENCE] Searching local tortoise-wow SQL..." -ForegroundColor Yellow
 $localMatches = @()
 if (Test-Path $BaseSqlDir) {
     if ($isNumeric) {
@@ -152,10 +244,10 @@ if ($localMatches.Count -gt 0) {
     Write-Host "No direct local base SQL match found (Entity may be defined in client DBC, migrations, or custom ID space >= 300000)." -ForegroundColor DarkGray
 }
 
-Write-Host "`n[VERDICT & CAPABILITIES]" -ForegroundColor Green
-Write-Host "  1. Online 3D Model, Drops & Tooltip : $targetUrl" -ForegroundColor White
-Write-Host "  2. 1.18.1 Client Parity Check       : Cross-reference stats against official Turtle DB" -ForegroundColor DarkGray
-Write-Host "  3. Vendor & Drop Associations       : Verified through SQLite browser WASM" -ForegroundColor DarkGray
+Write-Host "`n[CAPABILITIES & ACTIONS]" -ForegroundColor Green
+Write-Host "  1. 3D Model, Drops & Interactive Tooltip : $targetUrl" -ForegroundColor White
+Write-Host "  2. Entity Scalper & Diff Engine          : task scalp $Query -Diff" -ForegroundColor Gray
+Write-Host "  3. Staged SQL Migration Export           : task scalp $Query -Export" -ForegroundColor Gray
 
 if ($OpenBrowser) {
     Write-Host "`nLaunching browser to: $targetUrl" -ForegroundColor Cyan

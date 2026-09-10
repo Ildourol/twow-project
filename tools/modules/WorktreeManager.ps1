@@ -50,7 +50,10 @@ function New-CandidateWorktree {
     }
 
     # Clean up any stale branch with same name
-    git -C $TargetRepo branch -D $branchName 2>$null | Out-Null
+    $branchExists = git -C $TargetRepo branch --list $branchName
+    if ($branchExists) {
+        cmd.exe /c "git -C ""$TargetRepo"" branch -D ""$branchName"" 2>&1" | Out-Null
+    }
 
     # Create the git worktree based on BaseSha
     Write-Host "Creating isolated worktree at $worktreePath from $BaseSha..." -ForegroundColor DarkGray
@@ -204,7 +207,7 @@ function Invoke-SafeWorktreeCleanup {
 
     # Prune git worktree administrative records
     if (-not $DryRun) {
-        git -C $TargetRepo worktree prune 2>$null
+        cmd.exe /c "git -C ""$TargetRepo"" worktree prune 2>&1" | Out-Null
     }
 
     return $removed

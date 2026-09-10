@@ -33,7 +33,20 @@
       "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/resources/forum"
     },
     "historical_db": {
-      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql"
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/reference-upstreams/lights-hope-database-history",
+      "upstream_url": "https://github.com/brotalnia/database",
+      "main_sql_snapshot": "world_full_14_june_2021.sql",
+      "main_archive": "world_full_14_june_2021.7z"
+    },
+    "tortoise_db_viewer": {
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/tortoise-db-viewer",
+      "upstream_url": "https://github.com/Xian55/tortoise-db-viewer",
+      "dashboard_url": "https://xian55.github.io/tortoise-db-viewer/",
+      "api_url": "https://api.tortoiseclothing.org"
+    },
+    "vmangos_core_db": {
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/reference-upstreams/vmangos-core/db_latest/mysql-dump/mangos.sql",
+      "upstream_url": "https://github.com/vmangos/core/releases/tag/db_latest"
     },
     "playerbots_reference": {
       "path": "C:/Users/Admin/AntigravityProfiles/Projects/Module-playerbots"

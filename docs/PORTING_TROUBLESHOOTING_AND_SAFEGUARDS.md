@@ -256,3 +256,25 @@ When `task port <sha>` or `task port-batch <N>` stages a package with status `AW
 - **Question**: Can `-AutoBuild` be run concurrently in multiple terminals?
 - **Answer**: **NO.** `-AutoBuild` triggers MSVC compilation and `git push` on `tortoise-wow`. Multiple simultaneous builds create compiler file locks on `.obj` / `.pdb` files and can corrupt the Git index.
 - **Safe Concurrent Practice**: Run research and staging tasks (`task scalp`, `task 6`, `task ai-audit`, `task restore-batch`, `task port`) concurrently across multiple terminals without `-AutoBuild`, then execute `task build-packages` once to compile and commit all staged packages sequentially.
+
+---
+
+## 8. Smart Path Mapping & Directory Normalization Safeguards
+
+### Issue 8.1: `error: src/scripts/...: No such file or directory` (Diverged Upstream Folder Layout)
+- **Symptom**: Applying an upstream VMaNGOS script patch fails immediately with `No such file or directory`, or `BugProver.ps1` reports `NOT_APPLICABLE` because donor files appear missing.
+- **Root Cause**: Upstream VMaNGOS organizes dungeon scripts by geographic continent hierarchies:
+  ```
+  src/scripts/eastern_kingdoms/eastern_plaguelands/naxxramas/boss_maexxna.cpp
+  src/scripts/kalimdor/feralas/dire_maul/instance_dire_maul.cpp
+  ```
+  Whereas Tortoise-WoW organizes dungeons under a dedicated dungeons root:
+  ```
+  src/scripts/dungeons/naxxramas/boss_maexxna.cpp
+  src/scripts/dungeons/dire_maul/instance_dire_maul.cpp
+  ```
+- **Automated Solution ([`tools/modules/PathMapper.ps1`](../tools/modules/PathMapper.ps1))**:
+  The toolchain includes an intelligent path translation engine:
+  1. **Static Regex Rules**: Automatically remaps `eastern_kingdoms/<zone>/<dungeon>/` and `kalimdor/<zone>/<dungeon>/` to `src/scripts/dungeons/<dungeon>/`, `cmake/find/` to `cmake/`, and `contrib/<tool>/` to `tools/<tool>/`.
+  2. **Dynamic Basename Disambiguation**: Scans the target repository file index to resolve files moved across directories with 100% path safety.
+  3. **Seamless Auto-Pilot**: `Export-GitPatchSafely`, `Test-GitPatchSafely`, `Apply-GitPatchSafely`, and `BugProver.ps1` automatically normalize patch headers and file checks on the fly.

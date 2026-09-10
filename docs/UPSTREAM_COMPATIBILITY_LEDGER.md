@@ -59,14 +59,14 @@ Every tracked adaptation or risk is categorized under one of the following lifec
 - **Status**: `Resolved persistent adaptation` (`AGENT-3`, `task scalp`, `task extract`)
 - **Scope**: Multi-source SQL row extraction, field-by-field diffing, and automated progressive column stripping (`patch`, `patch_min`, `patch_max`, `build`) via `tools/porting/Extract-DbEntity.ps1`.
 - **Problem Resolved**:
-  - Reference dumps (`lights-hope-database-history/world_full_14_june_2021.sql`, 143MB, 917,000 lines) and modern VMaNGOS migrations structure template tables with progressive columns (e.g. `item_template` has column 1 as `patch` indexing patches 0..10; `creature_loot_template` has `patch_min` and `patch_max`).
+  - Upstream VMaNGOS and historical reference dumps structure template tables with progressive columns (e.g. `item_template` has column 1 as `patch` indexing patches 0..10; `creature_loot_template` has `patch_min` and `patch_max`).
   - Blindly copying raw `INSERT INTO` lines into Turtle-WoW 1.18.1 shifts every subsequent column by 1 or fails on schema constraints, silently corrupting data or throwing database errors.
-  - Manual entity lookups across 150+ Turtle base SQL files and 143MB dumps took significant time and manual arithmetic.
+  - Manual entity lookups across 150+ Turtle base SQL files and 143MB monolithic dumps took significant time and manual arithmetic.
 - **Implemented Adaptation**:
-  - Implemented `task scalp <table_alias> <entry_or_name> [-Diff] [-Export] [-OpenViewer]`.
-  - Parses table schema dynamically from `tortoise-wow/sql/base/tw_world_<table_name>.sql` and `world_full_14_june_2021.sql`.
-  - Employs a zero-allocation streaming tokenizer that accurately parses quoted strings with commas and escaped quotes.
-  - Maps donor values to Turtle-WoW schema columns, automatically strips progressive columns, selects the patch 10 (1.12.1 final) baseline, and preserves Turtle exclusive columns (`mount_display_id`, `wrapped_gift`, `script_name`).
+  - Implemented `task scalp <table_alias> <entry_or_name> [-Diff] [-ExportSql] [-OpenViewer]`.
+  - Seamlessly fuses Turtle-WoW base SQL schemas (`tortoise-wow/sql/base/tw_world_<table_name>.sql`), Brotalnia `brotalnia/database` (`world_full_14_june_2021.sql` from `world_full_14_june_2021.7z`, Main Historic DB for unchanged vanilla entities), and `vmangos/core db_latest` (backup donor DB), with `tortoise-db-viewer` (REST API `api.tortoiseclothing.org`, local catalog `scripts/data/vanilla-ids.json`, and web dashboard).
+  - Employs a zero-allocation streaming tokenizer and structured API deserializer that accurately parses quoted strings with commas and escaped quotes.
+  - Maps donor values to Turtle-WoW schema columns, automatically strips progressive columns, selects the 1.12.1 final baseline, and preserves Turtle exclusive columns (`mount_display_id`, `wrapped_gift`, `script_name`).
   - Provides side-by-side colorized diffs and generates clean, sanitized `REPLACE INTO` SQL patches directly into `tools/queue/staging_sql/`.
 - **Verification**: Verified on `item 19019` (Thunderfury, 126 matching columns, 2 diffs, 1 progressive column stripped), `creature 10184` (Onyxia, 73 matching columns, 2 diffs, 1 progressive column stripped), and `spell 20925` (Holy Shield).
 

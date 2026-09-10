@@ -1,4 +1,4 @@
-﻿# Master Project Roadmap & Semantic AI Porting Queue
+# Master Project Roadmap & Semantic AI Porting Queue
 
 This document is the authoritative, fixed roadmap and execution ledger for **Tortoise-WoW Extended** (`twow project/tortoise-wow`). All historical VMaNGOS commits have been semantically audited across all 5 severity tiers.
 
@@ -6,13 +6,13 @@ This document is the authoritative, fixed roadmap and execution ledger for **Tor
 
 ## 1. Executive Metrics & Build Status
 
-* **Target Remote**: [`https://github.com/Ildourol/tortoise-wow-extended.git`](https://github.com/Ildourol/tortoise-wow-extended.git) (branch `main`)
+* **Target Remote**: [`https://github.com/Ildourol/tortoise-wow-extended.git`](https://github.com/Ildourol/tortoise-wow-extended.git) (branch [`extended`](https://github.com/Ildourol/tortoise-wow-extended/tree/extended))
 * **Base Baseline SHA**: [`b8f24bef6`](https://github.com/Ildourol/tortoise-wow-extended/commit/b8f24bef6) ([`Penqle/tortoise-wow`](https://github.com/Penqle/tortoise-wow) + upstream quest/vmap fixes)
-* **Current Head SHA**: [`053cb501f`](https://github.com/Ildourol/tortoise-wow-extended/commit/053cb501f11fda999967ffef60852b8902bf26c0)
-* **Total Uploaded Commits**: **1** (1 commits on top of baseline)
+* **Current Head SHA**: [`bf93e36d9`](https://github.com/Ildourol/tortoise-wow-extended/commit/bf93e36d9f38251eb6ee2f5faf157bca29e3a00f)
+* **Total Uploaded Commits**: **42** (1 Build Toolchain Fix + 41 VMaNGOS Ports)
 * **Toolchain Compilation Status**: **100% PASS** (MSVC 2022 x64 Release: `mangosd.exe` and `realmd.exe` Exit Code 0)
 * **Semantic Audit Coverage**: Audited across all 7339 upstream commits; eliminated 372 superseded/duplicate changes.
-* **Total Crucial Candidates in Queue**: **5092**
+* **Total Crucial Candidates in Queue**: **5051** (5092 minus 41 completed)
 * **Full Reference Catalogue Count**: **7339** (in `tools/porting/ALL_AVAILABLE_COMMITS_REFERENCE.csv`)
 
 ---

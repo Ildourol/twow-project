@@ -86,3 +86,15 @@ New-CandidateWorktree -TargetRepo "tortoise-wow" -CandidateId $packageId -BaseSh
 1. Update `tools/state/state_store.json` transition state to `COMPLETE`.
 2. Move package from `02_ready_to_build/` to `03_completed/`.
 3. Update `docs/COMMITS_UPLOADED.md`, `docs/BACKPORT_HISTORY.md`, and `docs/ROADMAP.md`.
+
+### Step 8: Remote Integration & Push Gate (Auto-Pilot / AutoCommit Only)
+1. **Push Authorization Condition**: Remote git pushes are **strictly gated**. Pushing to remote occurs **ONLY** when:
+   - Operating under `task auto-pilot` or `task auto-port`.
+   - The command was explicitly invoked with `-AutoCommit`.
+   - The operator explicitly executes `task push-extended [branch]`.
+   - *Manual staging, manual builds (`task build-packages`), and dry runs will NEVER push.*
+2. **Target Remote & Branch**:
+   - All passing, verified fixes are cleanly integrated and pushed directly to the remote development branch:
+     **`https://github.com/Ildourol/tortoise-wow-extended/tree/extended`** (`extended/extended`).
+   - The primary `main` branch is never modified or pushed to without separate explicit confirmation.
+

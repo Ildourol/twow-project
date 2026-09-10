@@ -1,5 +1,10 @@
 # EncodingHelper.ps1: Safe patch encoding, byte-level I/O, path safety
 
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+if (Test-Path (Join-Path $ScriptDir "PathMapper.ps1")) {
+    . (Join-Path $ScriptDir "PathMapper.ps1")
+}
+
 function Write-Utf8NoBomText([string]$filePath, [string]$content) {
     $parent = Split-Path -Parent $filePath
     if ($parent -and -not (Test-Path $parent)) {
@@ -20,7 +25,8 @@ function Export-GitPatchSafely {
     param(
         [Parameter(Mandatory=$true)][string]$RepoPath,
         [Parameter(Mandatory=$true)][string]$Sha,
-        [Parameter(Mandatory=$true)][string]$DestinationPatchPath
+        [Parameter(Mandatory=$true)][string]$DestinationPatchPath,
+        [string]$TargetRepo = ""
     )
 
     $parent = Split-Path -Parent $DestinationPatchPath
@@ -39,6 +45,15 @@ function Export-GitPatchSafely {
     $fi = Get-Item $DestinationPatchPath
     if ($fi.Length -eq 0) {
         throw "Exported patch is 0 bytes for SHA $Sha"
+    }
+
+    # Apply smart path mapping if target repository is supplied
+    if ($TargetRepo -and (Test-Path $TargetRepo) -and (Get-Command "Convert-PatchPaths" -ErrorAction SilentlyContinue)) {
+        $raw = [System.IO.File]::ReadAllText($DestinationPatchPath, [System.Text.Encoding]::UTF8)
+        $mapped = Convert-PatchPaths -PatchContent $raw -TargetRepo $TargetRepo
+        if ($mapped.HasChanges) {
+            Write-Utf8NoBomText -filePath $DestinationPatchPath -content $mapped.PatchContent
+        }
     }
 
     return $DestinationPatchPath
@@ -62,10 +77,34 @@ function Test-GitPatchSafely {
     $out = cmd.exe /c "git -C ""$RepoPath"" apply --check ""$PatchPath"" 2>&1"
     $code = $LASTEXITCODE
 
+    # Smart Path Mapping Fallback: if raw patch failed, try with path remapping
+    if ($code -ne 0 -and (Get-Command "Convert-PatchPaths" -ErrorAction SilentlyContinue)) {
+        $raw = [System.IO.File]::ReadAllText($PatchPath, [System.Text.Encoding]::UTF8)
+        $mapped = Convert-PatchPaths -PatchContent $raw -TargetRepo $RepoPath
+        if ($mapped.HasChanges) {
+            $tmpMapped = [System.IO.Path]::GetTempFileName()
+            try {
+                Write-Utf8NoBomText -filePath $tmpMapped -content $mapped.PatchContent
+                $mappedOut = cmd.exe /c "git -C ""$RepoPath"" apply --check ""$tmpMapped"" 2>&1"
+                if ($LASTEXITCODE -eq 0) {
+                    return @{
+                        AppliesCleanly = $true
+                        ExitCode = 0
+                        Output = ($mappedOut -join "`n")
+                        WasRemapped = $true
+                    }
+                }
+            } finally {
+                if (Test-Path $tmpMapped) { Remove-Item $tmpMapped -Force -ErrorAction SilentlyContinue }
+            }
+        }
+    }
+
     return @{
         AppliesCleanly = ($code -eq 0)
         ExitCode = $code
         Output = ($out -join "`n")
+        WasRemapped = $false
     }
 }
 
@@ -85,10 +124,36 @@ function Apply-GitPatchSafely {
     $out = cmd.exe /c "git -C ""$RepoPath"" apply $extraArgs ""$PatchPath"" 2>&1"
     $code = $LASTEXITCODE
 
+    # Smart Path Mapping Fallback: if raw patch failed, attempt applying converted patch
+    if ($code -ne 0 -and (Get-Command "Convert-PatchPaths" -ErrorAction SilentlyContinue)) {
+        $raw = [System.IO.File]::ReadAllText($PatchPath, [System.Text.Encoding]::UTF8)
+        $mapped = Convert-PatchPaths -PatchContent $raw -TargetRepo $RepoPath
+        if ($mapped.HasChanges) {
+            $tmpMapped = [System.IO.Path]::GetTempFileName()
+            try {
+                Write-Utf8NoBomText -filePath $tmpMapped -content $mapped.PatchContent
+                $mappedOut = cmd.exe /c "git -C ""$RepoPath"" apply $extraArgs ""$tmpMapped"" 2>&1"
+                $code = $LASTEXITCODE
+                if ($code -eq 0) {
+                    Write-Utf8NoBomText -filePath $PatchPath -content $mapped.PatchContent
+                    return @{
+                        Success = $true
+                        ExitCode = 0
+                        Output = ($mappedOut -join "`n")
+                        WasRemapped = $true
+                    }
+                }
+            } finally {
+                if (Test-Path $tmpMapped) { Remove-Item $tmpMapped -Force -ErrorAction SilentlyContinue }
+            }
+        }
+    }
+
     return @{
         Success = ($code -eq 0)
         ExitCode = $code
         Output = ($out -join "`n")
+        WasRemapped = $false
     }
 }
 function Save-Utf8NoBom([string]$FilePath, [string]$Content) {

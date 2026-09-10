@@ -97,11 +97,12 @@ This document defines the operational orchestration workflow, step-by-step runbo
      *(Note: Due to code divergence, search by symbol or method name rather than relying on line numbers).*
   3. Apply the fix following the recipes in `ENGINEERING_HANDBOOK.md`.
   4. If the fix touches database records:
-     a. Use the Database Scalper Engine (`task scalp <type> <id> -Diff`) to extract and compare the historical vanilla baseline from `brotalnia/database` (`world_full_14_june_2021.sql`, Choice 1) against `tortoise-wow/sql/base/world.sql`.
-     b. Fall back to `vmangos/core db_latest` (`mangos.sql`, Choice 2) if modern columns or scripts are involved.
-     c. Cross-reference live 1.18.1 client tooltips using the Online Database Oracle (`task 6 <id>` or `task scalp <type> <id> -OpenViewer`).
-     d. Export sanitized `REPLACE INTO` migrations via `task scalp <type> <id> -ExportSql`, stripping progressive columns (`patch`, `build`), removing stored procedures, and protecting IDs >= 300000.
-     e. Move finalized SQL to `tortoise-wow/sql/database_updates/world/` and audit via `Audit-DatabaseMigrations.ps1`.
+     a. Primary / Authoritative: Compare against Turtle base catalog in `tortoise-wow/sql/base/`.
+     b. Choice 1 (Main Historic DB): Use Brotalnia `brotalnia/database` (`reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql` from `world_full_14_june_2021.7z`) for original vanilla baseline values unchanged by Turtle WoW.
+     c. Choice 2 (Backup Updated Donor DB): Fall back to `vmangos/core db_latest` (`mangos.sql`) if modern columns, EventAI, or newer vanilla fixes are involved.
+     d. Interactive Scalper & Dashboard: Use `task scalp [type] <id> -Diff` and `task dashboard <id>` (powered by `tortoise-db-viewer` REST API and web UI) to inspect live client tooltips and 3D models.
+     e. Export sanitized `REPLACE INTO` migrations via `task scalp [type] <id> -ExportSql`, stripping progressive columns (`patch`, `build`), removing stored procedures, and protecting IDs >= 300000.
+     f. Move finalized SQL to `tortoise-wow/sql/database_updates/world/` and audit via `Audit-DatabaseMigrations.ps1`.
 
 ---
 
@@ -189,8 +190,8 @@ This document defines the operational orchestration workflow, step-by-step runbo
 - **Problem**: An upstream migration inserts a new row with an ID that collides with a custom Turtle WoW entity, or references a column that does not exist in the Nostalrius schema, or is missing a column required by the C++ engine.
 - **Action**:
   1. Check target tables in `twow project/tortoise-wow/sql/base/` and `sql/create_databases.sql`.
-  2. Run differential extraction via `task scalp <type> <id> -Diff` against `brotalnia/database` (`world_full_14_june_2021.sql`, Choice 1) and `vmangos/core db_latest` (`mangos.sql`, Choice 2).
-  3. Verify against official 1.18.1 client data using `task 6 <id>` (`https://xian55.github.io/tortoise-db-viewer/`).
+  2. Run differential extraction via `task scalp [type] <id> -Diff` against Brotalnia `world_full_14_june_2021.sql` (Main Historic DB for original vanilla baseline), `vmangos/core db_latest` (`mangos.sql`, Backup DB), and `tortoise-db-viewer`.
+  3. Verify against official 1.18.1 client data using `task 6 <id>` or `task dashboard <id>` (`https://xian55.github.io/tortoise-db-viewer/`).
   4. If progressive columns (`` `patch` ``, `` `build` ``) are present, strip them using `-ExportSql`.
   5. If an entry ID is $\ge 300000$ and collides with custom Turtle content, re-map the ID into vanilla space (< 300000) or isolate the insertion.
   6. If the C++ engine queries a column that is absent from base SQL (e.g. `spell_template.script_name`), add the column to the base definition and provide an idempotent `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` migration.

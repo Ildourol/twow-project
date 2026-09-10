@@ -178,21 +178,22 @@ All commands can be executed from any PowerShell console or terminal without cha
 <li><a href="#how-does-auto-pilot-choose-commits-without-a-tier">How Candidates Are Selected Without a Tier</a></li>
 <li><a href="#10-roadmap-research-commit-auditing--catching-new-upstream-commits-task-roadmap-refresh">10. Roadmap Research, Commit Auditing &amp; Catching New Upstream Commits (<code>task roadmap-refresh</code>)</a></li>
 <li><a href="#11-build-profiles--compiler-toolchain">11. Build Profiles &amp; Compiler Toolchain</a></li>
-<li><a href="#12-baseline-health-check--sha-pinning">12. Baseline Health Check &amp; SHA Pinning</a></li>
-<li><a href="#13-bug-existence-proving-engine">13. Bug-Existence Proving Engine</a></li>
-<li><a href="#14-database-safety-schema-catalog--provenance">14. Database Safety, Schema Catalog &amp; Provenance</a></li>
-<li><a href="#15-dbc-client--core-parity-auditor">15. DBC, Client &amp; Core Parity Auditor</a></li>
-<li><a href="#16-crash-dump--server-log-triage">16. Crash Dump &amp; Server Log Triage</a></li>
-<li><a href="#17-worktree-isolation--cleanup-management">17. Worktree Isolation &amp; Cleanup Management</a></li>
-<li><a href="#18-run-ids-idempotency--resumption">18. Run IDs, Idempotency &amp; Resumption</a></li>
-<li><a href="#19-canonical-30-state-machine">19. Canonical 30-State Machine</a></li>
-<li><a href="#20-ci--github-actions-pr-workflows">20. CI / GitHub Actions PR Workflows</a></li>
-<li><a href="#21-release-checkpoints--manifest-generation">21. Release Checkpoints &amp; Manifest Generation</a></li>
-<li><a href="#22-critical-safety-warnings">22. Critical Safety Warnings</a></li>
-<li><a href="#23-troubleshooting--common-failure-states">23. Troubleshooting &amp; Common Failure States</a></li>
-<li><a href="#24-expected-status--verdict-reference-values">24. Expected Status &amp; Verdict Reference Values</a></li>
-<li><a href="#25-architectural-strengths--engineering-guarantees">25. Architectural Strengths &amp; Engineering Guarantees</a></li>
-<li><a href="#26-daily-cheat-sheet--top-fast-commands">26. Daily Cheat Sheet &amp; Top Fast Commands</a></li>
+<li><a href="#12-system-pre-flight--health-audit-task-system-check">12. System Pre-Flight &amp; Health Audit (<code>task system-check</code>)</a></li>
+<li><a href="#13-baseline-health-check--sha-pinning">13. Baseline Health Check &amp; SHA Pinning</a></li>
+<li><a href="#14-bug-existence-proving-engine">14. Bug-Existence Proving Engine</a></li>
+<li><a href="#15-database-safety-schema-catalog--provenance">15. Database Safety, Schema Catalog &amp; Provenance</a></li>
+<li><a href="#16-dbc-client--core-parity-auditor">16. DBC, Client &amp; Core Parity Auditor</a></li>
+<li><a href="#17-crash-dump--server-log-triage">17. Crash Dump &amp; Server Log Triage</a></li>
+<li><a href="#18-worktree-isolation--cleanup-management">18. Worktree Isolation &amp; Cleanup Management</a></li>
+<li><a href="#19-run-ids-idempotency--resumption">19. Run IDs, Idempotency &amp; Resumption</a></li>
+<li><a href="#20-canonical-30-state-machine">20. Canonical 30-State Machine</a></li>
+<li><a href="#21-ci--github-actions-pr-workflows">21. CI / GitHub Actions PR Workflows</a></li>
+<li><a href="#22-release-checkpoints--manifest-generation">22. Release Checkpoints &amp; Manifest Generation</a></li>
+<li><a href="#23-critical-safety-warnings">23. Critical Safety Warnings</a></li>
+<li><a href="#24-troubleshooting--common-failure-states">24. Troubleshooting &amp; Common Failure States</a></li>
+<li><a href="#25-expected-status--verdict-reference-values">25. Expected Status &amp; Verdict Reference Values</a></li>
+<li><a href="#26-architectural-strengths--engineering-guarantees">26. Architectural Strengths &amp; Engineering Guarantees</a></li>
+<li><a href="#27-daily-cheat-sheet--top-fast-commands">27. Daily Cheat Sheet &amp; Top Fast Commands</a></li>
 </ul>
 <hr>
 <h2>1. Overview &amp; Operational Principles</h2>
@@ -296,21 +297,31 @@ All commands can be executed from any PowerShell console or terminal without cha
 <td><code>task auto-pilot</code></td>
 <td><code>task.ps1 auto-pilot [N] [-Tier 1-5] [-Mode M]</code></td>
 <td>Variable</td>
-<td>Write (Worktree)</td>
+<td>Write &amp; Remote Push</td>
 <td>Advisory</td>
 <td>Full MSVC</td>
 <td>Migration Audit</td>
-<td>One-command autonomous batch port &amp; commit for $N$ commits (default workflow).</td>
+<td>Autonomous batch port, compile, candidate commit, and auto-push passing fixes to GitHub <code>extended</code> branch.</td>
 </tr>
 <tr>
 <td><code>task auto-port</code></td>
 <td><code>task.ps1 auto-port &lt;sha&gt; [-Mode M] [-DryRun]</code></td>
 <td>Variable</td>
-<td>Write (Worktree)</td>
+<td>Write &amp; Remote Push</td>
 <td>Advisory</td>
 <td>Full MSVC</td>
 <td>Migration Audit</td>
-<td>One-command end-to-end port &amp; commit for a single commit.</td>
+<td>Autonomous single-commit port, compile, candidate commit, and auto-push to GitHub <code>extended</code> branch.</td>
+</tr>
+<tr>
+<td><code>task push-extended</code></td>
+<td><code>task.ps1 push-extended [branch] [-DryRun]</code></td>
+<td>Fast</td>
+<td>Remote Git Push</td>
+<td>None</td>
+<td>None</td>
+<td>None</td>
+<td>Integrates and pushes all verified passing candidate commits to remote <code>extended</code> branch (<code>extended/extended</code>).</td>
 </tr>
 <tr>
 <td><code>task port</code></td>
@@ -322,7 +333,7 @@ All commands can be executed from any PowerShell console or terminal without cha
 <td>Advisory</td>
 <td>Patch-Aware</td>
 <td>Migration Audit</td>
-<td>Unified porting pipeline for upstream donor commits.</td>
+<td>Unified porting pipeline for upstream donor commits (push requires <code>-AutoCommit</code>).</td>
 </tr>
 <tr>
 <td><code>task port-batch</code></td>
@@ -332,7 +343,7 @@ All commands can be executed from any PowerShell console or terminal without cha
 <td>Advisory</td>
 <td>Patch-Aware</td>
 <td>Migration Audit</td>
-<td>Batch executes porting pipeline on next $N$ curated candidate commits.</td>
+<td>Batch executes porting pipeline on next $N$ curated candidate commits (push requires <code>-AutoCommit</code>).</td>
 </tr>
 <tr>
 <td><code>task build</code></td>
@@ -352,7 +363,7 @@ All commands can be executed from any PowerShell console or terminal without cha
 <td>None</td>
 <td>Full MSVC</td>
 <td>Offline Audit</td>
-<td>Compiles, verifies, and commits all staged <code>PORT-XXXX</code> and <code>CORE-XXXX</code> packages in worktree.</td>
+<td>Compiles, verifies, and commits all staged packages in worktrees (local only, never pushes).</td>
 </tr>
 <tr>
 <td><code>task 2</code></td>
@@ -371,7 +382,7 @@ All commands can be executed from any PowerShell console or terminal without cha
 <td>Read-only</td>
 <td>None</td>
 <td>None</td>
-<td>Offline Catalog</td>
+<td>Brotalnia / Base / Viewer</td>
 <td>Audits pending database migration SQL or scalps table entity details.</td>
 </tr>
 <tr>
@@ -401,7 +412,7 @@ All commands can be executed from any PowerShell console or terminal without cha
 <td>Read-only</td>
 <td>None</td>
 <td>None</td>
-<td>Online DB API</td>
+<td>tortoise-db-viewer API</td>
 <td>Queries official Turtle Online DB viewer for item, spell, and creature tooltips.</td>
 </tr>
 <tr>
@@ -411,7 +422,7 @@ All commands can be executed from any PowerShell console or terminal without cha
 <td>Read-only</td>
 <td>None</td>
 <td>None</td>
-<td>Brotalnia/Base</td>
+<td>Brotalnia / Base / Viewer</td>
 <td>Extracts entity definitions and generates side-by-side vanilla vs Turtle diffs.</td>
 </tr>
 <tr>
@@ -421,8 +432,18 @@ All commands can be executed from any PowerShell console or terminal without cha
 <td>Read-only</td>
 <td>None</td>
 <td>None</td>
-<td>Brotalnia/Base</td>
+<td>Brotalnia / Base / Viewer</td>
 <td>Alias for <code>task scalp</code>.</td>
+</tr>
+<tr>
+<td><code>task dashboard</code></td>
+<td><code>task.ps1 dashboard [id]</code></td>
+<td>Fast</td>
+<td>Read-only</td>
+<td>None</td>
+<td>None</td>
+<td>Web Dashboard</td>
+<td>Launches official AoWoW-style web dashboard in browser (alias: <code>task viewer</code>).</td>
 </tr>
 <tr>
 <td><code>task restore</code></td>
@@ -478,6 +499,17 @@ All commands can be executed from any PowerShell console or terminal without cha
 <th>Description</th>
 </tr></thead><tbody>
 <tr>
+<td><code>task system-check</code></td>
+<td>`task.ps1 system-check [light\</td>
+<td>full]`</td>
+<td>Fast / Deep</td>
+<td>Read-only</td>
+<td>Internal Gate</td>
+<td>Preflight / 39-Tests</td>
+<td>Full Catalog</td>
+<td>Pre-flight audit: verifies docs, locations, goals, instructions, configs, worktrees, compilers, and test suite.</td>
+</tr>
+<tr>
 <td><code>task test</code></td>
 <td><code>task.ps1 test</code></td>
 <td>Fast</td>
@@ -485,7 +517,7 @@ All commands can be executed from any PowerShell console or terminal without cha
 <td>None</td>
 <td>None</td>
 <td>None</td>
-<td>Executes comprehensive 38-case Pester test suite covering all invariants.</td>
+<td>Executes comprehensive 39-case Pester test suite covering all invariants.</td>
 </tr>
 <tr>
 <td><code>task prove</code></td>
@@ -801,10 +833,26 @@ task.ps1 auto-port 448df9ba0</code></pre>
 <p>   Automatically mines 22,155 indexed Turtle-WoW forum threads using keywords extracted from the commit subject. Identifies any related mechanics discussions, player bug reports, or staff statements.</p>
 <p>2. <strong>Database &amp; Migration Safety Audit (<code>Audit-DatabaseMigrations.ps1</code>)</strong>:</p>
 <p>   Checks whether the upstream commit touches SQL migrations. Inspects table definitions against the 413-table schema catalog, verifies Turtle custom ID ranges (creature &gt;= 300,000, spell &gt;= 40,000), checks for forbidden progressive columns, and stages any required SQL files into <code>tools/queue/staging_sql/</code>.</p>
-<p>3. <strong>AI Context Assembly &amp; Semantic Dossier (<code>Invoke-AiAudit.ps1</code>)</strong>:</p>
-<p>   Performs bounded diff context extraction, checks surrounding code ASTs, evaluates Turtle custom divergences (<code>MAX_RACES=11</code>, <code>sTWDebuff</code>), generates an AI audit dossier in <code>tools/queue/ai_dossiers/&lt;sha&gt;.md</code>, and packages the candidate into <code>tools/queue/02_ready_to_build/PORT-XXXX.json</code>.</p>
-<p>4. <strong>Isolated Worktree Builder &amp; Committer (<code>Build-ReadyPackages.ps1</code>)</strong>:</p>
-<p>   Creates an isolated git worktree (<code>.worktrees/candidate-PORT-XXXX</code>), applies the patch safely, enforces build profiles (<code>world</code>, <code>auth</code>, <code>sql-only</code>), compiles via MSVC 2022, and commits to a candidate branch with full provenance recorded in <code>tools/state/state_store.json</code>.</p>
+<p>3. <strong>AI Semantic Conflict &amp; Regression Audit Gate (<code>AiConflictAuditor.ps1</code>)</strong>:</p>
+<p>   Replaces shallow static text searches with deep contextual AI semantic auditing across six core dimensions:</p>
+<ul>
+<li><em>Race Invariant</em>: Verifies bounded loops/arrays support Turtle's 11 races (<code>MAX_RACES = 11</code>, High Elf &amp; Goblin).</li>
+<li><em>Debuff Streaming</em>: Guarantees 64-bit <code>sTWDebuff</code> streaming is never truncated by 32-bit donor primitives.</li>
+<li><em>Manager Integrity</em>: Verifies protected managers (<code>sLFTMgr</code>, <code>sTransmogMgr</code>, <code>sCustomMerchantMgr</code>) remain untouched.</li>
+<li><em>Entity Protection</em>: Strictly guards custom ranges (spells $\ge 40000$, entities $\ge 300000$).</li>
+<li><em>Call-Site Signatures</em>: Validates that donor call-sites retain custom parameters (e.g. <code>inGurubashiArena</code>).</li>
+<li><em>Concurrency Safety</em>: Evaluates lock hierarchies (<code>m_mapLock</code>, <code>m_objectLock</code>) for AB-BA deadlock prevention.</li>
+</ul>
+<p>   If any semantic conflict is detected, the candidate is automatically rejected with <code>AI_SEMANTIC_CONFLICT</code> before staging or compiling.</p>
+<p>4. <strong>AI Context Assembly &amp; Semantic Dossier (<code>Invoke-AiAudit.ps1</code>)</strong>:</p>
+<p>   Performs bounded diff context extraction, checks surrounding code ASTs, evaluates Turtle custom divergences, generates an AI audit dossier in <code>tools/queue/ai_dossiers/&lt;sha&gt;.md</code>, and packages the candidate into <code>tools/queue/02_ready_to_build/PORT-XXXX.json</code>.</p>
+<p>5. <strong>Smart Path Mapping &amp; Directory Normalization (<code>PathMapper.ps1</code>)</strong>:</p>
+<p>   Dynamically and statically maps upstream donor file paths into the canonical Tortoise-WoW directory layout (e.g., <code>src/scripts/eastern_kingdoms/&lt;zone&gt;/&lt;dungeon&gt;/</code> $\rightarrow$ <code>src/scripts/dungeons/&lt;dungeon&gt;/</code>, <code>contrib/&lt;tool&gt;/</code> $\rightarrow$ <code>tools/&lt;tool&gt;/</code>, and <code>cmake/find/</code> $\rightarrow$ <code>cmake/</code>) across 519+ tracked reorganizations so that patch application targets the correct files with zero path corruption.</p>
+<p>6. <strong>Isolated Worktree Builder &amp; Committer (<code>Build-ReadyPackages.ps1</code>)</strong>:</p>
+<p>   Creates an isolated git worktree (<code>.worktrees/candidate-PORT-XXXX</code>), applies the normalized patch safely, enforces build profiles (<code>world</code>, <code>auth</code>, <code>sql-only</code>), compiles via MSVC 2022, and commits to a candidate branch with full provenance recorded in <code>tools/state/state_store.json</code>.</p>
+<p>7. <strong>Remote Extended Branch Integration &amp; Push (<code>Push-PassingCandidates.ps1</code>)</strong>:</p>
+<p>   Automatically aggregates all certified passing candidate commits and pushes them to the development branch:</p>
+<p>   <a href="https://github.com/Ildourol/tortoise-wow-extended/tree/extended"><code>https://github.com/Ildourol/tortoise-wow-extended/tree/extended</code></a> (<code>extended/extended</code>).</p>
 <hr>
 <h3>FAQ: Staging Mode vs Auto-Pilot Mode</h3>
 <table class="table"><thead><tr>
@@ -812,39 +860,54 @@ task.ps1 auto-port 448df9ba0</code></pre>
 <th>Staged to Queue?</th>
 <th>Automatically Compiled?</th>
 <th>Automatically Committed?</th>
-<th>Need follow-up build?</th>
+<th>Pushed to GitHub <code>extended</code>?</th>
 </tr></thead><tbody>
 <tr>
 <td><code>task.ps1 port-batch 10</code></td>
 <td>Yes (<code>02_ready_to_build/</code>)</td>
 <td>No</td>
 <td>No</td>
-<td><strong>YES</strong> (Review first, then compile via <code>task.ps1 build-packages</code>)</td>
+<td><strong>NO</strong> (Staging only)</td>
+</tr>
+<tr>
+<td><code>task.ps1 build-packages</code></td>
+<td>Pre-staged</td>
+<td>Yes (in worktree)</td>
+<td>Yes (candidate branch)</td>
+<td><strong>NO</strong> (Local worktrees only)</td>
 </tr>
 <tr>
 <td><code>task.ps1 auto-pilot 10</code></td>
 <td>Yes</td>
 <td>Yes (in worktree)</td>
 <td>Yes (candidate branch)</td>
-<td><strong>NO</strong> (Fully automated in 1 command)</td>
+<td><strong>YES</strong> (Pushed to <code>extended/extended</code>)</td>
 </tr>
 <tr>
 <td><code>task.ps1 port-batch 10 -AutoCommit</code></td>
 <td>Yes</td>
 <td>Yes (in worktree)</td>
 <td>Yes (candidate branch)</td>
-<td><strong>NO</strong> (Fully automated in 1 command)</td>
+<td><strong>YES</strong> (Pushed to <code>extended/extended</code>)</td>
 </tr>
 <tr>
 <td><code>task.ps1 auto-port &lt;sha&gt;</code></td>
 <td>Yes</td>
 <td>Yes (in worktree)</td>
 <td>Yes (candidate branch)</td>
-<td><strong>NO</strong> (Fully automated in 1 command)</td>
+<td><strong>YES</strong> (Pushed to <code>extended/extended</code>)</td>
+</tr>
+<tr>
+<td><code>task.ps1 push-extended [branch]</code></td>
+<td>Pre-committed</td>
+<td>N/A</td>
+<td>Integrates to branch</td>
+<td><strong>YES</strong> (Pushed to <code>extended/extended</code>)</td>
 </tr>
 </tbody></table>
-<div class="alert alert-note"><span class="alert-badge">note</span><br>- Use <code>task.ps1 port-batch 10</code> when you want a <strong>review step</strong> (inspecting AI dossiers and patches in <code>tools/queue/02_ready_to_build/</code> before compiling).
-- Use <code>task.ps1 auto-pilot 10</code> (or <code>task.ps1 auto-port</code>) when you want a <strong>hands-off single command</strong> that finishes the entire process and commits verified candidate branches automatically.</div>
+<div class="alert alert-important"><span class="alert-badge">important</span><br><strong>Strict Push Safety Guarantee</strong>:
+Remote git pushes are strictly gated: pushing will <strong>ONLY</strong> happen when running <code>auto-pilot</code>, <code>auto-port</code>, when <code>-AutoCommit</code> is explicitly provided, or via <code>task push-extended</code>.
+Standard staging commands (<code>task port</code>, <code>task port-batch</code>), manual local builds (<code>task build-packages</code>), and dry runs will <strong>NEVER</strong> push to remote.</div>
 <hr>
 <h3>Clean CLI Invocations (From Default Open Location / Any Directory)</h3>
 <p>You do <strong>not</strong> need to <code>cd</code> into the project repository. All modules dynamically resolve repository roots from <code>$PSScriptRoot</code>.</p>
@@ -967,7 +1030,98 @@ task.ps1 roadmap-refresh -FetchLatest</code></pre>
 </tr>
 </tbody></table>
 <hr>
-<h2>12. Baseline Health Check &amp; SHA Pinning</h2>
+<h2>12. System Pre-Flight &amp; Health Audit (<code>task system-check</code>)</h2>
+<p>Before operators, engineers, or automated agents begin development, porting, or building, the <strong>System Pre-Flight Audit</strong> (<a href="../tools/modules/SystemChecker.ps1"><code>tools/modules/SystemChecker.ps1</code></a>) verifies total project health across 6 core operational layers in two tailored modes:</p>
+<pre><code class="language-powershell"># 1. Light System Check (Default: ~1.7s fast pre-flight verification)
+task.ps1 system-check
+task.ps1 system-check light
+
+# 2. Full System Check (Deep pre-flight audit with compiler &amp; 39-test suite: ~10.5s)
+task.ps1 system-check full</code></pre>
+<h3>Audit Modes Compared</h3>
+<table class="table"><thead><tr>
+<th>Feature / Inspection Dimension</th>
+<th>Light Mode (<code>task system-check light</code>)</th>
+<th>Full Mode (<code>task system-check full</code>)</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Execution Duration</strong></td>
+<td><strong>~1.7 seconds</strong></td>
+<td><strong>~10.5 seconds</strong></td>
+</tr>
+<tr>
+<td><strong>1. Repository Locations</strong></td>
+<td>Project root, <code>tortoise-wow</code>, <code>vmangos-core</code>, client-data, forum</td>
+<td>Full repository layout verification</td>
+</tr>
+<tr>
+<td><strong>2. Pipeline Staging Queues</strong></td>
+<td>7 queue directories verified &amp; initialized</td>
+<td>7 queue directories verified &amp; initialized</td>
+</tr>
+<tr>
+<td><strong>3. Documentation Suite</strong></td>
+<td>12 core documentation files checked (size &amp; presence)</td>
+<td>12 core documentation files checked (size &amp; presence)</td>
+</tr>
+<tr>
+<td><strong>4. Project Goals &amp; Invariants</strong></td>
+<td><code>MAX_RACES = 11</code>, <code>sTWDebuff</code>, opcode <code>93</code>, 5 protected symbols</td>
+<td>Invariant policies + mock patch gate violation dry-run</td>
+</tr>
+<tr>
+<td><strong>5. Authority Hierarchy</strong></td>
+<td>9-tier hierarchy and 3 forbidden actions verified</td>
+<td>Full authority hierarchy validation</td>
+</tr>
+<tr>
+<td><strong>6. Agent Instructions</strong></td>
+<td>All 6 agent prompt runbooks in <code>tools/tasks/</code> verified</td>
+<td>All 6 agent prompt runbooks in <code>tools/tasks/</code> verified</td>
+</tr>
+<tr>
+<td><strong>7. Configuration &amp; State Store</strong></td>
+<td><code>twow-project.json</code>, 413-table catalog, state store schema</td>
+<td>Full configuration discovery &amp; state store parsing</td>
+</tr>
+<tr>
+<td><strong>8. Git Tree &amp; Worktrees</strong></td>
+<td>Main working tree cleanliness, 0 dangling worktrees</td>
+<td>Working tree cleanliness, active worktrees audit</td>
+</tr>
+<tr>
+<td><strong>9. Build Toolchain Preflight</strong></td>
+<td>Skipped</td>
+<td>Git, CMake 4.4+, MSVC 2022 / v143 toolset detection</td>
+</tr>
+<tr>
+<td><strong>10. Remote Synchronization</strong></td>
+<td>Skipped</td>
+<td>Verifies <code>origin</code> and <code>extended</code> remotes configured</td>
+</tr>
+<tr>
+<td><strong>11. AI Semantic Auditor</strong></td>
+<td>Skipped</td>
+<td>6-dimension AI conflict auditor readiness check</td>
+</tr>
+<tr>
+<td><strong>12. Full Orchestration Tests</strong></td>
+<td>Skipped</td>
+<td>Complete 39-test Pester test suite execution (100% pass)</td>
+</tr>
+<tr>
+<td><strong>Target Audience</strong></td>
+<td>Routine daily pre-flight / quick verification</td>
+<td>Clean checkout onboarding, pre-release certification</td>
+</tr>
+</tbody></table>
+<h3>Structured Exit Codes:</h3>
+<ul>
+<li><strong><code>Exit Code 0</code></strong>: <code>FULLY CERTIFIED &amp; READY TO OPERATE</code> (All checks passed).</li>
+<li><strong><code>Exit Code 1</code></strong>: <code>BLOCKED - RESOLVE FAILURES BEFORE OPERATING</code> (One or more critical blockers detected).</li>
+</ul>
+<hr>
+<h2>13. Baseline Health Check &amp; SHA Pinning</h2>
 <p>The baseline checker (<code>BaselineChecker.ps1</code>) verifies the compile, link, and startup state of the unchanged target repository before applying candidate patches:</p>
 <pre><code class="language-powershell">task.ps1 baseline</code></pre>
 <ul>
@@ -979,7 +1133,7 @@ task.ps1 roadmap-refresh -FetchLatest</code></pre>
 <li><code>HEALTHY</code>: Compile, link, and startup all succeed.</li>
 </ul>
 <hr>
-<h2>13. Bug-Existence Proving Engine</h2>
+<h2>14. Bug-Existence Proving Engine</h2>
 <p>The bug prover (<code>BugProver.ps1</code>) executes deterministic analysis before any candidate is ported:</p>
 <pre><code class="language-powershell">task.ps1 prove 448df9ba0</code></pre>
 <h3>Deterministic Verdicts:</h3>
@@ -991,7 +1145,7 @@ task.ps1 roadmap-refresh -FetchLatest</code></pre>
 <li><code>UNCERTAIN</code>: Context has diverged significantly; requires manual or advisory AI review.</li>
 </ul>
 <hr>
-<h2>14. Database Safety, Schema Catalog &amp; Provenance</h2>
+<h2>15. Database Safety, Schema Catalog &amp; Provenance</h2>
 <p>Database migrations undergo rigorous automated static analysis against <code>config/schema_catalog.json</code> (413 verified tables):</p>
 <pre><code class="language-powershell">task.ps1 3 "sql/database_updates/world/20260507165648_world.sql"</code></pre>
 <h3>Enforced Rules:</h3>
@@ -1000,8 +1154,28 @@ task.ps1 roadmap-refresh -FetchLatest</code></pre>
 <p>3. <strong>Custom World Entity Protection</strong>: <code>creature_template</code>, <code>item_template</code>, <code>quest_template</code>, and <code>gameobject_template</code> IDs $\ge 300000$ are reserved for Turtle custom content.</p>
 <p>4. <strong>Statement Anchoring</strong>: Parser anchors table matching (<code>(?m)^\s<em></code>) to prevent false positives from quest text strings like </em>"update my count"*.</p>
 <p>5. <strong>Entity Provenance Tracking</strong>: Records source donor revision, target entity ID, original value, proposed value, and confidence rating in structured dossiers.</p>
+<h3>Database Scalper, Historic DB &amp; Web Viewer Integration (<code>task scalp</code> / <code>task dashboard</code>)</h3>
+<p>The database scalper engine (<code>tools/porting/Extract-DbEntity.ps1</code>) coordinates a 3-tier database hierarchy for exhaustive entity analysis:</p>
+<p>1. <strong>Main / Authoritative</strong>: Turtle-WoW base catalog (<code>tortoise-wow/sql/base/tw_world_&lt;table_name&gt;.sql</code>).</p>
+<p>2. <strong>Main Historic DB</strong>: Brotalnia <code>brotalnia/database</code> (<code>reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql</code> from <code>world_full_14_june_2021.7z</code>) for original vanilla baseline values that Turtle-WoW did not change.</p>
+<p>3. <strong>Backup Donor DB</strong>: <code>vmangos/core db_latest</code> (<code>reference-upstreams/vmangos-core/db_latest/mysql-dump/mangos.sql</code>) for updated vanilla definitions and constraints.</p>
+<p>4. <strong>Interactive Dashboard &amp; REST API</strong>: <code>tortoise-db-viewer</code> (<code>https://xian55.github.io/tortoise-db-viewer/</code> and <code>https://api.tortoiseclothing.org</code>) for live 3D models, tooltips, and drop tables.</p>
+<pre><code class="language-powershell"># Scalp entity and display side-by-side diff against Turtle base schema
+task.ps1 scalp item 19019 -Diff
+
+# Export sanitized REPLACE INTO SQL directly to tools/queue/staging_sql/
+task.ps1 scalp item 19019 -ExportSql
+
+# Launch interactive AoWoW-style web dashboard
+task.ps1 dashboard 19019</code></pre>
+<ul>
+<li><strong>Instant Tooltip &amp; Catalog Lookup</strong>: Fetches parsed JSON records from <code>https://api.tortoiseclothing.org</code> (<code>/i/&lt;id&gt;</code>, <code>/n/&lt;id&gt;</code>, <code>/s/&lt;id&gt;</code>, <code>/q/&lt;id&gt;</code>) without needing a running MySQL server.</li>
+<li><strong>Authentic Vanilla Verification</strong>: Cross-references Brotalnia's uncompressed 2021 snapshot to verify historical vanilla attributes.</li>
+<li><strong>Vanilla vs Turtle ID Tracking</strong>: Leverages <code>tortoise-db-viewer/scripts/data/vanilla-ids.json</code> to verify whether an entity is authentic vanilla (2,430 items, 52 creatures) or Turtle-modified.</li>
+<li><strong>Automated Progressive Column Stripper</strong>: Automatically strips progressive versioning columns (<code>patch</code>, <code>patch_min</code>, <code>patch_max</code>, <code>build</code>) and safeguards custom Turtle columns.</li>
+</ul>
 <hr>
-<h2>15. DBC, Client &amp; Core Parity Auditor</h2>
+<h2>16. DBC, Client &amp; Core Parity Auditor</h2>
 <p>The parity auditor (<code>ParityAuditor.ps1</code>) parses binary WDBC client data from <code>reference-upstreams/client-data-1.18.1/dbc</code> and verifies server constants:</p>
 <pre><code class="language-powershell">task.ps1 parity</code></pre>
 <ul>
@@ -1011,7 +1185,7 @@ task.ps1 roadmap-refresh -FetchLatest</code></pre>
 <li><strong>ItemClass.dbc</strong>: Verifies item classification bitmasks.</li>
 </ul>
 <hr>
-<h2>16. Crash Dump &amp; Server Log Triage</h2>
+<h2>17. Crash Dump &amp; Server Log Triage</h2>
 <p>Automated triage engine (<code>TriageEngine.ps1</code>) categorizes runtime issues and crash dumps across 17 distinct failure categories:</p>
 <pre><code class="language-powershell"># Triage server startup or runtime log
 task.ps1 triage "tortoise-wow/bin/Release/Server.log"
@@ -1021,7 +1195,7 @@ task.ps1 crash "tortoise-wow/bin/Release/crash.dmp"</code></pre>
 <h3>Supported Failure Classifications:</h3>
 <p><code>ASSERTION_FAILURE</code>, <code>SEGMENTATION_FAULT</code>, <code>DATABASE_ERROR</code>, <code>DBC_ERROR</code>, <code>OPCODE_ERROR</code>, <code>MAP_LOAD_ERROR</code>, <code>SPELL_ERROR</code>, <code>SCRIPT_ERROR</code>, <code>NETWORK_ERROR</code>, <code>CONFIG_ERROR</code>, <code>AUTH_ERROR</code>, <code>MEMORY_LEAK</code>, <code>DEADLOCK</code>, <code>STARTUP_TIMEOUT</code>, <code>SHUTDOWN_HANG</code>, <code>CUSTOM_SYSTEM_ERROR</code>, <code>UNKNOWN_FAILURE</code>.</p>
 <hr>
-<h2>17. Worktree Isolation &amp; Cleanup Management</h2>
+<h2>18. Worktree Isolation &amp; Cleanup Management</h2>
 <p>All candidate modifications are strictly isolated to Git worktrees:</p>
 <pre><code class="language-powershell"># View all managed active worktrees
 task.ps1 worktree
@@ -1036,7 +1210,7 @@ task.ps1 worktree-cleanup</code></pre>
 <li>Safety check prevents deletion of any directory outside <code>.worktrees/</code>.</li>
 </ul>
 <hr>
-<h2>18. Run IDs, Idempotency &amp; Resumption</h2>
+<h2>19. Run IDs, Idempotency &amp; Resumption</h2>
 <p>Every pipeline execution generates a unique, sortable Run ID:</p>
 <pre><code class="language-text">RUN-yyyyMMdd-HHmmss-xxxx  (e.g., RUN-20260909-144022-7a1b)</code></pre>
 <ul>
@@ -1044,7 +1218,7 @@ task.ps1 worktree-cleanup</code></pre>
 <li>Interrupted runs resume from the last certified state without re-running deterministic proofs.</li>
 </ul>
 <hr>
-<h2>19. Canonical 30-State Machine</h2>
+<h2>20. Canonical 30-State Machine</h2>
 <p>Candidates transition through a strictly guarded 30-state lifecycle:</p>
 <table class="table"><thead><tr>
 <th>State</th>
@@ -1240,7 +1414,7 @@ task.ps1 worktree-cleanup</code></pre>
 </tr>
 </tbody></table>
 <hr>
-<h2>20. CI / GitHub Actions PR Workflows</h2>
+<h2>21. CI / GitHub Actions PR Workflows</h2>
 <p>Two GitHub Actions workflows automate continuous integration across orchestration tools and candidate server builds:</p>
 <p>1. <code>.github/workflows/orchestration-ci.yml</code>:</p>
 <ul>
@@ -1259,7 +1433,7 @@ task.ps1 worktree-cleanup</code></pre>
 <li>Uploads build logs and triage reports as artifacts.</li>
 </ul>
 <hr>
-<h2>21. Release Checkpoints &amp; Manifest Generation</h2>
+<h2>22. Release Checkpoints &amp; Manifest Generation</h2>
 <p>Release commands provide certification gates before tagging or publishing server releases:</p>
 <pre><code class="language-powershell"># Evaluate release readiness gates
 task.ps1 release-check
@@ -1273,13 +1447,13 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 <li>Manifests are saved to <code>docs/releases/&lt;name&gt;.json</code> with full commit SHAs, toolchain info, and test certifications.</li>
 </ul>
 <hr>
-<h2>22. Critical Safety Warnings</h2>
+<h2>23. Critical Safety Warnings</h2>
 <div class="alert alert-caution"><span class="alert-badge">caution</span><br>1. <strong>Single-Writer Constraint</strong>: Never invoke <code>-AutoBuild</code> or compiler tasks concurrently in multiple shells.
 2. <strong>Never Commit Directly to Extended Main</strong>: Candidate fixes must be isolated to candidate branches (<code>port/PORT-XXXX-&lt;sha&gt;</code>).
 3. <strong>Never Touch Working Tree</strong>: Never execute <code>git checkout .</code>, <code>git reset --hard</code>, or <code>git clean -fd</code> in <code>tortoise-wow</code>.
 4. <strong>No Secrets in Logs</strong>: Never print or commit API keys, authentication tokens, or private user passwords.</div>
 <hr>
-<h2>23. Troubleshooting &amp; Common Failure States</h2>
+<h2>24. Troubleshooting &amp; Common Failure States</h2>
 <table class="table"><thead><tr>
 <th>Error Code / Symptom</th>
 <th>Root Cause</th>
@@ -1317,7 +1491,7 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 </tr>
 </tbody></table>
 <hr>
-<h2>24. Expected Status &amp; Verdict Reference Values</h2>
+<h2>25. Expected Status &amp; Verdict Reference Values</h2>
 <table class="table"><thead><tr>
 <th>Category</th>
 <th>Canonical Allowed Values</th>
@@ -1355,7 +1529,7 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 </tr>
 </tbody></table>
 <hr>
-<h2>25. Architectural Strengths &amp; Engineering Guarantees</h2>
+<h2>26. Architectural Strengths &amp; Engineering Guarantees</h2>
 <p>The build and porting automation architecture provides a high-assurance, non-destructive, enterprise-grade engineering framework:</p>
 <table class="table"><thead><tr>
 <th>Architectural Dimension</th>
@@ -1419,7 +1593,7 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 </tr>
 </tbody></table>
 <hr>
-<h2>26. Daily Cheat Sheet &amp; Top Fast Commands</h2>
+<h2>27. Daily Cheat Sheet &amp; Top Fast Commands</h2>
 <p>This quick-reference cheat sheet summarizes the most frequent commands you will run on a day-to-day basis.</p>
 <h3>26.1. The Top Commands at a Glance</h3>
 <table class="table"><thead><tr>
@@ -1491,8 +1665,14 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 <tr>
 <td><strong>Entity Scalp &amp; Diff</strong></td>
 <td><code>task scalp &lt;table/type&gt; &lt;id&gt; -Diff</code></td>
-<td>Extracts item, NPC, spell, or quest records from historical database, strips progressive columns, and generates sanitized SQL diff.</td>
+<td>Extracts item, NPC, spell, or quest records via tortoise-db-viewer API/dataset, strips progressive columns, and generates sanitized SQL diff.</td>
 <td>When fixing or verifying custom database entities against vanilla data.</td>
+</tr>
+<tr>
+<td><strong>Web DB Dashboard</strong></td>
+<td><code>task dashboard [id]</code></td>
+<td>Launches the interactive AoWoW-style web database viewer and 3D model/tooltip dashboard.</td>
+<td>For instant visual, tooltip, and drop-rate inspection of entities.</td>
 </tr>
 <tr>
 <td><strong>Worktree Cleanup</strong></td>
@@ -1551,8 +1731,11 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 # Compile authentication daemon (realmd.exe) via MSVC 2022
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" build auth
 
-# Compile and commit all staged candidate packages in isolated worktrees
+# Compile and commit all staged candidate packages in isolated worktrees (local only)
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" build-packages
+
+# Integrate and push all verified passing candidate fixes to GitHub extended branch
+&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" push-extended
 
 # Run the complete 38-spec automated orchestration test suite
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" test
@@ -1566,8 +1749,11 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 # Execute disposable server startup smoke test
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" smoke</code></pre>
 <h4>4. Database Scalping &amp; Parity Auditing:</h4>
-<pre><code class="language-powershell"># Scalp entity definition from historical DB, strip progressive columns, and diff
-&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" scalp item_template 19019 -Diff
+<pre><code class="language-powershell"># Scalp entity definition via tortoise-db-viewer, strip progressive columns, and diff
+&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" scalp item 19019 -Diff
+
+# Open entity in official AoWoW web database dashboard
+&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" dashboard 19019
 
 # Audit pending database migration SQL against 413 cached table schemas
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" db-audit
@@ -1575,7 +1761,13 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 # Audit client binary DBC parity against server source code (MAX_RACES = 11)
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" parity dbc</code></pre>
 <h4>5. Workspace Status, Maintenance &amp; Documentation:</h4>
-<pre><code class="language-powershell"># Display live pipeline state, target Git HEAD, and active run IDs
+<pre><code class="language-powershell"># Run rapid pre-flight audit before starting work (~1.7s)
+&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" system-check
+
+# Run full deep system certification before major releases (~10.5s)
+&amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" system-check full
+
+# Display live pipeline state, target Git HEAD, and active run IDs
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" status
 
 # Cleanly dispose of ephemeral candidate worktrees in .worktrees/
@@ -1584,7 +1776,7 @@ task.ps1 tag-release "v1.18.1-update1"</code></pre>
 # Regenerate COMMAND_REFERENCE HTML and printable PDF
 &amp; "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" pdf</code></pre>
 <hr>
-<h3>26.3. Target Repository Authority &amp; Local Workspace Guarantees</h3>
+<h3>27.3. Target Repository Authority &amp; Local Workspace Guarantees</h3>
 <div class="alert alert-important"><span class="alert-badge">important</span><br><strong>Repository Authority &amp; Target Server</strong>:
 - <strong>Sole Server Target</strong>: All ported fixes, investigations, and compiled commits target <strong><a href="https://github.com/Ildourol/tortoise-wow-extended"><code>Ildourol/tortoise-wow-extended</code></a></strong> exclusively.
 - <strong>Local Toolchain Execution</strong>: All automation scripts, analysis engines, and state trackers operate strictly locally on this machine with zero remote orchestration repository connections.</div>

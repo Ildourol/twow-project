@@ -27,6 +27,7 @@ $ModulesDir = Join-Path $ProjectRoot "tools\modules"
 . (Join-Path $ModulesDir "TriageEngine.ps1")
 . (Join-Path $ModulesDir "ReleaseManager.ps1")
 . (Join-Path $ModulesDir "ParityAuditor.ps1")
+. (Join-Path $ModulesDir "SystemChecker.ps1")
 
 Describe "01. Exit-Code Enforcement" {
     It "Defines and returns standardized exit codes (0, 1, 2, 3)" {
@@ -446,5 +447,16 @@ Describe "38. Generated Docs/State Consistency" {
         Test-Path $catalogPath | Should Be $true
         $catalog = Get-Content $catalogPath -Raw | ConvertFrom-Json
         (($catalog.PSObject.Properties | Measure-Object).Count -gt 400) | Should Be $true
+    }
+}
+
+Describe "39. System Pre-Flight Check" {
+    It "Executes light pre-flight audit and reports certified health" {
+        $sysCheck = Invoke-SystemCheck -Mode Light -PassThru
+        $sysCheck | Should Not BeNullOrEmpty
+        $sysCheck.Success | Should Be $true
+        $sysCheck.FailuresCount | Should Be 0
+        ($sysCheck.HealthScore -ge 95) | Should Be $true
+        ($sysCheck.Checks.Count -gt 10) | Should Be $true
     }
 }

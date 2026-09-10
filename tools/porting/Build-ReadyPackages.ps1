@@ -116,6 +116,7 @@ foreach ($pkg in $packagesToBuild) {
             if (-not $applyRes.Success) {
                 Write-Host "  [FAIL] Failed to apply patch in worktree: $($applyRes.Output)" -ForegroundColor Red
                 Update-CandidateState -CandidateId $donorSha -ToState "REJECTED" -ReasonCode "PATCH_APPLY_FAILED" | Out-Null
+                Move-Item $pkg.FullName $RejectedDir -Force
                 continue
             }
         }
@@ -136,6 +137,7 @@ foreach ($pkg in $packagesToBuild) {
             $compMsg = $compatRes.Violations -join ", "
             Write-Host "  [FAIL] Compatibility invariant violated in worktree: $compMsg" -ForegroundColor Red
             Update-CandidateState -CandidateId $donorSha -ToState "REJECTED" -ReasonCode "COMPATIBILITY_VIOLATION" | Out-Null
+            Move-Item $pkg.FullName $RejectedDir -Force
             continue
         }
 
@@ -155,6 +157,7 @@ foreach ($pkg in $packagesToBuild) {
             if ($buildRes.ExitCode -ne 0) {
                 Write-Host "  [FAIL] Build gate failed for profile $profile!" -ForegroundColor Red
                 Update-CandidateState -CandidateId $donorSha -ToState "COMPILE_FAIL" -ReasonCode "MSVC_BUILD_FAILED" | Out-Null
+                Move-Item $pkg.FullName $RejectedDir -Force
                 continue
             }
             Write-Host "  [PASS] Compilation and linking successful!" -ForegroundColor Green

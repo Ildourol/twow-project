@@ -17,11 +17,12 @@ Every single bugfix follows an isolated, atomic lifecycle:
 ```
 1 BUG DIAGNOSIS
     --> 1 DONOR COMMIT
-    --> 1 AI SEMANTIC CONTEXT DOSSIER
+    --> 1 SMART PATH MAPPING & TARGET TREE NORMALIZATION
+    --> 1 AI SEMANTIC CONFLICT AUDIT GATE (6 Invariant Dimensions)
     --> 1 TURTLE-NATIVE ADAPTATION (Preserving Invariants)
     --> 1 MSVC 2022 RELEASE COMPILE GATE (Exit Code 0)
     --> 1 ATOMIC GIT COMMIT WITH ATTRIBUTION
-    --> 1 REMOTE PUSH TO EXTENDED MAIN
+    --> 1 REMOTE PUSH TO EXTENDED BRANCH (Auto-Pilot / AutoCommit only)
     --> NEXT FIX
 ```
 
@@ -52,23 +53,29 @@ When pulling candidate donor commits from [`tools/porting/CRUCIAL_COMMITS_QUEUE.
 
 ## 3. The 4-Phase AI Backporting Runbook
 
-### Phase 1: AI Semantic Context Assembly (`task ai-audit <sha>`)
-1. **Context Extraction**:
-   - Run `& "...\tools\task.ps1" ai-audit <sha>` (or `task 4 <sha>`).
-   - The engine pulls the full diff, checks which files exist in `tortoise-wow`, and extracts surrounding line context.
-2. **Forum Intelligence Mining**:
-   - Mines the 22,155-thread Turtle forum archive for related staff notes, custom changes, or reported bugs.
-3. **Dossier Generation**:
+### Phase 1: Smart Path Mapping & AI Context Assembly (`task ai-audit <sha>`)
+1. **Directory Normalization & Path Mapping**:
+   - The engine automatically resolves donor file paths via `PathMapper.ps1` across 519+ tracked reorganizations (`eastern_kingdoms/<zone>/<dungeon>/` $\rightarrow$ `dungeons/<dungeon>/`, etc.).
+2. **Context Extraction**:
+   - The engine pulls the full diff, verifies mapped target files in `tortoise-wow`, and extracts surrounding line context.
+3. **Forum Intelligence Mining**:
+   - Mines the 22,155-thread Turtle forum archive for related staff notes, custom mechanics, or reported bugs.
+4. **Dossier Generation**:
    - Assembles a structured AI Dossier in `tools/queue/ai_dossiers/<sha>.md` diagnosing clean apply vs. context divergence.
 
-### Phase 2: AI Semantic Adaptation (`task port <sha>`)
-1. **Divergence Analysis**:
-   - If clean apply passes: Stages directly as `READY_FOR_BUILD`.
-   - If context diverged: Identifies Turtle-specific additions (e.g. `inGurubashiArena` in `Formulas.h` or debuff hooks in `SpellAuras.cpp`).
-2. **Semantic Patch Synthesis**:
+### Phase 2: AI Semantic Conflict Audit & Adaptation (`task port <sha>`)
+1. **Mandatory AI Semantic Conflict Audit (`Invoke-AiSemanticConflictAudit`)**:
+   - Leverages AI semantic reasoning across six core dimensions:
+     - *Race Dimension*: Asserts support for Turtle's 11 races (`MAX_RACES = 11`, High Elf & Goblin).
+     - *Debuff Dimension*: Guarantees 64-bit `sTWDebuff` streaming is never truncated to 32-bit.
+     - *Manager Dimension*: Verifies protected managers (`sLFTMgr`, `sTransmogMgr`, `sCustomMerchantMgr`) remain untouched.
+     - *Entity Range Dimension*: Prohibits overrides of custom IDs (spells $\ge 40000$, entities $\ge 300000$).
+     - *Call-Site Signature Dimension*: Validates that donor call-sites retain custom parameters (e.g. `inGurubashiArena`).
+     - *Concurrency Dimension*: Evaluates lock hierarchies for AB-BA deadlock prevention.
+   - If any semantic conflict is detected, the candidate is immediately rejected before staging or compiling.
+2. **Semantic Patch Synthesis & Staging**:
    - Synthesizes an adapted `.patch` in `tools/queue/staging_patches/<sha>.patch` preserving all Turtle invariants.
-3. **Manifest Assembly**:
-   - Generates `PORT-XXXX.json` in `tools/queue/02_ready_to_build/`.
+   - Generates package manifest `PORT-XXXX.json` in `tools/queue/02_ready_to_build/`.
 
 ### Phase 3: Single-Writer Compile Gate (`task build-packages`)
 1. **Invariant Verification**:
@@ -94,11 +101,13 @@ When restoring custom Turtle specifications that are missing from the leaked cor
 6. Once synthesized, compiled via `task build-packages` (or `task auto-pilot`).
 
 ### Phase 5: Database Scalping & Entity Extraction (`task scalp` / `task extract`)
-When extracting or comparing items, creatures, or spells against historical baselines:
+When extracting or comparing items, creatures, or spells against baselines:
 1. Run `& "...\tools\task.ps1" scalp <entity_type> <id_or_name> -Diff`.
-2. Automatically parses monolithic SQL dumps (`world_full_14_june_2021.sql` / `mangos.sql`), strips progressive columns (`patch`, `build`), and highlights divergences against `tortoise-wow/sql/base/world.sql`.
-3. Preserves Turtle-exclusive custom columns (`is_custom_turtle_item`).
-4. With `-ExportSql`, generates clean `REPLACE INTO` migrations in `tools/queue/staging_sql/`.
+2. Queries Turtle base SQL as primary, cross-references Brotalnia `world_full_14_june_2021.sql` (Main Historic DB from `world_full_14_june_2021.7z`) for original vanilla entities unchanged by Turtle WoW, and `vmangos/core db_latest` (backup donor DB).
+3. Connects with `tortoise-db-viewer` (REST API `api.tortoiseclothing.org`, local dataset `vanilla-ids.json`, and web dashboard), strips progressive columns (`patch`, `build`), and highlights divergences.
+4. Preserves Turtle-exclusive custom columns (`is_custom_turtle_item`, `mount_display_id`, `wrapped_gift`, `script_name`).
+5. With `-ExportSql`, generates clean `REPLACE INTO` migrations in `tools/queue/staging_sql/`.
+6. Pass `-OpenViewer` or use `task dashboard <id>` to inspect directly in the official AoWoW-style web dashboard.
 
 ### Phase 6: Online Database Oracle Verification (`task 6 <id>` / `task db-viewer`)
 1. Run `& "...\tools\task.ps1" 6 <id>` to cross-reference with official 1.18.1 client data (`https://xian55.github.io/tortoise-db-viewer/`).
@@ -131,7 +140,7 @@ When extracting or comparing items, creatures, or spells against historical base
 # 7. Batch restore multiple features
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" restore-batch 5
 
-# 8. Scalp & compare entity from historical DB
+# 8. Scalp & compare entity via tortoise-db-viewer
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" scalp item 19019 -Diff
 
 # 9. Scalp and export sanitized SQL migration
@@ -140,9 +149,12 @@ When extracting or comparing items, creatures, or spells against historical base
 # 10. Query Online Database Viewer (with 3D browser view)
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" 6 19019 -OpenBrowser
 
-# 11. Compile, verify, and push staged packages (Single-Writer Gate)
+# 11. Compile and verify staged packages in isolated worktrees (local only)
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" 1
 
-# 12. Regenerate master printable documentation PDF
+# 12. Push all verified passing candidate fixes to GitHub extended branch
+& "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" push-extended
+
+# 13. Regenerate master printable documentation PDF
 & "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tools\task.ps1" pdf
 ```

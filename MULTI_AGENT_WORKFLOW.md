@@ -11,7 +11,7 @@ The system separates **Concurrent Read-Only Research & Staging (Agents 2, 3, 4, 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                              READ-ONLY REFERENCE SOURCES                               │
-│   • vmangos-core (donor C++ & SQL)          • lights-hope-database-history (Brotalnia) │
+│   • vmangos-core (donor C++ & SQL)          • tortoise-db-viewer (Dashboard & API)     │
 │   • client-data-1.18.1 (158 DBCs & Maps)    • resources/forum/ (22,155 threads)        │
 │   • tortoise-db-viewer (Online 1.18.1 CDN)  • official Turtle staff changelogs         │
 └────────────────────────────────────────────────────────────────────────────────────────┘
@@ -75,7 +75,8 @@ The system separates **Concurrent Read-Only Research & Staging (Agents 2, 3, 4, 
 | **Printable Reference**| [`twow project/docs/COMMAND_REFERENCE.pdf`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/docs/COMMAND_REFERENCE.pdf) | High-quality offline PDF export generated via `task pdf` |
 | **Forum Archive** | [`twow project/resources/forum/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/resources/forum/) | 22,155 historical Turtle-WoW official forum threads |
 | **Primary Donor Repo** | [`twow project/reference-upstreams/vmangos-core/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/reference-upstreams/vmangos-core/) | VMaNGOS source code and database dumps |
-| **Historical DB** | [`twow project/reference-upstreams/lights-hope-database-history/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/reference-upstreams/lights-hope-database-history/) | Authoritative vanilla database (`world_full_14_june_2021.sql`) |
+| **Historical Reference DB** | [`twow project/reference-upstreams/lights-hope-database-history/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/reference-upstreams/lights-hope-database-history/) | Brotalnia database history (`world_full_14_june_2021.sql` from `.7z`) for unchanged vanilla items |
+| **Database Viewer** | [`twow project/tortoise-db-viewer/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tortoise-db-viewer/) | Interactive dashboard, SQLite engine & REST API (`https://xian55.github.io/tortoise-db-viewer/`) |
 | **Client DBC/Maps** | [`twow project/reference-upstreams/client-data-1.18.1/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/reference-upstreams/client-data-1.18.1/) | Physical folder with 158 DBCs and map assets |
 
 ---
@@ -102,7 +103,7 @@ When you open an Antigravity CLI terminal, simply use the shorthand command for 
 
 #### CLI 3: Agent 3 (Database Engineer, Entity Scalper & Sentinel)
 * **Commands**:
-  * `task scalp <table/type> <id/name> [-Diff] [-ExportSql] [-OpenViewer]` — Scalp items, NPCs, or spells from historical monolithic DB (`world_full_14_june_2021.sql`), strip progressive columns, compare diffs, generate sanitized `REPLACE INTO` SQL, or open in 3D viewer.
+  * `task scalp [table/type] <id/name> [-Diff] [-ExportSql] [-OpenViewer]` — Scalp items, NPCs, or spells: compares Turtle base (Host) against Brotalnia `world_full_14_june_2021.sql` (Main Historic DB) and vmangos `db_latest` (backup), cross-referenced with `tortoise-db-viewer` dashboard/API, strips progressive columns, and generates sanitized SQL.
   * `task extract <table/type> <id/name>` — Scalp entity alias.
   * `task 3 <sha>` — Author and sanitize database migration for donor commit (strips `patch`/`build`, protects custom IDs < 300000, outputs to `staging_sql/`).
   * `task 3-dbc <dbc_name or id>` — Inspect and audit 1.18.1 client DBC tables (`reference-upstreams/client-data-1.18.1/dbc/`).
@@ -157,10 +158,10 @@ task restore "<topic>"  ──(discrepancy)──►  -StageTemplate (CORE-XXXX.
 
 ### Flow 3: Database Entity Scalping & Extraction Pipeline
 ```
-task scalp <type> <id> -Diff  ──►  -ExportSql  ──►  sql/database_updates/world/  ──►  task 3
+task scalp [type] <id> -Diff  ──►  -ExportSql  ──►  sql/database_updates/world/  ──►  task 3
 ```
-1. **Scalp & Diff**: `task scalp item 19019 -Diff` compares historical vanilla baseline vs. local Turtle base.
-2. **Online Verification**: `task scalp item 19019 -OpenViewer` (or `task 6 19019`) cross-references official 1.18.1 client tooltips.
+1. **Scalp & Diff**: `task scalp item 19019 -Diff` compares `tortoise-db-viewer` authoritative baseline vs. local Turtle base.
+2. **Online Verification**: `task scalp item 19019 -OpenViewer` (or `task 6 19019` / `task dashboard`) cross-references official 1.18.1 client tooltips and 3D models.
 3. **Export Sanitized SQL**: Pass `-ExportSql` to generate ready-to-run `REPLACE INTO` SQL with stripped `patch`/`build` columns in `tools/queue/staging_sql/`.
 
 ### Flow 4: Granular Multi-Terminal Workflow

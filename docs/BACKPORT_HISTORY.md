@@ -11,22 +11,71 @@ This document serves as the permanent, authoritative changelog, provenance ledge
 
 ## 1. Project Baseline & Methodology
 
-- **Authoritative Remote**: [`https://github.com/Ildourol/tortoise-wow-extended.git`](https://github.com/Ildourol/tortoise-wow-extended.git) (branch `main`)
+- **Authoritative Remote**: [`https://github.com/Ildourol/tortoise-wow-extended.git`](https://github.com/Ildourol/tortoise-wow-extended.git) (branch [`extended`](https://github.com/Ildourol/tortoise-wow-extended/tree/extended))
 - **Base Baseline SHA**: `b8f24bef6cfc69feafc5870ac6a8918a521253d7` ([`Penqle/tortoise-wow`](https://github.com/Penqle/tortoise-wow) + upstream quest/vmap fixes)
-- **Current Head SHA**: `053cb501f11fda999967ffef60852b8902bf26c0`
-- **Active Backport Count**: **1 Build Toolchain Fix + 0 VMaNGOS Ports (1 Commit Total)**
-- **Methodology**: Strict **commit-by-commit backporting** (individual verification, MSVC 2022 compile gate, immediate push).
+- **Current Head SHA**: `bf93e36d9f38251eb6ee2f5faf157bca29e3a00f`
+- **Active Backport Count**: **1 Build Toolchain Fix + 41 VMaNGOS Ports (42 Commits Total)**
+- **Methodology**: Strict **commit-by-commit backporting** (individual verification, MSVC 2022 compile gate, automated push).
 
 ---
 
 ## 2. Active Backport Log
 
 ### BUILD-0001 - Configure OpenSSL 3.x detection and ARC4 provider loading for Windows MSVC
-- **Date**: 2026-09-09
-- **Commit SHA**: [`053cb501f`](https://github.com/Ildourol/tortoise-wow-extended/commit/053cb501f)
+- **Date**: 2026-09-08
+- **Commit SHA**: [`d960a10fe`](https://github.com/Ildourol/tortoise-wow-extended/commit/d960a10fe)
 - **Type**: Build Toolchain & Cryptography Fix Patch
 - **Files Modified**: `CMakeLists.txt`, `src/shared/Auth/ARC4.cpp`, `.gitignore`
-- **Summary**: Resolved stock Penqle baseline linker errors on Windows MSVC by detecting vcpkg OpenSSL 3.x libraries and loading the OpenSSL legacy provider for ARC4 cipher initialization with defensive null checks.
+- **Summary**: Resolved stock baseline linker errors on Windows MSVC by detecting vcpkg OpenSSL 3.x libraries and loading the OpenSSL legacy provider for ARC4 cipher initialization with defensive null checks.
+
+### PORT-0001 through PORT-0022 - Tier 1 Crucial Security, Crash & Exploit Fixes
+1. **PORT-0001** ([`9030d70fe`](https://github.com/Ildourol/tortoise-wow-extended/commit/9030d70fe) / `5887d67fe`): Fix memory leak of hardcoded events in GameEventMgr.
+2. **PORT-0013** ([`7a47d0b8f`](https://github.com/Ildourol/tortoise-wow-extended/commit/7a47d0b8f) / `2f1c62680`): Prevent crash in MoveMap.cpp (#3007).
+3. **PORT-0014** ([`d45d91429`](https://github.com/Ildourol/tortoise-wow-extended/commit/d45d91429) / `666371ac3`): Fix crash in WaypointMovementGenerator (#2938).
+4. **PORT-0015** ([`ce99f8854`](https://github.com/Ildourol/tortoise-wow-extended/commit/ce99f8854) / `3d61a81da`): Fix startup crash on ARM.
+5. **PORT-0016** ([`82257a747`](https://github.com/Ildourol/tortoise-wow-extended/commit/82257a747) / `301150737`): Use close() instead of freopen() to stop readline leaks (#2573).
+6. **PORT-0017** ([`6913c8666`](https://github.com/Ildourol/tortoise-wow-extended/commit/6913c8666) / `6db7724a6`): Fix a crash in PetAI.
+7. **PORT-0018** ([`23c45bf70`](https://github.com/Ildourol/tortoise-wow-extended/commit/23c45bf70) / `61d328822`): Fix unable to turn in quests with required items after crash.
+8. **PORT-0019** ([`77e2d4fb4`](https://github.com/Ildourol/tortoise-wow-extended/commit/77e2d4fb4) / `a48f38333`): Fix who list crash on 1.8.4.
+9. **PORT-0020** ([`76e03b1ad`](https://github.com/Ildourol/tortoise-wow-extended/commit/76e03b1ad) / `f3944cf8b`): Prevent crash on spoofed packet taking nonexistent mail item (#140).
+10. **PORT-0021** ([`ec31c253f`](https://github.com/Ildourol/tortoise-wow-extended/commit/ec31c253f) / `061b03bd2`): Add cmake variable to change configuration directory (#1634).
+11. **PORT-0022** ([`21b3bc36d`](https://github.com/Ildourol/tortoise-wow-extended/commit/21b3bc36d) / `76b458922`): Change war effort condition into generic save variable check (with SQL migration).
+
+### PORT-0023 through PORT-0032 - Natural Priority Batch 1 (Movement, Spells, Architecture, Exploits)
+12. **PORT-0023** ([`4285dcfe2`](https://github.com/Ildourol/tortoise-wow-extended/commit/4285dcfe2) / `9839bd2e2`): Creatures should flee in a random direction.
+13. **PORT-0024** ([`39db83a57`](https://github.com/Ildourol/tortoise-wow-extended/commit/39db83a57) / `9e006e0ce`): Delay Mograine's death so Forgiveness visual displays properly (#3503).
+14. **PORT-0025** ([`ccdea97cd`](https://github.com/Ildourol/tortoise-wow-extended/commit/ccdea97cd) / `80d3b7bee`): Prevent pickpocketing humanoids and undead with no pickpocket loot (#2729).
+15. **PORT-0026** ([`a2337fc88`](https://github.com/Ildourol/tortoise-wow-extended/commit/a2337fc88) / `6f9d86f66`): Clamp auction time left to the client's signed 32-bit millisecond range (#3497).
+16. **PORT-0027** ([`9c06dffa2`](https://github.com/Ildourol/tortoise-wow-extended/commit/9c06dffa2) / `46d789256`): GetHeightStatic: Add a delta to Z before choosing vmap height over map height (#3487).
+17. **PORT-0028** ([`7d89387cf`](https://github.com/Ildourol/tortoise-wow-extended/commit/7d89387cf) / `59cf5cc3b`): Fix GetRandomPoint for flying units (#3390).
+18. **PORT-0029** ([`bdcd7adf2`](https://github.com/Ildourol/tortoise-wow-extended/commit/bdcd7adf2) / `454afdc0b`): Update utf8cpp (#3383).
+19. **PORT-0030** ([`2dd7d2e99`](https://github.com/Ildourol/tortoise-wow-extended/commit/2dd7d2e99) / `781c639f5`): Only add bot to cache after adding to map.
+20. **PORT-0031** ([`372f7cf80`](https://github.com/Ildourol/tortoise-wow-extended/commit/372f7cf80) / `080ab2106`): Improve accuracy of packed XYZ by rounding instead of truncating (#3206).
+21. **PORT-0032** ([`c5461f130`](https://github.com/Ildourol/tortoise-wow-extended/commit/c5461f130) / `f9686f443`): Fix iterator invalidation in loot notification functions (#3181).
+
+### PORT-0033 through PORT-0042 - Natural Priority Batch 2 (Combat, Spells, Pets, Cross-Faction)
+22. **PORT-0033** ([`b3e91063e`](https://github.com/Ildourol/tortoise-wow-extended/commit/b3e91063e) / `2ab471ee3`): Creature aoe should put you in combat for 5 seconds.
+23. **PORT-0034** ([`566d12e2c`](https://github.com/Ildourol/tortoise-wow-extended/commit/566d12e2c) / `6d94153b0`): Fix boolean logic in HostileReference::updateOnlineStatus (#3115).
+24. **PORT-0035** ([`00255a01a`](https://github.com/Ildourol/tortoise-wow-extended/commit/00255a01a) / `27698c426`): Fix despawn time for non hunter pets.
+25. **PORT-0036** ([`7024fb8bf`](https://github.com/Ildourol/tortoise-wow-extended/commit/7024fb8bf) / `e2314a59f`): Fix chain heal ordering (#3060).
+26. **PORT-0037** ([`ed1ac4c56`](https://github.com/Ildourol/tortoise-wow-extended/commit/ed1ac4c56) / `47c79c8d3`): Possible fix to XP per kill rounding issue (#3032).
+27. **PORT-0038** ([`1757e919b`](https://github.com/Ildourol/tortoise-wow-extended/commit/1757e919b) / `296fbe04b`): Cancel immediately channeled spells that are about to fail due to no more valid targets.
+28. **PORT-0039** ([`58c2d6c43`](https://github.com/Ildourol/tortoise-wow-extended/commit/58c2d6c43) / `4591fce5c`): Realmd: Fix masking of login string if password is empty (#3016).
+29. **PORT-0040** ([`727942744`](https://github.com/Ildourol/tortoise-wow-extended/commit/727942744) / `30e335309`): Implement SPELL_FAILED_EQUIPPED_ITEM_CLASS_MAINHAND and OFFHAND.
+30. **PORT-0041** ([`39d47bd47`](https://github.com/Ildourol/tortoise-wow-extended/commit/39d47bd47) / `491191deb`): Name unknown field in SMSG_MAIL_LIST_RESULT.
+31. **PORT-0042** ([`bef9a3aa8`](https://github.com/Ildourol/tortoise-wow-extended/commit/bef9a3aa8) / `05f1dad85`): Handle cross faction team in loot manager.
+
+### PORT-0043 through PORT-0052 - Natural Priority Batch 3 (Movement, Quests, ARM Compatibility, Auction Mechanics)
+32. **PORT-0043** ([`8c5750b4d`](https://github.com/Ildourol/tortoise-wow-extended/commit/8c5750b4d) / `0c1f343f1`): Fix orientation being used as teleport flags parameter.
+33. **PORT-0044** ([`be302d223`](https://github.com/Ildourol/tortoise-wow-extended/commit/be302d223) / `cc05c0cf8`): Add end script for quest Cycle of Rebirth.
+34. **PORT-0045** ([`c8b53b868`](https://github.com/Ildourol/tortoise-wow-extended/commit/c8b53b868) / `d58f8f6b0`): Improve follow movement (#2758).
+35. **PORT-0046** ([`f0b9e2679`](https://github.com/Ildourol/tortoise-wow-extended/commit/f0b9e2679) / `1f65583b3`): Fix g3d build issue on arm.
+36. **PORT-0047** ([`8499ac9f9`](https://github.com/Ildourol/tortoise-wow-extended/commit/8499ac9f9) / `076f32b41`): Fix Scarshield Portal (with SQL migration).
+37. **PORT-0048** ([`facc2d80b`](https://github.com/Ildourol/tortoise-wow-extended/commit/facc2d80b) / `2169f8207`): Fix GeoLocking config check (#2010).
+38. **PORT-0049** ([`55917af55`](https://github.com/Ildourol/tortoise-wow-extended/commit/55917af55) / `fdbf40b59`): Small refactor of Player::_ApplyItemBonuses (#1894).
+39. **PORT-0050** ([`6165991d5`](https://github.com/Ildourol/tortoise-wow-extended/commit/6165991d5) / `e57139e9c`): Fix AddAura negative flag (#1782).
+40. **PORT-0051** ([`3aea69a69`](https://github.com/Ildourol/tortoise-wow-extended/commit/3aea69a69) / `c80feeff2`): Fix mount id fallback for creatures (#1736).
+41. **PORT-0052** ([`bf93e36d9`](https://github.com/Ildourol/tortoise-wow-extended/commit/bf93e36d9) / `74b99554a`): Damaged items should sell for reduced price (#1676).
 
 ---
 
