@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module-playerbots — Command Reference Manual</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+    @bottom-right {
+      content: counter(page);
+    }
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    line-height: 1.5;
+    font-size: 13px;
+    background: #fff;
+    margin: 0;
+    padding: 0;
+  }
+  .header {
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: 24px;
+    margin: 0 0 4px 0;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+  }
+  .header .subtitle {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+    background: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+  .meta-item {
+    font-size: 11px;
+  }
+  .meta-item strong {
+    display: block;
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+  }
+  h2 {
+    font-size: 16px;
+    color: #0f172a;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 6px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 14px;
+    color: #0369a1;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    page-break-after: avoid;
+  }
+  p {
+    margin: 0 0 10px 0;
+  }
+  .command-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    page-break-inside: avoid;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .command-header {
+    background: #f1f5f9;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .command-title {
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-weight: 700;
+    font-size: 13px;
+    color: #0f172a;
+  }
+  .command-badge {
+    background: #0284c7;
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+  }
+  .command-body {
+    padding: 10px 14px;
+  }
+  .code-block {
+    background: #0f172a;
+    color: #f8fafc;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin: 6px 0 10px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 18px 0;
+    font-size: 12px;
+  }
+  th, td {
+    padding: 7px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #334155;
+    border-top: 1px solid #e2e8f0;
+  }
+  .badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .badge-p0 { background: #fee2e2; color: #991b1b; }
+  .badge-p1 { background: #dcfce7; color: #166534; }
+  .badge-p2 { background: #fef9c3; color: #854d0e; }
+  .badge-p3 { background: #f1f5f9; color: #475569; }
+  ul {
+    margin: 0 0 10px 0;
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+  .alert-box {
+    border-left: 4px solid #0284c7;
+    background: #f0f9ff;
+    padding: 8px 12px;
+    margin: 12px 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Module-playerbots — Command Reference Manual</h1>
+  <div class="subtitle">CLI Task Dispatcher & Operational Guide for Turtle WoW 1.18.1 / vMaNGOS PlayerBots</div>
+</div>
+
+<div class="meta-grid">
+  <div class="meta-item">
+    <strong>Target Repository</strong>
+    tortoise-wow-extended (mantech-turtle)
+  </div>
+  <div class="meta-item">
+    <strong>Dispatcher Script</strong>
+    task.ps1 / tools/task.ps1
+  </div>
+  <div class="meta-item">
+    <strong>Supported Generator</strong>
+    Visual Studio 17 2022 (x64 Release)
+  </div>
+</div>
+
+<h2>1. Execution Modes</h2>
+<p>All scanning, auditing, and synchronization workflows operate under three standard verification depths. When omitted, the execution mode <strong>defaults to NORMAL</strong>.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 15%;">Mode</th>
+      <th style="width: 30%;">Inspection Scope</th>
+      <th style="width: 55%;">Selection & Filtration Criteria</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>FAST</strong></td>
+      <td>Diff headers & metadata</td>
+      <td>Evaluates subject keywords and touched files. Selects high-confidence P0 crash and critical P1 fixes. Skips speculative features.</td>
+    </tr>
+    <tr>
+      <td><strong>NORMAL</strong> (Default)</td>
+      <td>Full watermark range diffs & AST</td>
+      <td>Standard triage. Audits all commits since watermark. Selects P0 stability fixes, P1 AI/combat/healing parity, and mature P2 enhancements.</td>
+    </tr>
+    <tr>
+      <td><strong>DEEP</strong></td>
+      <td>Extended history, callers, blame</td>
+      <td>Deep semantic comparison across CMaNGOS and vMaNGOS. Traces caller chains, dependency trees, and checks for semantic equivalence.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2. Command Specifications</h2>
+
+<div class="command-card">
+  <div class="command-header">
+    <span class="command-title">status</span>
+    <span class="command-badge">Read-Only</span>
+  </div>
+  <div class="command-body">
+    <p>Displays total project health, target git branch, worktree cleanliness, upstream watermark locations, unscanned commit counts, and durable ledger statistics.</p>
+    <div class="code-block">.\task.ps1 status</div>
+  </div>
+</div>
+
+<div class="command-card">
+  <div class="command-header">
+    <span class="command-title">scan [cmangos | vmangos | all] [fast | normal | deep]</span>
+    <span class="command-badge">Read-Only</span>
+  </div>
+  <div class="command-body">
+    <p>Audits newly unscanned upstream commits from the specified donor without modifying any target files. Automatically classifies candidate commits (P0-P3, CRITICAL, RECOMMENDED, EXPANSION_INCOMPATIBLE) and updates the durable ledger.</p>
+    <div class="code-block">.\task.ps1 scan all normal<br>.\task.ps1 scan cmangos deep<br>.\task.ps1 scan vmangos fast</div>
+  </div>
+</div>
+
+<div class="command-card">
+  <div class="command-header">
+    <span class="command-title">sync [cmangos | vmangos | all] [fast | normal | deep]</span>
+    <span class="command-badge">Full Pipeline</span>
+  </div>
+  <div class="command-body">
+    <p>Executes the complete end-to-end synchronization pipeline: updates donor refs, audits candidate deltas, adapts eligible fixes natively, compiles <code>modules.lib</code>, links <code>mangosd.exe</code>, updates the ledger, commits to target, and pushes passing commits to <code>mantech-turtle</code>.</p>
+    <div class="code-block">.\task.ps1 sync all normal</div>
+  </div>
+</div>
+
+<div class="command-card">
+  <div class="command-header">
+    <span class="command-title">import-critical [cmangos | vmangos | all]</span>
+    <span class="command-badge">Targeted Port</span>
+  </div>
+  <div class="command-body">
+    <p>Discovers, ports, and verifies only high-severity P0 fixes: server crashes, null pointer exceptions, memory corruption, and fatal bot lifecycle failures.</p>
+    <div class="code-block">.\task.ps1 import-critical all</div>
+  </div>
+</div>
+
+<div class="command-card">
+  <div class="command-header">
+    <span class="command-title">audit &lt;source&gt; &lt;commit-sha&gt;</span>
+    <span class="command-badge">Read-Only</span>
+  </div>
+  <div class="command-body">
+    <p>Performs an isolated, deep semantic audit of one specific upstream commit. Evaluates target bug presence, Dungeon Clear impact, expansion compatibility, and adaptation steps.</p>
+    <div class="code-block">.\task.ps1 audit cmangos 6ad783c9<br>.\task.ps1 audit vmangos ac4c83ad</div>
+  </div>
+</div>
+
+<div class="command-card">
+  <div class="command-header">
+    <span class="command-title">port &lt;source&gt; &lt;commit-sha&gt;</span>
+    <span class="command-badge">Targeted Port</span>
+  </div>
+  <div class="command-body">
+    <p>Directly ports an explicitly requested commit and required dependencies using target-native APIs, runs verification, and updates the ledger.</p>
+    <div class="code-block">.\task.ps1 port cmangos 46cec841</div>
+  </div>
+</div>
+
+<div class="command-card">
+  <div class="command-header">
+    <span class="command-title">verify-quick &amp; verify-full</span>
+    <span class="command-badge">Verification Gate</span>
+  </div>
+  <div class="command-body">
+    <p>Runs the target verification ladder:</p>
+    <ul>
+      <li><strong>verify-quick</strong>: Rapid compilation of affected static module code (<code>modules.lib</code>).</li>
+      <li><strong>verify-full</strong>: Complete target server build and link of <code>mangosd.exe</code>.</li>
+    </ul>
+    <div class="code-block">.\task.ps1 verify-quick<br>.\task.ps1 verify-full</div>
+  </div>
+</div>
+
+<div class="command-card">
+  <div class="command-header">
+    <span class="command-title">ledger [cmangos | vmangos]</span>
+    <span class="command-badge">Reporting</span>
+  </div>
+  <div class="command-body">
+    <p>Displays tabular status of all audited, ported, verified, duplicate, already-present, and rejected commits from <code>state/porting-ledger.json</code>.</p>
+    <div class="code-block">.\task.ps1 ledger<br>.\task.ps1 ledger vmangos</div>
+  </div>
+</div>
+
+<div class="command-card">
+  <div class="command-header">
+    <span class="command-title">roadmap</span>
+    <span class="command-badge">Reporting</span>
+  </div>
+  <div class="command-body">
+    <p>Displays active project milestones, phase progress (Phases 0-6), and prioritized backlog.</p>
+    <div class="code-block">.\task.ps1 roadmap</div>
+  </div>
+</div>
+
+<h2>3. Priority Tiers</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Tier</th>
+      <th>Classification</th>
+      <th>Candidate Types</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="badge badge-p0">P0</span></td>
+      <td><strong>CRITICAL</strong></td>
+      <td>Crashes, null pointer dereferences, assertions, memory leaks, bot provisioning deadlocks.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-p1">P1</span></td>
+      <td><strong>RECOMMENDED</strong></td>
+      <td>Healer targeting priority, combat stances, threat calculations, pathing stalls, resurrect bugs.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-p2">P2</span></td>
+      <td><strong>OPTIONAL / PENDING</strong></td>
+      <td>Quality-of-life improvements, travel distribution, inventory/food adjustments.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-p3">P3</span></td>
+      <td><strong>DISQUALIFIED</strong></td>
+      <td>TBC/WotLK expansion mechanics, cosmetic noise, duplicate/already present code.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="alert-box">
+  <strong>Verification Invariant:</strong> A source file compiling is never sufficient proof of success. <code>mangosd.exe</code> must link cleanly without unresolved externals before any commit is marked as verified or pushed to <code>mantech-turtle</code>.
+</div>
+
+<div class="alert-box" style="border-left-color: #dc2626; background: #fef2f2;">
+  <strong style="color: #991b1b;">Scope Boundary Invariant &amp; Double-Confirmation Gate:</strong> Widening the scan scope into historical donor backlogs beyond the active watermarks is strictly <strong>PROHIBITED</strong>. If historical scope expansion is ever requested, the framework will not execute it immediately; it requires an explicit warning and a mandatory double-confirmation from the operator.
+</div>
+
+</body>
+</html>

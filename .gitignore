@@ -1,0 +1,28 @@
+# ==============================================================================
+# Git Ignore Rules for Module-playerbots Framework
+# ==============================================================================
+
+# Cloned External Repositories (installed separately via README instructions)
+core/
+playerbots/
+tortoise-wow-extended/
+
+# Build Outputs, Binaries & Object Files
+bin/
+build/
+*.exe
+*.dll
+*.lib
+*.obj
+*.pdb
+*.ilk
+*.exp
+*.tmp
+*.log
+
+# Editor & System Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

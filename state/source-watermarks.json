@@ -1,0 +1,26 @@
+﻿{
+    "schema_version":  "1.0.0",
+    "project":  "Module-playerbots",
+    "watermarks":  {
+                       "cmangos":  {
+                                       "repository":  "cmangos/playerbots",
+                                       "branch":  "master",
+                                       "baseline_sha":  "076045efa835da9aab7caa943bca752aebe1baad",
+                                       "baseline_date":  "2026-08-16",
+                                       "current_watermark":  "076045efa835da9aab7caa943bca752aebe1baad",
+                                       "last_scanned_head":  "89a4e5aebd6aa41ee87f6e65d89b66fff5c5c7c1",
+                                       "last_scan_date":  "2026-09-10 17:15:15",
+                                       "unscanned_count":  14
+                                   },
+                       "vmangos":  {
+                                       "repository":  "ileboii/core",
+                                       "branch":  "vmangos-ike3-playerbots",
+                                       "baseline_sha":  "5e4cdb48588c8fe1db0911026377a831dd1d9e66",
+                                       "baseline_date":  "2026-09-07",
+                                       "current_watermark":  "5e4cdb48588c8fe1db0911026377a831dd1d9e66",
+                                       "last_scanned_head":  "2ff8489f74b82617591f9ada3bab2772bf849da2",
+                                       "last_scan_date":  "2026-09-10 17:15:15",
+                                       "unscanned_count":  29
+                                   }
+                   }
+}
