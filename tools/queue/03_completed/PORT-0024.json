@@ -1,0 +1,69 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-183118-GNCN",
+    "candidate_id":  "PORT-0024",
+    "candidate_sha":  "9e006e0ce",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "9e006e0ce",
+    "donor_full_sha":  "9e006e0ce668934d9740b99da3823f02ec16524f",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Spells/SpellEffects.cpp"
+                                        ],
+                     "author":  "Richard Higgins",
+                     "subject":  "Delay Mograine\u0027s death so Forgiveness visual displays properly (#3503)",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/Spells/SpellEffects.cpp : m_casterUnit-\u003eKill(unitTarget, nullptr);"
+                                              ],
+                     "donor_short_sha":  "9e006e0ce",
+                     "date":  "2026-07-20",
+                     "donor_full_sha":  "9e006e0ce668934d9740b99da3823f02ec16524f",
+                     "touched_files":  [
+                                           "src/game/Spells/SpellEffects.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T18:31:20.4231886+02:00",
+    "completed_at":  "2026-09-09T18:31:21.3530801+02:00",
+    "duration_ms":  930,
+    "patch_file":  "tools/queue/staging_patches/9e006e0ce.patch",
+    "title":  "Delay Mograine\u0027s death so Forgiveness visual displays properly (#3503)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Delay Mograine\u0027s death so Forgiveness visual displays properly (#3503) (vmangos/core@9e006e0ce)"
+}

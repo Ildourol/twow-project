@@ -1,0 +1,76 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260910-141033-AX0Y",
+    "candidate_id":  "PORT-0055",
+    "candidate_sha":  "a10102850",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "a10102850",
+    "donor_full_sha":  "a10102850006195c1dda88f311195d67f520af76",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "64b2f4bd06187dc3b16ea6abee886ffbd572bf6f",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.4,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC",
+                         "AI_SEMANTIC_AUDIT_PASSED"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Objects/Player.cpp"
+                                        ],
+                     "author":  "Silent-Walrus",
+                     "subject":  "Fix quest log corruption in SendQuestUpdateAddItem (#3526)",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+
+                                              ],
+                     "donor_short_sha":  "a10102850",
+                     "date":  "2026-08-08",
+                     "donor_full_sha":  "a10102850006195c1dda88f311195d67f520af76",
+                     "touched_files":  [
+                                           "src/game/Objects/Player.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-10T14:10:33.6158339+02:00",
+    "completed_at":  "2026-09-10T14:10:37.9222961+02:00",
+    "duration_ms":  4306,
+    "patch_file":  "tools/queue/staging_patches/a10102850.patch",
+    "title":  "Fix quest log corruption in SendQuestUpdateAddItem (#3526)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix quest log corruption in SendQuestUpdateAddItem (#3526) (vmangos/core@a10102850)",
+    "ai_semantic_audit":  {
+                              "Confidence":  0.96,
+                              "Verdict":  "PASS",
+                              "Summary":  "AI Semantic Audit CERTIFIED commit a10102850: Zero semantic conflicts, regressions, or invariant violations detected across all 6 dimensions.",
+                              "RiskLevel":  "NONE"
+                          }
+}

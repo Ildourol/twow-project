@@ -1,0 +1,60 @@
+﻿{
+    "schema_version": "1.0.0",
+    "tool_version": "2.0.0",
+    "run_id": "RUN-20260908-120000-BLD1",
+    "candidate_id": "BUILD-0001",
+    "candidate_sha": "053cb501f",
+    "stage": "PORT_STAGING",
+    "donor_repository": "internal-msvc-toolchain",
+    "donor_sha": "053cb501f",
+    "donor_full_sha": "053cb501f11fda999967ffef60852b8902bf26c0",
+    "target_repository": "tortoise-wow",
+    "target_base_sha": "b8f24bef6cfc69feafc5870ac6a8918a521253d7",
+    "reference_shas": {},
+    "requested_mode": "Normal",
+    "effective_mode": "Deep",
+    "status": "PATCH_READY",
+    "verdict": "BUG_PRESENT",
+    "confidence": 1.0,
+    "reason_codes": [
+        "BUILD_TOOLCHAIN_FIX"
+    ],
+    "evidence": {
+        "missing_files": [],
+        "divergence_found": null,
+        "existing_files": [
+            "CMakeLists.txt",
+            "src/shared/Auth/ARC4.cpp"
+        ],
+        "author": "Ildourol",
+        "subject": "Fix(Build): Configure OpenSSL 3.x detection and ARC4 provider loading for Windows MSVC",
+        "fixed_patterns_found": [
+            "src/shared/Auth/ARC4.cpp : EnsureOpenSSLProviders()"
+        ],
+        "buggy_patterns_found": [
+            "src/shared/Auth/ARC4.cpp : EVP_CIPHER_CTX_init(m_ctx)"
+        ],
+        "donor_short_sha": "053cb501f",
+        "date": "2026-09-08",
+        "donor_full_sha": "053cb501f11fda999967ffef60852b8902bf26c0",
+        "touched_files": [
+            ".gitignore",
+            "CMakeLists.txt",
+            "src/shared/Auth/ARC4.cpp"
+        ],
+        "commit_already_found": false
+    },
+    "warnings": [],
+    "errors": [],
+    "input_hashes": {},
+    "output_hashes": {},
+    "configuration_hash": "",
+    "compatibility_manifest_version": "1.0.0",
+    "started_at": "2026-09-08T12:00:00.0000000+02:00",
+    "completed_at": "2026-09-08T12:05:00.0000000+02:00",
+    "duration_ms": 300000,
+    "patch_file": "tools/queue/03_completed/patches/053cb501f.patch",
+    "title": "Fix(Build): Configure OpenSSL 3.x detection and ARC4 provider loading for Windows MSVC",
+    "subsystem": "Build / Crypto",
+    "commit_msg": "Fix(Build): Configure OpenSSL 3.x detection and ARC4 provider loading for Windows MSVC"
+}

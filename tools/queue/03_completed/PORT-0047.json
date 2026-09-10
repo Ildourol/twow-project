@@ -1,0 +1,76 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-191340-PCJI",
+    "candidate_id":  "PORT-0047",
+    "candidate_sha":  "076f32b41",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "076f32b41",
+    "donor_full_sha":  "076f32b41b84e84a6ff2a49e23bc710f9de3e5b8",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+                                           "sql/migrations/20231223061017_world.sql"
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/AI/PetEventAI.cpp",
+                                            "src/game/Objects/Unit.cpp"
+                                        ],
+                     "author":  "ratkosrb",
+                     "subject":  "Fix Scarshield Portal.",
+                     "fixed_patterns_found":  [
+                                                  "src/game/AI/PetEventAI.cpp : pOwner-\u003eAddThreat(pAttacker);",
+                                                  "src/game/AI/PetEventAI.cpp : pOwner-\u003eSetInCombatWith(pAttacker);"
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/AI/PetEventAI.cpp : pOwner-\u003eAddThreat(pAttacker);",
+                                                  "src/game/AI/PetEventAI.cpp : pOwner-\u003eSetInCombatWith(pAttacker);",
+                                                  "src/game/Objects/Unit.cpp : if (pOwner-\u003eAI())"
+                                              ],
+                     "donor_short_sha":  "076f32b41",
+                     "date":  "2023-12-23",
+                     "donor_full_sha":  "076f32b41b84e84a6ff2a49e23bc710f9de3e5b8",
+                     "touched_files":  [
+                                           "sql/migrations/20231223061017_world.sql",
+                                           "src/game/AI/PetEventAI.cpp",
+                                           "src/game/Objects/Unit.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T19:13:47.2536635+02:00",
+    "completed_at":  "2026-09-09T19:13:48.5007691+02:00",
+    "duration_ms":  1247,
+    "patch_file":  "tools/queue/staging_patches/076f32b41.patch",
+    "title":  "Fix Scarshield Portal.",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix Scarshield Portal. (vmangos/core@076f32b41)",
+    "sql_file":  "tools/queue/staging_sql/20231223061017_world.sql"
+}

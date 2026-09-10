@@ -167,6 +167,7 @@ foreach ($pkg in $packagesToBuild) {
 
         # 5. Git Commit to Candidate Branch (Never direct to main)
         git -C $activeRepo add -A
+        git -C $activeRepo reset --quiet -- .twow_worktree_meta.json 2>&1 | Out-Null
         git -C $activeRepo commit -m $commitMsg 2>&1 | Out-Null
         $commitSha = (git -C $activeRepo rev-parse --short HEAD).Trim()
 

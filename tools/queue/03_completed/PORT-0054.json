@@ -1,0 +1,76 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260910-140945-0V1R",
+    "candidate_id":  "PORT-0054",
+    "candidate_sha":  "b9cd08f7a",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "b9cd08f7a",
+    "donor_full_sha":  "b9cd08f7aa56fc810acd3cb792e712d826a8a33c",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "f441f84eb82b614654f70aec0c1f3a81b7a6e0cc",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Deep",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.4,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC",
+                         "AI_SEMANTIC_AUDIT_PASSED"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Objects/Player.cpp"
+                                        ],
+                     "author":  "ratkosrb",
+                     "subject":  "Fix possible crash in AutoStoreLoot.",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+
+                                              ],
+                     "donor_short_sha":  "b9cd08f7a",
+                     "date":  "2025-08-01",
+                     "donor_full_sha":  "b9cd08f7aa56fc810acd3cb792e712d826a8a33c",
+                     "touched_files":  [
+                                           "src/game/Objects/Player.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-10T14:09:45.4070807+02:00",
+    "completed_at":  "2026-09-10T14:09:49.5034123+02:00",
+    "duration_ms":  4096,
+    "patch_file":  "tools/queue/staging_patches/b9cd08f7a.patch",
+    "title":  "Fix possible crash in AutoStoreLoot.",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix possible crash in AutoStoreLoot. (vmangos/core@b9cd08f7a)",
+    "ai_semantic_audit":  {
+                              "Confidence":  0.96,
+                              "Verdict":  "PASS",
+                              "Summary":  "AI Semantic Audit CERTIFIED commit b9cd08f7a: Zero semantic conflicts, regressions, or invariant violations detected across all 6 dimensions.",
+                              "RiskLevel":  "NONE"
+                          }
+}

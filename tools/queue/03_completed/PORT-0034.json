@@ -1,0 +1,70 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-184824-HR03",
+    "candidate_id":  "PORT-0034",
+    "candidate_sha":  "6d94153b0",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "6d94153b0",
+    "donor_full_sha":  "6d94153b0fe12315f5c3475250b4b1f6ade9f047",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Threat/ThreatManager.cpp"
+                                        ],
+                     "author":  "Gamemechanic",
+                     "subject":  "Fix boolean logic in HostileReference::updateOnlineStatus (#3115)",
+                     "fixed_patterns_found":  [
+                                                  "src/game/Threat/ThreatManager.cpp : !getTarget()-\u003eIsTaxiFlying())"
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/Threat/ThreatManager.cpp : ((getTarget()-\u003eGetTypeId() != TYPEID_PLAYER || !((Player*)getTarget())-\u003eIsGameMaster()) ||",
+                                                  "src/game/Threat/ThreatManager.cpp : !getTarget()-\u003eIsTaxiFlying()))"
+                                              ],
+                     "donor_short_sha":  "6d94153b0",
+                     "date":  "2025-08-31",
+                     "donor_full_sha":  "6d94153b0fe12315f5c3475250b4b1f6ade9f047",
+                     "touched_files":  [
+                                           "src/game/Threat/ThreatManager.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T18:48:26.2062406+02:00",
+    "completed_at":  "2026-09-09T18:48:27.2796688+02:00",
+    "duration_ms":  1073,
+    "patch_file":  "tools/queue/staging_patches/6d94153b0.patch",
+    "title":  "Fix boolean logic in HostileReference::updateOnlineStatus (#3115)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix boolean logic in HostileReference::updateOnlineStatus (#3115) (vmangos/core@6d94153b0)"
+}

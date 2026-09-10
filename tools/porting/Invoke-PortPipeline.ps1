@@ -164,6 +164,12 @@ foreach ($sha in $shasToProcess) {
     # Register candidate in state store
     $targetBaseSha = (git -C $TortoiseRepo rev-parse HEAD).Trim()
     $cState = Register-Candidate -CandidateId $sha -DonorSha $sha -DonorFullSha $proof.Evidence.donor_full_sha -Subject $proof.Evidence.subject -TargetBaseSha $targetBaseSha
+    if ($cState.current_state -eq "REJECTED") {
+        Update-CandidateState -CandidateId $sha -ToState "NEEDS_REAUDIT" -ReasonCode "REAUDIT_REQUESTED" | Out-Null
+        Update-CandidateState -CandidateId $sha -ToState "DISCOVERED" -ReasonCode "REAUDIT_DISCOVERED" | Out-Null
+    } elseif ($cState.current_state -eq "NEEDS_REAUDIT") {
+        Update-CandidateState -CandidateId $sha -ToState "DISCOVERED" -ReasonCode "REAUDIT_DISCOVERED" | Out-Null
+    }
 
     if ($proof.Verdict -eq "ALREADY_FIXED") {
         Update-CandidateState -CandidateId $sha -ToState "ALREADY_FIXED" -ReasonCode "BUG_PROVER_ALREADY_FIXED" -Verdict "ALREADY_FIXED" -Evidence $proof.Evidence | Out-Null

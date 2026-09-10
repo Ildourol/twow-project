@@ -1,0 +1,80 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-183118-GNCN",
+    "candidate_id":  "PORT-0032",
+    "candidate_sha":  "f9686f443",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "f9686f443",
+    "donor_full_sha":  "f9686f44378b0203e10077b34ebe327b94d957ec",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/LootMgr.cpp"
+                                        ],
+                     "author":  "schell244",
+                     "subject":  "Fix iterator invalidation in loot notification functions (#3181)",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/LootMgr.cpp : PlayersLooting::iterator i_next;",
+                                                  "src/game/LootMgr.cpp : for (PlayersLooting::iterator i = m_playersLooting.begin(); i != m_playersLooting.end(); i = i_next)",
+                                                  "src/game/LootMgr.cpp : i_next = i;",
+                                                  "src/game/LootMgr.cpp : m_playersLooting.erase(i);",
+                                                  "src/game/LootMgr.cpp : PlayersLooting::iterator i_next;",
+                                                  "src/game/LootMgr.cpp : for (PlayersLooting::iterator i = m_playersLooting.begin(); i != m_playersLooting.end(); i = i_next)",
+                                                  "src/game/LootMgr.cpp : i_next = i;",
+                                                  "src/game/LootMgr.cpp : m_playersLooting.erase(i);",
+                                                  "src/game/LootMgr.cpp : PlayersLooting::iterator i_next;",
+                                                  "src/game/LootMgr.cpp : for (PlayersLooting::iterator i = m_playersLooting.begin(); i != m_playersLooting.end(); i = i_next)",
+                                                  "src/game/LootMgr.cpp : i_next = i;",
+                                                  "src/game/LootMgr.cpp : m_playersLooting.erase(i);"
+                                              ],
+                     "donor_short_sha":  "f9686f443",
+                     "date":  "2025-12-29",
+                     "donor_full_sha":  "f9686f44378b0203e10077b34ebe327b94d957ec",
+                     "touched_files":  [
+                                           "src/game/LootMgr.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T18:31:33.0417680+02:00",
+    "completed_at":  "2026-09-09T18:31:34.0715551+02:00",
+    "duration_ms":  1030,
+    "patch_file":  "tools/queue/staging_patches/f9686f443.patch",
+    "title":  "Fix iterator invalidation in loot notification functions (#3181)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix iterator invalidation in loot notification functions (#3181) (vmangos/core@f9686f443)"
+}

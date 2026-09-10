@@ -1,0 +1,77 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-183118-GNCN",
+    "candidate_id":  "PORT-0023",
+    "candidate_sha":  "9839bd2e2",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "9839bd2e2",
+    "donor_full_sha":  "9839bd2e2a672ef748ebd9cf282d500a7035ea86",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Movement/FleeingMovementGenerator.cpp"
+                                        ],
+                     "author":  "schell244",
+                     "subject":  "Creatures should flee in a random direction.",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/Movement/FleeingMovementGenerator.cpp : float dist_from_caster, angle_to_caster;",
+                                                  "src/game/Movement/FleeingMovementGenerator.cpp : if (dist_from_caster \u003e 0.2f)",
+                                                  "src/game/Movement/FleeingMovementGenerator.cpp : angle_to_caster = fright-\u003eGetAngle(\u0026owner);",
+                                                  "src/game/Movement/FleeingMovementGenerator.cpp : angle_to_caster = frand(0, 2 * M_PI_F);",
+                                                  "src/game/Movement/FleeingMovementGenerator.cpp : angle_to_caster = frand(0, 2 * M_PI_F);",
+                                                  "src/game/Movement/FleeingMovementGenerator.cpp : float dist, angle;",
+                                                  "src/game/Movement/FleeingMovementGenerator.cpp : angle = angle_to_caster + frand(-M_PI_F / 8, M_PI_F / 8);",
+                                                  "src/game/Movement/FleeingMovementGenerator.cpp : angle = -angle_to_caster + frand(-M_PI_F / 4, M_PI_F / 4);",
+                                                  "src/game/Movement/FleeingMovementGenerator.cpp : angle = frand(0, 2 * M_PI_F);"
+                                              ],
+                     "donor_short_sha":  "9839bd2e2",
+                     "date":  "2026-08-13",
+                     "donor_full_sha":  "9839bd2e2a672ef748ebd9cf282d500a7035ea86",
+                     "touched_files":  [
+                                           "src/game/Movement/FleeingMovementGenerator.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T18:31:18.7494877+02:00",
+    "completed_at":  "2026-09-09T18:31:19.9497091+02:00",
+    "duration_ms":  1200,
+    "patch_file":  "tools/queue/staging_patches/9839bd2e2.patch",
+    "title":  "Creatures should flee in a random direction.",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Creatures should flee in a random direction. (vmangos/core@9839bd2e2)"
+}

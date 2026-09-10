@@ -1,0 +1,70 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-184824-HR03",
+    "candidate_id":  "PORT-0037",
+    "candidate_sha":  "47c79c8d3",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "47c79c8d3",
+    "donor_full_sha":  "47c79c8d37a219883dacb023a80450a8110fb2f8",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Formulas.h"
+                                        ],
+                     "author":  "cpevors",
+                     "subject":  "Possible fix to XP per kill rounding issue (#3032)",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/Formulas.h : inline uint32 BaseGain(uint32 ownerLevel, uint32 unitLevel, uint32 mob_level)",
+                                                  "src/game/Formulas.h : uint32 const nBaseExp = 45;"
+                                              ],
+                     "donor_short_sha":  "47c79c8d3",
+                     "date":  "2025-05-17",
+                     "donor_full_sha":  "47c79c8d37a219883dacb023a80450a8110fb2f8",
+                     "touched_files":  [
+                                           "src/game/Formulas.h"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T18:48:30.7122800+02:00",
+    "completed_at":  "2026-09-09T18:48:31.7272015+02:00",
+    "duration_ms":  1015,
+    "patch_file":  "tools/queue/staging_patches/47c79c8d3.patch",
+    "title":  "Possible fix to XP per kill rounding issue (#3032)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Possible fix to XP per kill rounding issue (#3032) (vmangos/core@47c79c8d3)"
+}

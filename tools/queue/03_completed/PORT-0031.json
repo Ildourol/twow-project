@@ -1,0 +1,71 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-183118-GNCN",
+    "candidate_id":  "PORT-0031",
+    "candidate_sha":  "080ab2106",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "080ab2106",
+    "donor_full_sha":  "080ab21061205564f16d02fe2d0b3c6a4f919768",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/shared/ByteBuffer.h"
+                                        ],
+                     "author":  "Gamemechanic",
+                     "subject":  "Improve accuracy of packed XYZ by rounding instead of truncating (#3206)",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/shared/ByteBuffer.h : packed |= ((int)(x / 0.25f) \u0026 0x7FF);",
+                                                  "src/shared/ByteBuffer.h : packed |= ((int)(y / 0.25f) \u0026 0x7FF) \u003c\u003c 11;",
+                                                  "src/shared/ByteBuffer.h : packed |= ((int)(z / 0.25f) \u0026 0x3FF) \u003c\u003c 22;"
+                                              ],
+                     "donor_short_sha":  "080ab2106",
+                     "date":  "2026-03-10",
+                     "donor_full_sha":  "080ab21061205564f16d02fe2d0b3c6a4f919768",
+                     "touched_files":  [
+                                           "src/shared/ByteBuffer.h"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T18:31:31.3147293+02:00",
+    "completed_at":  "2026-09-09T18:31:32.4536593+02:00",
+    "duration_ms":  1139,
+    "patch_file":  "tools/queue/staging_patches/080ab2106.patch",
+    "title":  "Improve accuracy of packed XYZ by rounding instead of truncating (#3206)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Improve accuracy of packed XYZ by rounding instead of truncating (#3206) (vmangos/core@080ab2106)"
+}

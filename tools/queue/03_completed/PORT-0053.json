@@ -1,0 +1,76 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260910-140806-2IJL",
+    "candidate_id":  "PORT-0053",
+    "candidate_sha":  "c9020ec9c",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "c9020ec9c",
+    "donor_full_sha":  "c9020ec9cf41c410e9f2a39c4b7e1fc2ca0adb3d",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "86e461ebc88f94ed1fd3d195ed5f34d638a3160c",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Deep",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC",
+                         "AI_SEMANTIC_AUDIT_PASSED"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Objects/Player.cpp"
+                                        ],
+                     "author":  "Chaosvex",
+                     "subject":  "Fix potential crash in GetBaseModValue() (#2990)",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/Objects/Player.cpp : if (modGroup \u003e= BASEMOD_END || modType \u003e MOD_END)"
+                                              ],
+                     "donor_short_sha":  "c9020ec9c",
+                     "date":  "2025-03-28",
+                     "donor_full_sha":  "c9020ec9cf41c410e9f2a39c4b7e1fc2ca0adb3d",
+                     "touched_files":  [
+                                           "src/game/Objects/Player.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-10T14:08:06.4538175+02:00",
+    "completed_at":  "2026-09-10T14:08:09.2428080+02:00",
+    "duration_ms":  2789,
+    "patch_file":  "tools/queue/staging_patches/c9020ec9c.patch",
+    "title":  "Fix potential crash in GetBaseModValue() (#2990)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix potential crash in GetBaseModValue() (#2990) (vmangos/core@c9020ec9c)",
+    "ai_semantic_audit":  {
+                              "Confidence":  0.96,
+                              "Verdict":  "PASS",
+                              "Summary":  "AI Semantic Audit CERTIFIED commit c9020ec9c: Zero semantic conflicts, regressions, or invariant violations detected across all 6 dimensions.",
+                              "RiskLevel":  "NONE"
+                          }
+}

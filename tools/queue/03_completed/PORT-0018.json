@@ -1,0 +1,69 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-171359-ODCA",
+    "candidate_id":  "PORT-0018",
+    "candidate_sha":  "61d328822",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "61d328822",
+    "donor_full_sha":  "61d328822d6591b21bc7b1639066afc798dbb505",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "053cb501f11fda999967ffef60852b8902bf26c0",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Deep",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.75,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Objects/Player.cpp"
+                                        ],
+                     "author":  "Warlockbugs",
+                     "subject":  "Fix unable to turn in quests with required items after crash.",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+
+                                              ],
+                     "donor_short_sha":  "61d328822",
+                     "date":  "2021-08-21",
+                     "donor_full_sha":  "61d328822d6591b21bc7b1639066afc798dbb505",
+                     "touched_files":  [
+                                           "src/game/Objects/Player.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T17:13:59.0246140+02:00",
+    "completed_at":  "2026-09-09T17:14:00.4465233+02:00",
+    "duration_ms":  1422,
+    "patch_file":  "tools/queue/staging_patches/61d328822.patch",
+    "title":  "Fix unable to turn in quests with required items after crash.",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix unable to turn in quests with required items after crash. (vmangos/core@61d328822)"
+}

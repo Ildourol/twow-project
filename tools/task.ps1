@@ -468,14 +468,39 @@ switch ($Command.ToLower()) {
         }
     }
     "resume" {
-        if (-not $Argument) { Write-Host "Usage: task resume <run-id>" -ForegroundColor Yellow; return }
-        Write-Host "Resuming pipeline run $Argument from state store..." -ForegroundColor Cyan
         $store = Get-StateStore
-        $r = if ($store.runs) { $store.runs.$Argument } else { $null }
-        if ($r) {
-            Write-Host "Found run: $($r.operation) ($($r.status)). Resuming pending stages..." -ForegroundColor Green
+        if ($Argument -and $Argument -ne "auto") {
+            Write-Host "Resuming pipeline run $Argument from state store..." -ForegroundColor Cyan
+            $r = if ($store.runs) { $store.runs.$Argument } else { $null }
+            if ($null -eq $r -and $store.runs -is [System.Collections.IDictionary]) { $r = $store.runs[$Argument] }
+            if ($r) {
+                Write-Host "Found run: $($r.operation) ($($r.status)). Resuming pending stages..." -ForegroundColor Green
+            } else {
+                Write-Host "Run $Argument not found." -ForegroundColor Red
+                return
+            }
         } else {
-            Write-Host "Run $Argument not found." -ForegroundColor Red
+            Write-Host "================================================================================" -ForegroundColor Cyan
+            Write-Host "  AUTO-RESUME: Scanning state store for last active / pending candidates..." -ForegroundColor Cyan
+            Write-Host "================================================================================" -ForegroundColor Cyan
+            $pending = @()
+            if ($store.candidates) {
+                $keys = if ($store.candidates -is [System.Collections.IDictionary]) { $store.candidates.Keys } else { $store.candidates.PSObject.Properties.Name }
+                foreach ($k in $keys) {
+                    $c = if ($store.candidates -is [System.Collections.IDictionary]) { $store.candidates[$k] } else { $store.candidates.$k }
+                    if ($c.current_state -in @("DISCOVERED", "PATCH_READY", "NEEDS_REAUDIT")) {
+                        $pending += $c
+                    }
+                }
+            }
+            if ($pending.Count -gt 0) {
+                $targetSha = if ($pending[0].donor_sha) { $pending[0].donor_sha } else { $pending[0].candidate_id }
+                Write-Host "Found $($pending.Count) pending candidate(s) ready to process: $targetSha" -ForegroundColor Yellow
+                & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Invoke-PortPipeline.ps1") -DonorSha @($targetSha) -AutoCommit
+            } else {
+                Write-Host "All known candidates in state store are completed, verified, or classified." -ForegroundColor Green
+                Write-Host "Last registered candidate updated at: $($store.last_updated)" -ForegroundColor DarkGray
+            }
         }
     }
     "worktrees" {

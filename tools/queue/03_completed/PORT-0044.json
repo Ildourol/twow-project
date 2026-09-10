@@ -1,0 +1,71 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-191340-PCJI",
+    "candidate_id":  "PORT-0044",
+    "candidate_sha":  "cc05c0cf8",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "cc05c0cf8",
+    "donor_full_sha":  "cc05c0cf8a747892fe929dbe855e85fd6e0987af",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+                                           "sql/migrations/20241002045422_world.sql"
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Maps/ScriptCommands.cpp"
+                                        ],
+                     "author":  "ratkosrb",
+                     "subject":  "Add end script for quest Cycle of Rebirth.",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/Maps/ScriptCommands.cpp : pGo-\u003eAddObjectToRemoveList();"
+                                              ],
+                     "donor_short_sha":  "cc05c0cf8",
+                     "date":  "2024-10-02",
+                     "donor_full_sha":  "cc05c0cf8a747892fe929dbe855e85fd6e0987af",
+                     "touched_files":  [
+                                           "sql/migrations/20241002045422_world.sql",
+                                           "src/game/Maps/ScriptCommands.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T19:13:42.3297392+02:00",
+    "completed_at":  "2026-09-09T19:13:43.4200694+02:00",
+    "duration_ms":  1090,
+    "patch_file":  "tools/queue/staging_patches/cc05c0cf8.patch",
+    "title":  "Add end script for quest Cycle of Rebirth.",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Add end script for quest Cycle of Rebirth. (vmangos/core@cc05c0cf8)",
+    "sql_file":  "tools/queue/staging_sql/20241002045422_world.sql"
+}

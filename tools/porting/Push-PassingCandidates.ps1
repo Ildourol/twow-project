@@ -105,7 +105,7 @@ try {
         }
 
         Write-Host "  * [$($meta.candidate_id)] Applying: $($meta.evidence.subject)..." -ForegroundColor Cyan
-        $amOut = git -C $TortoiseRepo am $patchPath 2>&1
+        $amOut = git -C $TortoiseRepo am -3 --ignore-whitespace $patchPath 2>&1
         if ($LASTEXITCODE -ne 0) {
             Write-Host "    [WARNING] git am conflict; aborting am for this patch..." -ForegroundColor Yellow
             git -C $TortoiseRepo am --abort 2>&1 | Out-Null
@@ -136,7 +136,7 @@ try {
 }
 finally {
     # Return to original branch
-    if ($origBranch) {
+    if ($origBranch -and $origBranch -ne "HEAD") {
         git -C $TortoiseRepo checkout $origBranch 2>&1 | Out-Null
     }
 }

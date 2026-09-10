@@ -1,0 +1,69 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-171821-E21V",
+    "candidate_id":  "PORT-0021",
+    "candidate_sha":  "061b03bd2",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "061b03bd2",
+    "donor_full_sha":  "061b03bd2fb23db20d3ffb4eea2c85b36b9af50d",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "053cb501f11fda999967ffef60852b8902bf26c0",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "CMakeLists.txt"
+                                        ],
+                     "author":  "vetu104",
+                     "subject":  "Add cmake variable to change the configuration directory (#1634)",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "CMakeLists.txt : set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc)"
+                                              ],
+                     "donor_short_sha":  "061b03bd2",
+                     "date":  "2022-09-24",
+                     "donor_full_sha":  "061b03bd2fb23db20d3ffb4eea2c85b36b9af50d",
+                     "touched_files":  [
+                                           "CMakeLists.txt"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T17:18:21.0582336+02:00",
+    "completed_at":  "2026-09-09T17:18:22.1222570+02:00",
+    "duration_ms":  1064,
+    "patch_file":  "tools/queue/staging_patches/061b03bd2.patch",
+    "title":  "Add cmake variable to change the configuration directory (#1634)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Add cmake variable to change the configuration directory (#1634) (vmangos/core@061b03bd2)"
+}

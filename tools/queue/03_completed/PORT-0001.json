@@ -1,0 +1,71 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-170730-4MJU",
+    "candidate_id":  "PORT-0001",
+    "candidate_sha":  "5887d67fe",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "5887d67fe",
+    "donor_full_sha":  "5887d67fed0d05790d568e61228bf540df5bf5c8",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "053cb501f11fda999967ffef60852b8902bf26c0",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Deep",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/GameEventMgr.cpp",
+                                            "src/game/GameEventMgr.h"
+                                        ],
+                     "author":  "schell244",
+                     "subject":  "Fix memory leak of hardcoded events in GameEventMgr.",
+                     "fixed_patterns_found":  [
+                                                  "src/game/GameEventMgr.h : for (WorldEvent* event : mGameEventHardcodedList)"
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/GameEventMgr.h : ~GameEventMgr() {}"
+                                              ],
+                     "donor_short_sha":  "5887d67fe",
+                     "date":  "2026-09-07",
+                     "donor_full_sha":  "5887d67fed0d05790d568e61228bf540df5bf5c8",
+                     "touched_files":  [
+                                           "src/game/GameEventMgr.cpp",
+                                           "src/game/GameEventMgr.h"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T17:07:30.3630795+02:00",
+    "completed_at":  "2026-09-09T17:07:31.1983937+02:00",
+    "duration_ms":  835,
+    "patch_file":  "tools/queue/staging_patches/5887d67fe.patch",
+    "title":  "Fix memory leak of hardcoded events in GameEventMgr.",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix memory leak of hardcoded events in GameEventMgr. (vmangos/core@5887d67fe)"
+}

@@ -1,0 +1,70 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-171138-CEIS",
+    "candidate_id":  "PORT-0013",
+    "candidate_sha":  "2f1c62680",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "2f1c62680",
+    "donor_full_sha":  "2f1c626806be506ebea9ed4a6d15e1dcfa671bc1",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "053cb501f11fda999967ffef60852b8902bf26c0",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Deep",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Maps/MoveMap.cpp"
+                                        ],
+                     "author":  "Wall",
+                     "subject":  "Prevent crash in MoveMap.cpp (#3007)",
+                     "fixed_patterns_found":  [
+                                                  "src/game/Maps/MoveMap.cpp : fclose(file);",
+                                                  "src/game/Maps/MoveMap.cpp : return false;"
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/Maps/MoveMap.cpp : MANGOS_ASSERT(data);"
+                                              ],
+                     "donor_short_sha":  "2f1c62680",
+                     "date":  "2025-04-13",
+                     "donor_full_sha":  "2f1c626806be506ebea9ed4a6d15e1dcfa671bc1",
+                     "touched_files":  [
+                                           "src/game/Maps/MoveMap.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T17:11:38.3769838+02:00",
+    "completed_at":  "2026-09-09T17:11:39.3490847+02:00",
+    "duration_ms":  972,
+    "patch_file":  "tools/queue/staging_patches/2f1c62680.patch",
+    "title":  "Prevent crash in MoveMap.cpp (#3007)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Prevent crash in MoveMap.cpp (#3007) (vmangos/core@2f1c62680)"
+}

@@ -124,7 +124,18 @@ function Apply-GitPatchSafely {
     $out = cmd.exe /c "git -C ""$RepoPath"" apply $extraArgs ""$PatchPath"" 2>&1"
     $code = $LASTEXITCODE
 
-    # Smart Path Mapping Fallback: if raw patch failed, attempt applying converted patch
+    # Fallback to --3way merge if direct hunk application failed
+    if ($code -ne 0) {
+        $out3way = cmd.exe /c "git -C ""$RepoPath"" apply --3way $extraArgs ""$PatchPath"" 2>&1"
+        if ($LASTEXITCODE -eq 0) {
+            return @{
+                Success = $true
+                ExitCode = 0
+                Output = ($out3way -join "`n")
+                WasRemapped = $false
+            }
+        }
+    }
     if ($code -ne 0 -and (Get-Command "Convert-PatchPaths" -ErrorAction SilentlyContinue)) {
         $raw = [System.IO.File]::ReadAllText($PatchPath, [System.Text.Encoding]::UTF8)
         $mapped = Convert-PatchPaths -PatchContent $raw -TargetRepo $RepoPath

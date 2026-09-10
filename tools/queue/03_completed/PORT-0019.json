@@ -1,0 +1,69 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-171417-23LF",
+    "candidate_id":  "PORT-0019",
+    "candidate_sha":  "a48f38333",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "a48f38333",
+    "donor_full_sha":  "a48f3833342eec621555788163c26f7d3ef02136",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "053cb501f11fda999967ffef60852b8902bf26c0",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Deep",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.75,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Handlers/MiscHandler.cpp"
+                                        ],
+                     "author":  "ratkosrb",
+                     "subject":  "Fix who list crash on 1.8.4.",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+
+                                              ],
+                     "donor_short_sha":  "a48f38333",
+                     "date":  "2019-04-04",
+                     "donor_full_sha":  "a48f3833342eec621555788163c26f7d3ef02136",
+                     "touched_files":  [
+                                           "src/game/Handlers/MiscHandler.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T17:14:17.6048354+02:00",
+    "completed_at":  "2026-09-09T17:14:18.7937914+02:00",
+    "duration_ms":  1189,
+    "patch_file":  "tools/queue/staging_patches/a48f38333.patch",
+    "title":  "Fix who list crash on 1.8.4.",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix who list crash on 1.8.4. (vmangos/core@a48f38333)"
+}

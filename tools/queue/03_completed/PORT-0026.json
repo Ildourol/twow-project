@@ -1,0 +1,69 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-183118-GNCN",
+    "candidate_id":  "PORT-0026",
+    "candidate_sha":  "6f9d86f66",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "6f9d86f66",
+    "donor_full_sha":  "6f9d86f6660b7f79dc9d2780df237b350f48c99c",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/AuctionHouse/AuctionHouseMgr.cpp"
+                                        ],
+                     "author":  "Richard Higgins",
+                     "subject":  "Clamp auction time left to the client\u0027s signed 32-bit millisecond range (#3497)",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/AuctionHouse/AuctionHouseMgr.cpp : data \u003c\u003c uint32((expireTime - time(nullptr))*IN_MILLISECONDS); // time left"
+                                              ],
+                     "donor_short_sha":  "6f9d86f66",
+                     "date":  "2026-07-19",
+                     "donor_full_sha":  "6f9d86f6660b7f79dc9d2780df237b350f48c99c",
+                     "touched_files":  [
+                                           "src/game/AuctionHouse/AuctionHouseMgr.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T18:31:23.1745598+02:00",
+    "completed_at":  "2026-09-09T18:31:24.2718770+02:00",
+    "duration_ms":  1097,
+    "patch_file":  "tools/queue/staging_patches/6f9d86f66.patch",
+    "title":  "Clamp auction time left to the client\u0027s signed 32-bit millisecond range (#3497)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Clamp auction time left to the client\u0027s signed 32-bit millisecond range (#3497) (vmangos/core@6f9d86f66)"
+}

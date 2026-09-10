@@ -17,8 +17,8 @@ To systematically backport applicable fixes, combat accuracy improvements, movem
 - **Target Repository**: [`https://github.com/Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) branch `main`
 - **Baseline Anchor**: [`Penqle/tortoise-wow`](https://github.com/Penqle/tortoise-wow.git) @ `b8f24bef6cfc69feafc5870ac6a8918a521253d7`
 - **Current HEAD**: [`053cb501f`](https://github.com/Ildourol/tortoise-wow-extended/commit/053cb501f11fda999967ffef60852b8902bf26c0)
-- **Development Model**: Strict **commit-by-commit backporting** (1 bug diagnosis = 1 donor commit = 1 AI investigation = 1 Turtle adaptation = 1 build verification = 1 atomic git commit = 1 remote push).
-- **Current Active State**: 1 build fix patch (`BUILD-0001`) + 0 donor bugfixes (fresh inception run).
+- **Discovery & Audit Model**: **Batch Auditing & Triage** (evaluates candidate donor pools in batches of 10–50 commits for high discovery speed, early ranking, and multi-commit dependency resolution).
+- **Execution & Filing Model**: Strict **commit-by-commit porting, filing & pushing** (1 bug diagnosis = 1 donor commit = 1 AI investigation = 1 Turtle adaptation = 1 build verification = 1 individual dossier in `docs/commits/PORT-XXXX_<sha>.md` = 1 atomic git commit = 1 remote push).
 - **Compilation Gate**: 100% clean MSVC 2022 x64 Release builds (`realmd.exe` + `mangosd.exe` with Exit Code 0).
 
 ---

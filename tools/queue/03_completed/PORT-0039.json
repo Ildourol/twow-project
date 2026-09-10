@@ -1,0 +1,69 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-184824-HR03",
+    "candidate_id":  "PORT-0039",
+    "candidate_sha":  "4591fce5c",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "4591fce5c",
+    "donor_full_sha":  "4591fce5c121b83de383ac3a61fb1357cd0a74ec",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/realmd/Main.cpp"
+                                        ],
+                     "author":  "Gamemechanic",
+                     "subject":  "Realmd: Fix masking of login string if password is empty (#3016)",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/realmd/Main.cpp : start = ++itr;"
+                                              ],
+                     "donor_short_sha":  "4591fce5c",
+                     "date":  "2025-04-19",
+                     "donor_full_sha":  "4591fce5c121b83de383ac3a61fb1357cd0a74ec",
+                     "touched_files":  [
+                                           "src/realmd/Main.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T18:48:33.8642585+02:00",
+    "completed_at":  "2026-09-09T18:48:35.0671637+02:00",
+    "duration_ms":  1203,
+    "patch_file":  "tools/queue/staging_patches/4591fce5c.patch",
+    "title":  "Realmd: Fix masking of login string if password is empty (#3016)",
+    "subsystem":  "Realmd",
+    "commit_msg":  "Port(Realmd): Realmd: Fix masking of login string if password is empty (#3016) (vmangos/core@4591fce5c)"
+}

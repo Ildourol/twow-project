@@ -1,0 +1,71 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-184824-HR03",
+    "candidate_id":  "PORT-0035",
+    "candidate_sha":  "27698c426",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "27698c426",
+    "donor_full_sha":  "27698c42628e6bd6abac04a2a95a5536b74dec51",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Objects/Pet.cpp"
+                                        ],
+                     "author":  "ratkosrb",
+                     "subject":  "Fix despawn time for non hunter pets.",
+                     "fixed_patterns_found":  [
+                                                  "src/game/Objects/Pet.cpp : if (getPetType() == HUNTER_PET)",
+                                                  "src/game/Objects/Pet.cpp : m_corpseDecayTimer = 3600000;"
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/Objects/Pet.cpp : m_corpseDecayTimer = 3600000; // Chakor : Despawn du corps au bout d\u00271h",
+                                                  "src/game/Objects/Pet.cpp : if (getPetType() == SUMMON_PET)"
+                                              ],
+                     "donor_short_sha":  "27698c426",
+                     "date":  "2025-08-19",
+                     "donor_full_sha":  "27698c42628e6bd6abac04a2a95a5536b74dec51",
+                     "touched_files":  [
+                                           "src/game/Objects/Pet.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T18:48:27.7595048+02:00",
+    "completed_at":  "2026-09-09T18:48:28.7603940+02:00",
+    "duration_ms":  1001,
+    "patch_file":  "tools/queue/staging_patches/27698c426.patch",
+    "title":  "Fix despawn time for non hunter pets.",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix despawn time for non hunter pets. (vmangos/core@27698c426)"
+}

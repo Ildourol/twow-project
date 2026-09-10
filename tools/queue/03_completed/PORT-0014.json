@@ -1,0 +1,70 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-171216-XHPT",
+    "candidate_id":  "PORT-0014",
+    "candidate_sha":  "666371ac3",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "666371ac3",
+    "donor_full_sha":  "666371ac32ad4748137d402f57774875fdf55d7b",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "053cb501f11fda999967ffef60852b8902bf26c0",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Deep",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Movement/WaypointMovementGenerator.cpp"
+                                        ],
+                     "author":  "Wall",
+                     "subject":  "Fix crash in WaypointMovementGenerator. (#2938)",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/Movement/WaypointMovementGenerator.cpp : if (!i_path || i_path-\u003eempty())",
+                                                  "src/game/Movement/WaypointMovementGenerator.cpp : if (!i_path || i_path-\u003eempty())"
+                                              ],
+                     "donor_short_sha":  "666371ac3",
+                     "date":  "2025-03-03",
+                     "donor_full_sha":  "666371ac32ad4748137d402f57774875fdf55d7b",
+                     "touched_files":  [
+                                           "src/game/Movement/WaypointMovementGenerator.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T17:12:16.4575247+02:00",
+    "completed_at":  "2026-09-09T17:12:17.4556109+02:00",
+    "duration_ms":  998,
+    "patch_file":  "tools/queue/staging_patches/666371ac3.patch",
+    "title":  "Fix crash in WaypointMovementGenerator. (#2938)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix crash in WaypointMovementGenerator. (#2938) (vmangos/core@666371ac3)"
+}

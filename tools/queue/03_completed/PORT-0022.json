@@ -1,0 +1,84 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-171838-JUPB",
+    "candidate_id":  "PORT-0022",
+    "candidate_sha":  "76b458922",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "76b458922",
+    "donor_full_sha":  "76b45892295e5d7ffcc32a23c2b80c056e8d2aa6",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "053cb501f11fda999967ffef60852b8902bf26c0",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+                                           "sql/migrations/20220316214137_world.sql"
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Conditions.cpp",
+                                            "src/game/Conditions.h"
+                                        ],
+                     "author":  "ratkosrb",
+                     "subject":  "Change war effort condition into generic save variable check.",
+                     "fixed_patterns_found":  [
+                                                  "src/game/Conditions.cpp : switch (m_value3)"
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/Conditions.cpp : case CONDITION_WAR_EFFORT_STAGE:",
+                                                  "src/game/Conditions.cpp : uint32 stage = sObjectMgr.GetSavedVariable(VAR_WE_STAGE, 0);",
+                                                  "src/game/Conditions.cpp : switch (m_value2)",
+                                                  "src/game/Conditions.cpp : return stage == m_value1;",
+                                                  "src/game/Conditions.cpp : return stage \u003e= m_value1;",
+                                                  "src/game/Conditions.cpp : return stage \u003c= m_value1;",
+                                                  "src/game/Conditions.cpp : case CONDITION_WAR_EFFORT_STAGE:",
+                                                  "src/game/Conditions.cpp : if (m_value1 \u003c 0 || m_value1 \u003e WAR_EFFORT_STAGE_COMPLETE)",
+                                                  "src/game/Conditions.cpp : sLog.outErrorDb(\"War Effort stage condition (entry %u, type %u) has invalid stage %u\", m_entry, m_condition, m_value1);",
+                                                  "src/game/Conditions.cpp : if (m_value2 \u003c 0 || m_value2 \u003e 2)",
+                                                  "src/game/Conditions.cpp : sLog.outErrorDb(\"War Effort stage condition (entry %u, type %u) has invalid equality %u\", m_entry, m_condition, m_value2);",
+                                                  "src/game/Conditions.h : CONDITION_WAR_EFFORT_STAGE      = 11,                   // Checks the current state of the War Effect event."
+                                              ],
+                     "donor_short_sha":  "76b458922",
+                     "date":  "2022-03-16",
+                     "donor_full_sha":  "76b45892295e5d7ffcc32a23c2b80c056e8d2aa6",
+                     "touched_files":  [
+                                           "sql/migrations/20220316214137_world.sql",
+                                           "src/game/Conditions.cpp",
+                                           "src/game/Conditions.h"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T17:18:38.9775949+02:00",
+    "completed_at":  "2026-09-09T17:18:40.1337291+02:00",
+    "duration_ms":  1156,
+    "patch_file":  "tools/queue/staging_patches/76b458922.patch",
+    "title":  "Change war effort condition into generic save variable check.",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Change war effort condition into generic save variable check. (vmangos/core@76b458922)",
+    "sql_file":  "tools/queue/staging_sql/20220316214137_world.sql"
+}

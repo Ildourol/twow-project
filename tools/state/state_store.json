@@ -1,7 +1,7 @@
 {
     "schema_version":  "1.0.0",
     "tool_version":  "2.0.0",
-    "last_updated":  "2026-09-10T13:42:12.3658519+02:00",
+    "last_updated":  "2026-09-10T16:17:56.8532781+02:00",
     "baseline_cache":  {
                            "053cb501f11fda999967ffef60852b8902bf26c0":  {
                                                                             "target_base_sha":  "053cb501f11fda999967ffef60852b8902bf26c0",
@@ -526,6 +526,157 @@
                                                   "mode":  "Normal",
                                                   "operation":  "BUILD_PACKAGES",
                                                   "run_id":  "RUN-20260909-191400-055D"
+                                              },
+                 "RUN-20260910-140119-2WDX":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "StagedCount":  1,
+                                                                  "CandidatesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:01:20.5277574+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "PORT_PIPELINE",
+                                                  "run_id":  "RUN-20260910-140119-2WDX"
+                                              },
+                 "RUN-20260910-140125-0JIQ":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "StagedCount":  1,
+                                                                  "CandidatesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:01:27.0204758+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "PORT_PIPELINE",
+                                                  "run_id":  "RUN-20260910-140125-0JIQ"
+                                              },
+                 "RUN-20260910-140230-B4UN":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "StagedCount":  1,
+                                                                  "CandidatesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:02:35.4228315+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "PORT_PIPELINE",
+                                                  "run_id":  "RUN-20260910-140230-B4UN"
+                                              },
+                 "RUN-20260910-140235-GATI":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "PackagesProcessed":  2
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:02:45.3640001+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "BUILD_PACKAGES",
+                                                  "run_id":  "RUN-20260910-140235-GATI"
+                                              },
+                 "RUN-20260910-140349-0ZI3":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "StagedCount":  1,
+                                                                  "CandidatesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:03:54.1271379+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "PORT_PIPELINE",
+                                                  "run_id":  "RUN-20260910-140349-0ZI3"
+                                              },
+                 "RUN-20260910-140354-WQS1":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "PackagesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:05:19.4593686+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "BUILD_PACKAGES",
+                                                  "run_id":  "RUN-20260910-140354-WQS1"
+                                              },
+                 "RUN-20260910-140806-2IJL":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "StagedCount":  1,
+                                                                  "CandidatesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:08:10.6861171+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "PORT_PIPELINE",
+                                                  "run_id":  "RUN-20260910-140806-2IJL"
+                                              },
+                 "RUN-20260910-140811-SYCC":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "PackagesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:08:18.1719502+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "BUILD_PACKAGES",
+                                                  "run_id":  "RUN-20260910-140811-SYCC"
+                                              },
+                 "RUN-20260910-140945-0V1R":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "StagedCount":  1,
+                                                                  "CandidatesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:09:50.7353675+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "PORT_PIPELINE",
+                                                  "run_id":  "RUN-20260910-140945-0V1R"
+                                              },
+                 "RUN-20260910-140951-VOXR":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "PackagesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:10:09.8777601+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "BUILD_PACKAGES",
+                                                  "run_id":  "RUN-20260910-140951-VOXR"
+                                              },
+                 "RUN-20260910-141033-AX0Y":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "StagedCount":  1,
+                                                                  "CandidatesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:10:39.2442123+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "PORT_PIPELINE",
+                                                  "run_id":  "RUN-20260910-141033-AX0Y"
+                                              },
+                 "RUN-20260910-141039-UGZG":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "PackagesProcessed":  1
+                                                              },
+                                                  "timestamp":  "2026-09-10T14:10:44.4229446+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "BUILD_PACKAGES",
+                                                  "run_id":  "RUN-20260910-141039-UGZG"
+                                              },
+                 "RUN-20260910-150631-XKN2":  {
+                                                  "candidate_id":  "",
+                                                  "status":  "COMPLETED",
+                                                  "details":  {
+                                                                  "StagedCount":  10,
+                                                                  "CandidatesProcessed":  10
+                                                              },
+                                                  "timestamp":  "2026-09-10T15:06:36.5104337+02:00",
+                                                  "mode":  "Normal",
+                                                  "operation":  "PORT_PIPELINE",
+                                                  "run_id":  "RUN-20260910-150631-XKN2"
                                               }
              },
     "candidates":  {
@@ -993,6 +1144,30 @@
                                                              "timestamp":  "2026-09-09T17:11:41.9216903+02:00",
                                                              "to_state":  "REJECTED",
                                                              "from_state":  "REJECTED",
+                                                             "reason_code":  "PATCH_APPLY_FAILED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:10:35.2740671+02:00",
+                                                             "to_state":  "NEEDS_REAUDIT",
+                                                             "from_state":  "REJECTED",
+                                                             "reason_code":  "REAUDIT_REQUESTED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:10:35.9038222+02:00",
+                                                             "to_state":  "DISCOVERED",
+                                                             "from_state":  "NEEDS_REAUDIT",
+                                                             "reason_code":  "REAUDIT_DISCOVERED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:10:38.5803877+02:00",
+                                                             "to_state":  "PATCH_READY",
+                                                             "from_state":  "DISCOVERED",
+                                                             "reason_code":  "PACKAGE_STAGED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:10:43.7525370+02:00",
+                                                             "to_state":  "REJECTED",
+                                                             "from_state":  "PATCH_READY",
                                                              "reason_code":  "PATCH_APPLY_FAILED"
                                                          }
                                                      ]
@@ -4865,14 +5040,14 @@
                                          "subject":  "Fix possible crash in AutoStoreLoot.",
                                          "tier":  5,
                                          "subsystem":  "Core",
-                                         "current_state":  "REJECTED",
+                                         "current_state":  "COMPLETE",
                                          "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
                                          "reference_shas":  {
 
                                                             },
                                          "confidence":  1,
                                          "risk_score":  0,
-                                         "verdict":  "BUG_PRESENT",
+                                         "verdict":  "VERIFIED",
                                          "reason_codes":  {
 
                                                           },
@@ -4928,6 +5103,30 @@
                                                              "to_state":  "REJECTED",
                                                              "from_state":  "PATCH_READY",
                                                              "reason_code":  "PATCH_APPLY_FAILED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:09:47.0275633+02:00",
+                                                             "to_state":  "NEEDS_REAUDIT",
+                                                             "from_state":  "REJECTED",
+                                                             "reason_code":  "REAUDIT_REQUESTED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:09:47.6574098+02:00",
+                                                             "to_state":  "DISCOVERED",
+                                                             "from_state":  "NEEDS_REAUDIT",
+                                                             "reason_code":  "REAUDIT_DISCOVERED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:09:50.1407807+02:00",
+                                                             "to_state":  "PATCH_READY",
+                                                             "from_state":  "DISCOVERED",
+                                                             "reason_code":  "PACKAGE_STAGED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:10:09.2143369+02:00",
+                                                             "to_state":  "COMPLETE",
+                                                             "from_state":  "PATCH_READY",
+                                                             "reason_code":  "COMMITTED_IN_WORKTREE"
                                                          }
                                                      ]
                                      },
@@ -5755,14 +5954,14 @@
                                          "subject":  "Fix potential crash in GetBaseModValue() (#2990)",
                                          "tier":  5,
                                          "subsystem":  "Core",
-                                         "current_state":  "REJECTED",
-                                         "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+                                         "current_state":  "COMPLETE",
+                                         "target_base_sha":  "86e461ebc",
                                          "reference_shas":  {
 
                                                             },
                                          "confidence":  1,
                                          "risk_score":  0,
-                                         "verdict":  "BUG_PRESENT",
+                                         "verdict":  "VERIFIED",
                                          "reason_codes":  {
 
                                                           },
@@ -5818,6 +6017,72 @@
                                                              "to_state":  "REJECTED",
                                                              "from_state":  "PATCH_READY",
                                                              "reason_code":  "PATCH_APPLY_FAILED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:02:32.4379064+02:00",
+                                                             "to_state":  "NEEDS_REAUDIT",
+                                                             "from_state":  "REJECTED",
+                                                             "reason_code":  "REAUDIT_REQUESTED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:02:33.0592158+02:00",
+                                                             "to_state":  "DISCOVERED",
+                                                             "from_state":  "NEEDS_REAUDIT",
+                                                             "reason_code":  "REAUDIT_DISCOVERED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:02:34.8341291+02:00",
+                                                             "to_state":  "PATCH_READY",
+                                                             "from_state":  "DISCOVERED",
+                                                             "reason_code":  "PACKAGE_STAGED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:02:40.1272654+02:00",
+                                                             "to_state":  "REJECTED",
+                                                             "from_state":  "PATCH_READY",
+                                                             "reason_code":  "PATCH_APPLY_FAILED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:02:44.5974162+02:00",
+                                                             "to_state":  "REJECTED",
+                                                             "from_state":  "REJECTED",
+                                                             "reason_code":  "PATCH_APPLY_FAILED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:03:51.0381800+02:00",
+                                                             "to_state":  "NEEDS_REAUDIT",
+                                                             "from_state":  "REJECTED",
+                                                             "reason_code":  "REAUDIT_REQUESTED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:03:51.6016746+02:00",
+                                                             "to_state":  "DISCOVERED",
+                                                             "from_state":  "NEEDS_REAUDIT",
+                                                             "reason_code":  "REAUDIT_DISCOVERED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:03:53.4823104+02:00",
+                                                             "to_state":  "PATCH_READY",
+                                                             "from_state":  "DISCOVERED",
+                                                             "reason_code":  "PACKAGE_STAGED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:05:18.8174268+02:00",
+                                                             "to_state":  "COMPILE_FAIL",
+                                                             "from_state":  "PATCH_READY",
+                                                             "reason_code":  "MSVC_BUILD_FAILED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:08:09.9898343+02:00",
+                                                             "to_state":  "PATCH_READY",
+                                                             "from_state":  "DISCOVERED",
+                                                             "reason_code":  "PACKAGE_STAGED"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T14:08:17.4247049+02:00",
+                                                             "to_state":  "COMPLETE",
+                                                             "from_state":  "PATCH_READY",
+                                                             "reason_code":  "COMMITTED_IN_WORKTREE"
                                                          }
                                                      ]
                                      },
@@ -9570,6 +9835,76 @@
                                                              "reason_code":  "COMMITTED_IN_WORKTREE"
                                                          }
                                                      ]
+                                     },
+                       "7735a4922":  {
+                                         "candidate_id":  "7735a4922",
+                                         "donor_sha":  "7735a4922",
+                                         "donor_full_sha":  "7735a49222bd3f8f8d3c3921c5ec93d903be4521",
+                                         "subject":  "Some crash resolutions and additional minor fixes (#2012)",
+                                         "tier":  1,
+                                         "subsystem":  "Core",
+                                         "current_state":  "ALREADY_FIXED",
+                                         "target_base_sha":  "",
+                                         "reference_shas":  {
+
+                                                            },
+                                         "confidence":  1,
+                                         "risk_score":  0,
+                                         "verdict":  "ALREADY_FIXED",
+                                         "reason_codes":  {
+
+                                                          },
+                                         "evidence":  {
+                                                          "MapMvtUpdate":  "Already initialized in Map.cpp:115",
+                                                          "ContinentUpdate":  "Refactored to std::atomic\u003cint\u003e in MapManager.h:228",
+                                                          "WorldSocketAuth":  "Already safe; fields read prior to delete result",
+                                                          "RemoveSpellAuraHolder":  "Already safe; uses cached AurSpellInfo rather than deleted holder"
+                                                      },
+                                         "dependencies":  {
+
+                                                          },
+                                         "relations":  {
+
+                                                       },
+                                         "patch_file":  "",
+                                         "patch_sha256":  "",
+                                         "sql_file":  "",
+                                         "db_migrations":  {
+
+                                                           },
+                                         "db_provenance":  {
+
+                                                           },
+                                         "reproduction_plan":  {
+
+                                                               },
+                                         "build_profile":  "world",
+                                         "compile_status":  "UNTESTED",
+                                         "link_status":  "UNTESTED",
+                                         "startup_status":  "UNTESTED",
+                                         "runtime_status":  "UNTESTED",
+                                         "ai_calls":  {
+
+                                                      },
+                                         "worktree_path":  "",
+                                         "candidate_branch":  "",
+                                         "is_stale":  false,
+                                         "human_approval":  "NOT_REQUIRED",
+                                         "created_at":  "2026-09-10T16:17:56.1636163+02:00",
+                                         "history":  [
+                                                         {
+                                                             "timestamp":  "2026-09-10T16:17:56.1646191+02:00",
+                                                             "to_state":  "DISCOVERED",
+                                                             "from_state":  null,
+                                                             "reason_code":  "INITIAL_DISCOVERY"
+                                                         },
+                                                         {
+                                                             "timestamp":  "2026-09-10T16:17:56.8482349+02:00",
+                                                             "to_state":  "ALREADY_FIXED",
+                                                             "from_state":  "DISCOVERED",
+                                                             "reason_code":  "DEFECT_ALREADY_RESOLVED"
+                                                         }
+                                                     ]
                                      }
                    },
     "ai_call_cache":  {
@@ -9599,6 +9934,98 @@
                                                                                                                            ],
                                                                                                    "AuditModel":  "AI Semantic Engine (Multi-Agent Protocol)",
                                                                                                    "Timestamp":  "2026-09-09 19:48:55"
+                                                                                               },
+                          "2e7bb8bc52e2f9c4469514b216fa8e37df88e297b0172f85287690f5b2a3d7d1":  {
+                                                                                                   "ConflictDetected":  false,
+                                                                                                   "RiskLevel":  "NONE",
+                                                                                                   "Confidence":  0.96,
+                                                                                                   "Verdict":  "PASS",
+                                                                                                   "Violations":  {
+
+                                                                                                                  },
+                                                                                                   "Warnings":  {
+
+                                                                                                                },
+                                                                                                   "AuditSummary":  "AI Semantic Audit CERTIFIED commit c9020ec9c: Zero semantic conflicts, regressions, or invariant violations detected across all 6 dimensions.",
+                                                                                                   "EvaluatedInvariants":  [
+                                                                                                                               "MAX_RACES_11_EXPANSION",
+                                                                                                                               "STW_DEBUFF_STREAMING_64BIT",
+                                                                                                                               "PROTECTED_MANAGERS_AND_HOOKS",
+                                                                                                                               "TURTLE_CUSTOM_ENTITY_RANGES",
+                                                                                                                               "SIGNATURE_AND_AST_DIVERGENCE",
+                                                                                                                               "THREAD_AND_CONCURRENCY_SAFETY"
+                                                                                                                           ],
+                                                                                                   "AuditModel":  "AI Semantic Engine (Multi-Agent Protocol)",
+                                                                                                   "Timestamp":  "2026-09-10 14:01:57"
+                                                                                               },
+                          "a2286aa1880db79c35624ae26272f4d6c4babbaf520812a704620e9d68481b55":  {
+                                                                                                   "ConflictDetected":  false,
+                                                                                                   "RiskLevel":  "NONE",
+                                                                                                   "Confidence":  0.96,
+                                                                                                   "Verdict":  "PASS",
+                                                                                                   "Violations":  {
+
+                                                                                                                  },
+                                                                                                   "Warnings":  {
+
+                                                                                                                },
+                                                                                                   "AuditSummary":  "AI Semantic Audit CERTIFIED commit c9020ec9c: Zero semantic conflicts, regressions, or invariant violations detected across all 6 dimensions.",
+                                                                                                   "EvaluatedInvariants":  [
+                                                                                                                               "MAX_RACES_11_EXPANSION",
+                                                                                                                               "STW_DEBUFF_STREAMING_64BIT",
+                                                                                                                               "PROTECTED_MANAGERS_AND_HOOKS",
+                                                                                                                               "TURTLE_CUSTOM_ENTITY_RANGES",
+                                                                                                                               "SIGNATURE_AND_AST_DIVERGENCE",
+                                                                                                                               "THREAD_AND_CONCURRENCY_SAFETY"
+                                                                                                                           ],
+                                                                                                   "AuditModel":  "AI Semantic Engine (Multi-Agent Protocol)",
+                                                                                                   "Timestamp":  "2026-09-10 14:08:08"
+                                                                                               },
+                          "f01a445b9b0f895930fd56ddf10c7a99a0d2462783a263baa94056007c5df9ad":  {
+                                                                                                   "ConflictDetected":  false,
+                                                                                                   "RiskLevel":  "NONE",
+                                                                                                   "Confidence":  0.96,
+                                                                                                   "Verdict":  "PASS",
+                                                                                                   "Violations":  {
+
+                                                                                                                  },
+                                                                                                   "Warnings":  {
+
+                                                                                                                },
+                                                                                                   "AuditSummary":  "AI Semantic Audit CERTIFIED commit b9cd08f7a: Zero semantic conflicts, regressions, or invariant violations detected across all 6 dimensions.",
+                                                                                                   "EvaluatedInvariants":  [
+                                                                                                                               "MAX_RACES_11_EXPANSION",
+                                                                                                                               "STW_DEBUFF_STREAMING_64BIT",
+                                                                                                                               "PROTECTED_MANAGERS_AND_HOOKS",
+                                                                                                                               "TURTLE_CUSTOM_ENTITY_RANGES",
+                                                                                                                               "SIGNATURE_AND_AST_DIVERGENCE",
+                                                                                                                               "THREAD_AND_CONCURRENCY_SAFETY"
+                                                                                                                           ],
+                                                                                                   "AuditModel":  "AI Semantic Engine (Multi-Agent Protocol)",
+                                                                                                   "Timestamp":  "2026-09-10 14:09:48"
+                                                                                               },
+                          "a95cd209f75e3291dab00c97ecdff8759a299f85ae67486e0f3c197072438d08":  {
+                                                                                                   "ConflictDetected":  false,
+                                                                                                   "RiskLevel":  "NONE",
+                                                                                                   "Confidence":  0.96,
+                                                                                                   "Verdict":  "PASS",
+                                                                                                   "Violations":  {
+
+                                                                                                                  },
+                                                                                                   "Warnings":  {
+
+                                                                                                                },
+                                                                                                   "AuditSummary":  "AI Semantic Audit CERTIFIED commit a10102850: Zero semantic conflicts, regressions, or invariant violations detected across all 6 dimensions.",
+                                                                                                   "EvaluatedInvariants":  [
+                                                                                                                               "MAX_RACES_11_EXPANSION",
+                                                                                                                               "STW_DEBUFF_STREAMING_64BIT",
+                                                                                                                               "PROTECTED_MANAGERS_AND_HOOKS",
+                                                                                                                               "TURTLE_CUSTOM_ENTITY_RANGES",
+                                                                                                                               "SIGNATURE_AND_AST_DIVERGENCE",
+                                                                                                                               "THREAD_AND_CONCURRENCY_SAFETY"
+                                                                                                                           ],
+                                                                                                   "AuditModel":  "AI Semantic Engine (Multi-Agent Protocol)",
+                                                                                                   "Timestamp":  "2026-09-10 14:10:37"
                                                                                                }
                       }
 }

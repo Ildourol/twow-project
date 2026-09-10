@@ -1,0 +1,73 @@
+{
+    "schema_version":  "1.0.0",
+    "tool_version":  "2.0.0",
+    "run_id":  "RUN-20260909-183118-GNCN",
+    "candidate_id":  "PORT-0028",
+    "candidate_sha":  "59cf5cc3b",
+    "stage":  "PORT_STAGING",
+    "donor_repository":  "reference-upstreams/vmangos-core",
+    "donor_sha":  "59cf5cc3b",
+    "donor_full_sha":  "59cf5cc3b7de88a87dccc272a1dee9e9276b1f92",
+    "target_repository":  "tortoise-wow",
+    "target_base_sha":  "62d7ebb1bea00c2056f06f8b737533a1bf36f937",
+    "reference_shas":  {
+
+                       },
+    "requested_mode":  "Normal",
+    "effective_mode":  "Normal",
+    "status":  "PATCH_READY",
+    "verdict":  "BUG_PRESENT",
+    "confidence":  0.92,
+    "reason_codes":  [
+                         "BUG_PROVEN_DETERMINISTIC"
+                     ],
+    "evidence":  {
+                     "missing_files":  [
+
+                                       ],
+                     "divergence_found":  null,
+                     "existing_files":  [
+                                            "src/game/Objects/Object.cpp"
+                                        ],
+                     "author":  "Gamemechanic",
+                     "subject":  "Fix GetRandomPoint for flying units (#3390)",
+                     "fixed_patterns_found":  [
+
+                                              ],
+                     "buggy_patterns_found":  [
+                                                  "src/game/Objects/Object.cpp : float randAngle1 = rand_norm_f() * 2 * M_PI;",
+                                                  "src/game/Objects/Object.cpp : float randAngle2 = rand_norm_f() * 2 * M_PI;",
+                                                  "src/game/Objects/Object.cpp : rand_x = x + randDist * cos(randAngle1) * sin(randAngle2);",
+                                                  "src/game/Objects/Object.cpp : rand_y = y + randDist * sin(randAngle2) * sin(randAngle2);",
+                                                  "src/game/Objects/Object.cpp : rand_z = z + randDist * sin(randAngle2);"
+                                              ],
+                     "donor_short_sha":  "59cf5cc3b",
+                     "date":  "2026-05-02",
+                     "donor_full_sha":  "59cf5cc3b7de88a87dccc272a1dee9e9276b1f92",
+                     "touched_files":  [
+                                           "src/game/Objects/Object.cpp"
+                                       ],
+                     "commit_already_found":  false
+                 },
+    "warnings":  [
+
+                 ],
+    "errors":  [
+
+               ],
+    "input_hashes":  {
+
+                     },
+    "output_hashes":  {
+
+                      },
+    "configuration_hash":  "",
+    "compatibility_manifest_version":  "1.0.0",
+    "started_at":  "2026-09-09T18:31:26.1410287+02:00",
+    "completed_at":  "2026-09-09T18:31:27.1160300+02:00",
+    "duration_ms":  975,
+    "patch_file":  "tools/queue/staging_patches/59cf5cc3b.patch",
+    "title":  "Fix GetRandomPoint for flying units (#3390)",
+    "subsystem":  "Core",
+    "commit_msg":  "Port(Core): Fix GetRandomPoint for flying units (#3390) (vmangos/core@59cf5cc3b)"
+}
