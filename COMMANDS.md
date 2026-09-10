@@ -28,7 +28,7 @@ All commands and automated pipelines operate under a strict, non-negotiable **Va
 
 ## 3. Command Specifications
 
-### 2.1. STATUS
+### 3.1. STATUS
 ```powershell
 .\task.ps1 status
 ```
@@ -42,7 +42,7 @@ Displays high-level health and repository state:
 
 ---
 
-### 2.2. SCAN
+### 3.2. SCAN
 ```powershell
 .\task.ps1 scan [cmangos|vmangos|all] [fast|normal|deep]
 ```
@@ -54,7 +54,7 @@ Audits new commits from the specified upstream source without modifying target f
 
 ---
 
-### 2.3. SYNC
+### 3.3. SYNC
 ```powershell
 .\task.ps1 sync [cmangos|vmangos|all] [fast|normal|deep]
 ```
@@ -72,7 +72,7 @@ Executes the full automated backporting pipeline:
 
 ---
 
-### 2.4. IMPORT CRITICAL
+### 3.4. IMPORT CRITICAL
 ```powershell
 .\task.ps1 import-critical [cmangos|vmangos|all] [fast|normal|deep]
 ```
@@ -85,7 +85,7 @@ Ports and verifies only P0 candidates.
 
 ---
 
-### 2.5. AUDIT
+### 3.5. AUDIT
 ```powershell
 .\task.ps1 audit <cmangos|vmangos> <commit-sha>
 ```
@@ -100,7 +100,7 @@ Performs a standalone audit of a single specified upstream commit without changi
 
 ---
 
-### 2.6. PORT
+### 3.6. PORT
 ```powershell
 .\task.ps1 port <cmangos|vmangos> <commit-sha>
 ```
@@ -111,7 +111,7 @@ Directly ports an explicitly requested commit and its required dependencies.
 
 ---
 
-### 2.7. VERIFY FAST, VERIFY FULL & VERIFY BATCH (BUILD EXECUTION OPTIONS)
+### 3.7. VERIFY FAST, VERIFY FULL & VERIFY BATCH (BUILD EXECUTION OPTIONS)
 ```powershell
 .\task.ps1 verify-fast   # (Alias: verify-quick) Rapid compilation of modules.lib (~3s)
 .\task.ps1 verify-full   # Complete target server link (mangosd.exe, ~2-3m)
@@ -123,7 +123,7 @@ Directly ports an explicitly requested commit and its required dependencies.
 
 ---
 
-### 2.8. COMMIT AND PUSH (AUTOMATED 1-TURN PORT CYCLE)
+### 3.8. COMMIT AND PUSH (AUTOMATED 1-TURN PORT CYCLE)
 ```powershell
 .\task.ps1 commit-and-push -DonorSha <sha> -Message "<commit message>" -Subsystem <name> -Priority <P0|P1> -Rationale "<notes>"
 ```
@@ -135,7 +135,7 @@ Executes the full post-edit atomic cycle in a single automated step:
 
 ---
 
-### 2.9. RECORD PORT (MANUAL LEDGER & DOSSIER GENERATION)
+### 3.9. RECORD PORT (MANUAL LEDGER & DOSSIER GENERATION)
 ```powershell
 .\task.ps1 record-port -DonorSha <sha> [-TargetSha <sha>] -Subsystem <name> -Priority <P0|P1> -Subject "<text>" -Rationale "<notes>"
 ```
@@ -143,7 +143,7 @@ Directly records a completed port in `state/porting-ledger.json` and synthesizes
 
 ---
 
-### 2.10. BUILD OPTIONS
+### 3.10. BUILD OPTIONS
 ```powershell
 .\task.ps1 build-options
 ```
@@ -151,7 +151,7 @@ Displays the active ADR-009 verification modes, parallelism settings, and token 
 
 ---
 
-### 2.11. ROADMAP
+### 3.11. ROADMAP
 ```powershell
 .\task.ps1 roadmap
 ```
@@ -159,7 +159,7 @@ Displays current phase progress, prioritized backlog, and active porting tracks.
 
 ---
 
-### 2.12. LEDGER
+### 3.12. LEDGER
 ```powershell
 .\task.ps1 ledger [cmangos|vmangos]
 ```
@@ -167,7 +167,7 @@ Displays tabular status of all audited, ported, skipped, duplicate, and rejected
 
 ---
 
-### 2.13. UPDATE-UPSTREAMS (UPSTREAM SYNCHRONIZATION)
+### 3.13. UPDATE-UPSTREAMS (UPSTREAM SYNCHRONIZATION)
 ```powershell
 .\task.ps1 update-upstreams [cmangos|vmangos|all]
 ```
