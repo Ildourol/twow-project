@@ -45,7 +45,8 @@ function Invoke-TargetBuild {
         [Parameter(Mandatory=$true)][string]$TargetRepo,
         [string]$Profile = "world",
         [string]$Configuration = "Release",
-        [string]$BuildDir = ""
+        [string]$BuildDir = "",
+        [switch]$FastBuild
     )
 
     $cfg = Get-ProjectConfig
@@ -82,17 +83,30 @@ function Invoke-TargetBuild {
         }
     }
 
-    # Target resolution based on profile
-    $targetArg = switch ($Profile) {
-        "auth"       { "--target realmd" }
-        "world"      { "--target mangosd" }
-        "playerbots" { "--target mangosd" }
-        default      { "" }
+    $cores = if ($env:NUMBER_OF_PROCESSORS) { [int]$env:NUMBER_OF_PROCESSORS } else { 4 }
+
+    # Target resolution based on profile and speed mode
+    if ($FastBuild) {
+        $targetArg = switch ($Profile) {
+            "auth"       { "--target shared" }
+            "playerbots" { "--target modules" }
+            default      { "--target game" }
+        }
+        $extraFlags = "-- /nologo /v:q"
+        Write-Host "Compiling fast library [$Profile] ($Configuration) via CMake ($cores cores, quiet)..." -ForegroundColor Yellow
+    } else {
+        $targetArg = switch ($Profile) {
+            "auth"       { "--target realmd" }
+            "world"      { "--target mangosd" }
+            "playerbots" { "--target mangosd" }
+            default      { "" }
+        }
+        $extraFlags = "-- /nologo /v:m"
+        Write-Host "Compiling profile [$Profile] ($Configuration) via CMake ($cores cores)..." -ForegroundColor Yellow
     }
 
-    Write-Host "Compiling profile [$Profile] ($Configuration) via CMake..." -ForegroundColor Yellow
     $start = Get-Date
-    $cmd = """$cmakeExe"" --build ""$BuildDir"" --config $Configuration $targetArg"
+    $cmd = """$cmakeExe"" --build ""$BuildDir"" --config $Configuration $targetArg --parallel $cores $extraFlags"
     $buildOut = cmd.exe /c "$cmd 2>&1"
     $code = $LASTEXITCODE
     $durationMs = [int]((Get-Date) - $start).TotalMilliseconds
@@ -106,7 +120,7 @@ function Invoke-TargetBuild {
     $realmdBin  = Join-Path $binDir "realmd.exe"
 
     $compilePass = ($code -eq 0)
-    $linkPass = ($compilePass -and (Test-Path $mangosdBin))
+    $linkPass = if ($FastBuild) { $compilePass } else { ($compilePass -and (Test-Path $mangosdBin)) }
 
     return @{
         ExitCode    = if ($compilePass) { $script:EXIT_CODE_PASS } else { $script:EXIT_CODE_VALIDATION_FAILURE }

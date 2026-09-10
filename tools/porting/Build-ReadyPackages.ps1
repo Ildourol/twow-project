@@ -12,7 +12,8 @@ param(
     [switch]$SkipPush,
     [switch]$UseWorktree = $true,
     [string]$SpecificPackage = "",
-    [switch]$SkipBuild
+    [switch]$SkipBuild,
+    [switch]$FastBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -153,7 +154,7 @@ foreach ($pkg in $packagesToBuild) {
                 $wtBuildDir = Join-Path $TortoisePath "build"
             }
 
-            $buildRes = Invoke-TargetBuild -TargetRepo $activeRepo -Profile $profile -BuildDir $wtBuildDir
+            $buildRes = Invoke-TargetBuild -TargetRepo $activeRepo -Profile $profile -BuildDir $wtBuildDir -FastBuild:$FastBuild
             if ($buildRes.ExitCode -ne 0) {
                 Write-Host "  [FAIL] Build gate failed for profile $profile!" -ForegroundColor Red
                 Update-CandidateState -CandidateId $donorSha -ToState "COMPILE_FAIL" -ReasonCode "MSVC_BUILD_FAILED" | Out-Null

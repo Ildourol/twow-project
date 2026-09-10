@@ -50,6 +50,9 @@ param(
     [switch]$SkipBuild,
 
     [Parameter()]
+    [switch]$FastBuild,
+
+    [Parameter()]
     [switch]$Diff,
 
     [Parameter()]
@@ -94,13 +97,16 @@ $ProjectRoot = Split-Path -Parent $ScriptDir
 switch ($Command.ToLower()) {
     # --- Core Automation Commands ---
     "1" {
-        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-ReadyPackages.ps1")
+        $extra = if ($FastBuild) { @("-FastBuild") } else { @() }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-ReadyPackages.ps1") @extra
     }
     "build-ready" {
-        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-ReadyPackages.ps1")
+        $extra = if ($FastBuild) { @("-FastBuild") } else { @() }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-ReadyPackages.ps1") @extra
     }
     "build-packages" {
-        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-ReadyPackages.ps1")
+        $extra = if ($FastBuild) { @("-FastBuild") } else { @() }
+        & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-ReadyPackages.ps1") @extra
     }
     "2" {
         if (-not $Argument) { Write-Host "Usage: task 2 <sha_or_topic>" -ForegroundColor Yellow; return }
