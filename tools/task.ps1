@@ -71,8 +71,8 @@ param(
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $PortingDir = Join-Path $ScriptDir "porting"
 $ModulesDir = Join-Path $ScriptDir "modules"
-$QueueDir = Join-Path $ScriptDir "queue"
-$TortoiseDir = Join-Path (Split-Path -Parent $ScriptDir) "tortoise-wow"
+$extDir = Join-Path (Split-Path -Parent $ScriptDir) "tortoise-wow-extended"
+$TortoiseDir = if (Test-Path $extDir) { $extDir } else { Join-Path (Split-Path -Parent $ScriptDir) "tortoise-wow" }
 $ProjectRoot = Split-Path -Parent $ScriptDir
 
 # Load core modules

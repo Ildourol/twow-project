@@ -53,7 +53,7 @@ twow project/
 │   ├── tasks/                         [Specialized Agent Operational Handbooks]
 │   └── task.ps1                       [Universal CLI Dispatcher]
 │
-├── tortoise-wow/                      [LOCAL CLONE: Target Turtle-WoW Server Core C++]
+├── tortoise-wow-extended/           [LOCAL CLONE: Target Turtle-WoW Server Core C++, junction at tortoise-wow/]
 ├── tortoise-db-viewer/                [LOCAL CLONE: AoWoW-style DB Dashboard & SQLite Engine]
 ├── resources/
 │   ├── FORUM_RESOURCE_GUIDE.md
@@ -70,7 +70,7 @@ twow project/
 
 | Component | Target Local Path | Repository URL / Upstream Source | Description |
 | :--- | :--- | :--- | :--- |
-| **Server Code Repository** | `tortoise-wow/` | [`Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) | Active Turtle-WoW 1.18.1 C++ source tree (branch `extended`, tracking `origin/extended`). |
+| **Server Code Repository** | `tortoise-wow-extended/` *(junction at `tortoise-wow/`)* | [`Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) | Active Turtle-WoW 1.18.1 C++ source tree (branch `extended`, tracking `origin/extended`). |
 | **Database Dashboard & Viewer** | `tortoise-db-viewer/` | [`Xian55/tortoise-db-viewer`](https://github.com/Xian55/tortoise-db-viewer) | AoWoW-style database dashboard, SQLite engine & REST API (`https://xian55.github.io/tortoise-db-viewer/`). |
 | **Historical Reference Database**| `reference-upstreams/lights-hope-database-history/` | [`brotalnia/database`](https://github.com/brotalnia/database) | Main historical database snapshots (`world_full_14_june_2021.7z` / `.sql`) for unchanged vanilla items. |
 | **Forum Intelligence Archive** | `resources/forum/` | [`Ildourol/turtle-wow-forum-archive`](https://github.com/Ildourol/turtle-wow-forum-archive) | 22,155 historical official forum threads (2018–2026). |

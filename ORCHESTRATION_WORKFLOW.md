@@ -1,6 +1,6 @@
 # ORCHESTRATION_WORKFLOW.md: End-to-End Porting Lifecycle & Runbooks
 
-This document defines the operational orchestration workflow, step-by-step runbooks, conflict resolution strategies, and automated tracking procedures for porting fixes from **VMaNGOS** (`reference-upstreams/vmangos-core`, aliased via `core`) to **Tortoise-WoW** (`twow project/tortoise-wow`).
+This document defines the operational orchestration workflow, step-by-step runbooks, conflict resolution strategies, and automated tracking procedures for porting fixes from **VMaNGOS** (`reference-upstreams/vmangos-core`, aliased via `core`) to **Tortoise-WoW Extended** (`twow project/tortoise-wow-extended`, junction at `tortoise-wow`).
 
 ---
 
@@ -52,7 +52,7 @@ This document defines the operational orchestration workflow, step-by-step runbo
      ```
   2. `Invoke-AiAudit.ps1` extracts:
      - Target donor diff in `reference-upstreams/vmangos-core`
-     - Exact target source files and surrounding lines in `tortoise-wow/src/`
+     - Exact target source files and surrounding lines in `tortoise-wow-extended/src/` (junction: `tortoise-wow/src/`)
      - Historical design specifications from 22,155 threads in `resources/forum/`
      - Outputs complete AI dossier to `tools/queue/ai_dossiers/<sha>.md`.
   3. If cleanly applicable, stages directly in `tools/queue/02_ready_to_build/PORT-XXXX.json`. If context diverged (e.g. Turtle custom parameters like `inGurubashiArena`), stages as `AWAITING_AI_ADAPTATION` with its AI dossier.
@@ -76,9 +76,9 @@ This document defines the operational orchestration workflow, step-by-step runbo
 - **Objective**: Create a clean, isolated topic branch for the backport.
 - **Runbook**:
   ```powershell
-  cd "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow"
-  git checkout main
-  git pull origin main
+  cd "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow-extended"
+  git checkout extended
+  git pull origin extended
   git checkout -b port/vmangos-<short_sha>-<topic_name>
   ```
 - Example:
@@ -93,16 +93,16 @@ This document defines the operational orchestration workflow, step-by-step runbo
      ```powershell
      git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\reference-upstreams\vmangos-core" show <commit_hash>
      ```
-  2. Locate the corresponding target file and function in `tortoise-wow`.
+  2. Locate the corresponding target file and function in `tortoise-wow-extended` (or junction `tortoise-wow`).
      *(Note: Due to code divergence, search by symbol or method name rather than relying on line numbers).*
   3. Apply the fix following the recipes in `ENGINEERING_HANDBOOK.md`.
   4. If the fix touches database records:
-     a. Primary / Authoritative: Compare against Turtle base catalog in `tortoise-wow/sql/base/`.
+     a. Primary / Authoritative: Compare against Turtle base catalog in `tortoise-wow-extended/sql/base/`.
      b. Choice 1 (Main Historic DB): Use Brotalnia `brotalnia/database` (`reference-upstreams/lights-hope-database-history/world_full_14_june_2021.sql` from `world_full_14_june_2021.7z`) for original vanilla baseline values unchanged by Turtle WoW.
      c. Choice 2 (Backup Updated Donor DB): Fall back to `vmangos/core db_latest` (`mangos.sql`) if modern columns, EventAI, or newer vanilla fixes are involved.
      d. Interactive Scalper & Dashboard: Use `task scalp [type] <id> -Diff` and `task dashboard <id>` (powered by `tortoise-db-viewer` REST API and web UI) to inspect live client tooltips and 3D models.
      e. Export sanitized `REPLACE INTO` migrations via `task scalp [type] <id> -ExportSql`, stripping progressive columns (`patch`, `build`), removing stored procedures, and protecting IDs >= 300000.
-     f. Move finalized SQL to `tortoise-wow/sql/database_updates/world/` and audit via `Audit-DatabaseMigrations.ps1`.
+     f. Move finalized SQL to `tortoise-wow-extended/sql/database_updates/world/` and audit via `Audit-DatabaseMigrations.ps1`.
 
 ---
 
@@ -112,17 +112,17 @@ This document defines the operational orchestration workflow, step-by-step runbo
   1. Run the automated compatibility scanner:
      ```powershell
      cd "C:\Users\Admin\AntigravityProfiles\Projects\twow project"
-     .\tools\porting\Verify-TurtleCompatibility.ps1 -TargetRepo "tortoise-wow"
+     .\tools\porting\Verify-TurtleCompatibility.ps1 -TargetRepo "tortoise-wow-extended"
      ```
   2. Run the automated database migration auditor:
      ```powershell
      cd "C:\Users\Admin\AntigravityProfiles\Projects\twow project"
      .\tools\porting\Audit-DatabaseMigrations.ps1
      ```
-     Ensure all migrations pass with 0 errors, 0 warnings, 0 progressive column leaks, and 0 custom entity clobbers.
+      Ensure all migrations pass with 0 errors, 0 warnings, 0 progressive column leaks, and 0 custom entity clobbers.
   3. Verify diff scope:
      ```powershell
-     git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow" diff
+     git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow-extended" diff
      ```
      Ensure no unintended edits, commented-out dead code, or unrelated formatting churn were introduced.
   4. Ensure headers, includes, and C++17 syntax are clean.
@@ -143,8 +143,8 @@ This document defines the operational orchestration workflow, step-by-step runbo
      - Update [`twow project/docs/ROADMAP.md`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/docs/ROADMAP.md) status to `PORTED`.
   2. Commit changes using the standardized format:
      ```powershell
-     git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow" add <affected_files>
-     git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow" commit -m "Port(Subsystem): <Summary>
+     git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow-extended" add <affected_files>
+     git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow-extended" commit -m "Port(Subsystem): <Summary>
 
      Donor: VMaNGOS <full_sha>
      Turtle base: Penqle <sha>
@@ -160,7 +160,7 @@ This document defines the operational orchestration workflow, step-by-step runbo
   3. Commit candidate changes to dedicated candidate branch: `port/PORT-XXXX-<sha>` inside isolated worktree.
   4. **Remote Push Authorization**:
      - Fixes remain on candidate branches.
-     - Never push directly to `origin/main` or `extended/main` without explicit user authorization in the current session.
+     - Never push directly to `origin/main` or `origin/extended` without explicit user authorization in the current session.
   5. Cleanly prune worktree via `Remove-IsolatedWorktree`. Working tree remains pristine. Only after this candidate is committed to its branch and state store is updated may the next candidate begin.
 
 ---
@@ -168,11 +168,11 @@ This document defines the operational orchestration workflow, step-by-step runbo
 ## 2. Conflict Resolution Playbooks
 
 ### Scenario A: Heavily Diverged Code
-- **Problem**: The target function in Tortoise-WoW has been rewritten or substantially altered compared to VMaNGOS.
+- **Problem**: The target function in Tortoise-WoW Extended has been rewritten or substantially altered compared to VMaNGOS.
 - **Action**:
   1. Identify the *underlying bug condition* being solved in VMaNGOS (e.g. integer overflow, off-by-one, null pointer dereference, invalid state transition).
-  2. Examine if the rewrite in Tortoise-WoW already resolved the condition or introduced a different handling path.
-  3. If still vulnerable, implement the equivalent logical check tailored to the new Tortoise-WoW architecture.
+  2. Examine if the rewrite in Tortoise-WoW Extended already resolved the condition or introduced a different handling path.
+  3. If still vulnerable, implement the equivalent logical check tailored to the new Tortoise-WoW Extended architecture.
   4. Document the architectural difference in the commit description.
 
 ### Scenario B: Turtle WoW Custom Class/Spell Overrides
@@ -189,7 +189,7 @@ This document defines the operational orchestration workflow, step-by-step runbo
 ### Scenario C: Database Primary Key Collision & Schema Mismatches
 - **Problem**: An upstream migration inserts a new row with an ID that collides with a custom Turtle WoW entity, or references a column that does not exist in the Nostalrius schema, or is missing a column required by the C++ engine.
 - **Action**:
-  1. Check target tables in `twow project/tortoise-wow/sql/base/` and `sql/create_databases.sql`.
+  1. Check target tables in `twow project/tortoise-wow-extended/sql/base/` (junction: `tortoise-wow/sql/base/`) and `sql/create_databases.sql`.
   2. Run differential extraction via `task scalp [type] <id> -Diff` against Brotalnia `world_full_14_june_2021.sql` (Main Historic DB for original vanilla baseline), `vmangos/core db_latest` (`mangos.sql`, Backup DB), and `tortoise-db-viewer`.
   3. Verify against official 1.18.1 client data using `task 6 <id>` or `task dashboard <id>` (`https://xian55.github.io/tortoise-db-viewer/`).
   4. If progressive columns (`` `patch` ``, `` `build` ``) are present, strip them using `-ExportSql`.
@@ -204,7 +204,7 @@ This document defines the operational orchestration workflow, step-by-step runbo
 If a newly backported change introduces crashes, memory corruptions, or client desyncs:
 1. **Revert Immediately**:
    ```powershell
-   git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow" revert <commit_hash> -m "Revert: Port(<Subsystem>) due to regression <issue_description>"
+   git -C "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow-extended" revert <commit_hash> -m "Revert: Port(<Subsystem>) due to regression <issue_description>"
    ```
 2. **Flag in Roadmap**:
    Update [`twow project/docs/ROADMAP.md`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/docs/ROADMAP.md) status to `QUARANTINED`.

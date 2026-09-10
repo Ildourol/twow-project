@@ -1,6 +1,6 @@
 # PORTING_PLAN.md: Strategic Blueprint for VMaNGOS-to-Tortoise Porting
 
-This document outlines the strategic blueprint, subsystem divergence analysis, priority matrix, and engineering safeguards for backporting bugfixes and mechanics improvements from **VMaNGOS** (`reference-upstreams/vmangos-core`, aliased via `core`) into **Tortoise-WoW Extended** (`twow project/tortoise-wow`).
+This document outlines the strategic blueprint, subsystem divergence analysis, priority matrix, and engineering safeguards for backporting bugfixes and mechanics improvements from **VMaNGOS** (`reference-upstreams/vmangos-core`, aliased via `core`) into **Tortoise-WoW Extended** (`twow project/tortoise-wow-extended`, junction at `tortoise-wow`).
 
 ---
 
@@ -14,7 +14,7 @@ This document outlines the strategic blueprint, subsystem divergence analysis, p
 To systematically backport applicable fixes, combat accuracy improvements, movement stability, encounter scripts, and engine safeguards from VMaNGOS into Tortoise-WoW **without regressing or breaking any Turtle-WoW specific mechanics, custom races, debuff architecture, or client protocol compatibility**.
 
 ### 1.3. Development Model & Metrics
-- **Target Repository**: [`https://github.com/Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) branch `main`
+- **Target Repository**: [`https://github.com/Ildourol/tortoise-wow-extended`](https://github.com/Ildourol/tortoise-wow-extended) branch `extended`
 - **Baseline Anchor**: [`Penqle/tortoise-wow`](https://github.com/Penqle/tortoise-wow.git) @ `b8f24bef6cfc69feafc5870ac6a8918a521253d7`
 - **Current HEAD**: [`053cb501f`](https://github.com/Ildourol/tortoise-wow-extended/commit/053cb501f11fda999967ffef60852b8902bf26c0)
 - **Discovery & Audit Model**: **Batch Auditing & Triage** (evaluates candidate donor pools in batches of 10–50 commits for high discovery speed, early ranking, and multi-commit dependency resolution).

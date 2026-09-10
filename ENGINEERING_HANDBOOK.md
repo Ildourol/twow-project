@@ -1,6 +1,6 @@
 # ENGINEERING_HANDBOOK.md: Technical Implementation Guide
 
-This handbook provides developers and AI agents with technical specifications, architectural comparisons, preservation invariants, concrete porting recipes, and coding standards for backporting fixes from **VMaNGOS** (`reference-upstreams/vmangos-core`, aliased via `core`) to **Tortoise-WoW** (`twow project/tortoise-wow`).
+This handbook provides developers and AI agents with technical specifications, architectural comparisons, preservation invariants, concrete porting recipes, and coding standards for backporting fixes from **VMaNGOS** (`reference-upstreams/vmangos-core`, aliased via `core`) to **Tortoise-WoW** (`twow project/tortoise-wow-extended`, junction at `tortoise-wow`).
 
 ---
 
@@ -8,7 +8,7 @@ This handbook provides developers and AI agents with technical specifications, a
 
 While both servers share a common codebase root dating back to the Nostalrius/Elysium era (2016–2017), their architectural evolution has diverged in fundamental ways:
 
-| Feature / System | VMaNGOS (`core`) | Tortoise-WoW (`tortoise-wow`) | Engineering Implications |
+| Feature / System | VMaNGOS (`core`) | Tortoise-WoW (`tortoise-wow-extended`) | Engineering Implications |
 | :--- | :--- | :--- | :--- |
 | **C++ Standard** | `C++14` (`-std=c++14`) | `C++17` (`-std=c++17`) | Tortoise supports C++17 features (`std::string_view`, structured bindings, `std::optional`, `if constexpr`). VMaNGOS code can be modernized during porting. |
 | **Client Version** | `1.12.1.5875` | `1.18.1.7272` | Packet structures, DBC field definitions, and opcodes may differ. Never assume packet layouts are identical. |

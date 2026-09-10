@@ -10,7 +10,7 @@
       "is_local_orchestrator": true
     },
     "tortoise_wow": {
-      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/tortoise-wow",
+      "path": "C:/Users/Admin/AntigravityProfiles/Projects/twow project/tortoise-wow-extended",
       "default_branch": "extended",
       "expected_remote": "origin",
       "upstream_remote": "upstream",

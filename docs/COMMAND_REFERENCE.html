@@ -153,7 +153,7 @@
 </head>
 <body>
 <h1>Turtle-WoW / Tortoise-WoW Extended - Master Command Reference &amp; Architecture Guide</h1>
-<p>This document is the canonical CLI operational reference and architecture guide for <strong>Tortoise-WoW Extended</strong> (<code>twow project/tortoise-wow</code>), unifying upstream VMaNGOS bugfix porting, native Turtle-WoW core restoration, deterministic bug proving, isolated worktree builds, multi-factor priority ranking, database safety auditing, and release lifecycle management.</p>
+<p>This document is the canonical CLI operational reference and architecture guide for <strong>Tortoise-WoW Extended</strong> (<code>twow project/tortoise-wow-extended</code>, junction at <code>tortoise-wow</code>), unifying upstream VMaNGOS bugfix porting, native Turtle-WoW core restoration, deterministic bug proving, isolated worktree builds, multi-factor priority ranking, database safety auditing, and release lifecycle management.</p>
 <div class="alert alert-tip"><span class="alert-badge">tip</span><br><strong>Universal Terminal Invocation</strong>
 All commands can be executed from any PowerShell console or terminal without changing current directory:
 ```powershell
@@ -1083,7 +1083,7 @@ task.ps1 roadmap-refresh -FetchLatest</code></pre>
 <hr>
 <h2>11.1. Reference Upstreams Organization, Remote Alignment &amp; Synchronization (<code>task update-upstreams</code>)</h2>
 <h3>Repository Topology &amp; Remote Alignment:</h3>
-<p>The target core product repository (<code>tortoise-wow</code>) is configured with the user's repository as primary <code>origin</code>:</p>
+<p>The target core product repository (<code>tortoise-wow-extended</code>, junction at <code>tortoise-wow</code>) is configured with the user's repository as primary <code>origin</code>:</p>
 <ul>
 <li><strong>Target Remote (<code>origin</code>)</strong>: <a href="https://github.com/Ildourol/tortoise-wow-extended"><code>https://github.com/Ildourol/tortoise-wow-extended.git</code></a> (active development branch: <code>extended</code>).</li>
 <li><strong>Upstream Donor (<code>upstream</code>)</strong>: <a href="https://github.com/Penqle/tortoise-wow"><code>https://github.com/Penqle/tortoise-wow.git</code></a> (tracking <code>upstream/main</code> for reference and base updates).</li>
@@ -1103,7 +1103,7 @@ task.ps1 roadmap-refresh -FetchLatest</code></pre>
 .\tools\task.ps1 update-upstreams vmangos-core # Updates only vMaNGOS core</code></pre>
 <ul>
 <li><strong>Local Inspection</strong>: New incoming commits are reported with commit counts and git oneline logs for immediate local evaluation.</li>
-<li><strong>Active Worktree Protection</strong>: The active target repository <code>tortoise-wow</code> (branch: <code>extended</code>) is <strong>strictly protected</strong> and excluded from automated pulls to safeguard active development. Only <code>git fetch upstream</code> is run for <code>tortoise-wow</code> to keep upstream branch heads visible.</li>
+<li><strong>Active Worktree Protection</strong>: The active target repository <code>tortoise-wow-extended</code> (branch: <code>extended</code>) is <strong>strictly protected</strong> and excluded from automated pulls to safeguard active development. Only <code>git fetch upstream</code> is run for <code>tortoise-wow-extended</code> to keep upstream branch heads visible.</li>
 </ul>
 <h3>Comprehensive Ecosystem Reference Links:</h3>
 <ul>

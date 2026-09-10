@@ -4,6 +4,7 @@
 
 # Server Core Repository (tracked separately at https://github.com/Ildourol/tortoise-wow-extended)
 tortoise-wow/
+tortoise-wow-extended/
 
 # Tortoise Database Viewer & Explorer (tracked at https://github.com/Xian55/tortoise-db-viewer)
 tortoise-db-viewer/

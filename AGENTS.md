@@ -1,6 +1,6 @@
 # AGENTS.md: Autonomous Agent Operating Protocol for Tortoise-WoW Extended
 
-This document establishes the binding architectural principles, agent operational guidelines, verification gates, authority order, and upstream backporting rules for AI agents and developers working on **Tortoise-WoW Extended** (`twow project/tortoise-wow`).
+This document establishes the binding architectural principles, agent operational guidelines, verification gates, authority order, and upstream backporting rules for AI agents and developers working on **Tortoise-WoW Extended** (`twow project/tortoise-wow-extended`).
 
 ---
 
@@ -9,7 +9,7 @@ This document establishes the binding architectural principles, agent operationa
 When conflicting technical requirements or code patterns arise, agents must strictly follow the nine-tier machine-readable authority order (`config/authority-policy.json`):
 
 1. **Tier 1: Explicit Current User Requirement** - Direct commands, constraints, or instructions provided by the user in the current session.
-2. **Tier 2: Target Tortoise-WoW Checked-Out Source** (`tortoise-wow`) - Real code, CMakeLists.txt, and runtime evidence in the target repo.
+2. **Tier 2: Target Tortoise-WoW Checked-Out Source** (`tortoise-wow-extended`, junction at `tortoise-wow`) - Real code, CMakeLists.txt, and runtime evidence in the target repo.
 3. **Tier 3: Turtle-WoW / Penqle Reference Source & Docs** (`Penqle/tortoise-wow`) - Matching-revision Turtle 1.12.1/1.18.1 mechanics.
 4. **Tier 4: Turtle 1.18.1 Client Data / DBC Evidence** (`reference-upstreams/client-data-1.18.1/dbc`) - Authoritative client data (`ChrRaces.dbc`, `Spell.dbc`, etc.).
 5. **Tier 5: Current vMaNGOS Donor Source & Commit History** (`reference-upstreams/vmangos-core`) - Bugfix mechanics and donor diffs.
@@ -24,7 +24,7 @@ When conflicting technical requirements or code patterns arise, agents must stri
 
 ### 2.1. Single-Writer & Worktree Isolation Rule
 - **Candidate modifications occur ONLY in dedicated Git worktrees**: `.worktrees/PORT-XXXX/`.
-- **Target working tree purity**: The user's checked-out working tree (`tortoise-wow`) must remain clean. Never perform file modifications, patch applications, or build executions directly in the primary working tree.
+- **Target working tree purity**: The user's checked-out working tree (`tortoise-wow-extended`) must remain clean. Never perform file modifications, patch applications, or build executions directly in the primary working tree.
 - **Single-Writer Lock**: Compilation via MSVC 2022 / Ninja acquires exclusive execution. Never launch concurrent `-AutoBuild` runs across multiple terminals.
 
 ### 2.2. No Destructive Rollbacks
@@ -100,7 +100,7 @@ To eliminate severe AI context token exhaustion and avoid lengthy build wait tim
 ### 2.9. Reference Upstreams Organization, Remote Alignment & Ecosystem Directory
 
 #### Repository Topology & Remote Alignment:
-The target core product repository (`tortoise-wow`) is configured with the user's repository as primary `origin`:
+The target core product repository (`tortoise-wow-extended`, junction at `tortoise-wow`) is configured with the user's repository as primary `origin`:
 - **Target Remote (`origin`)**: [`https://github.com/Ildourol/tortoise-wow-extended.git`](https://github.com/Ildourol/tortoise-wow-extended) (active development branch: `extended`).
 - **Upstream Donor (`upstream`)**: [`https://github.com/Penqle/tortoise-wow.git`](https://github.com/Penqle/tortoise-wow) (tracking `upstream/main` for reference and base updates).
 
@@ -119,7 +119,7 @@ To fetch and pull all upstream donor and reference repositories locally:
 .\tools\task.ps1 update-upstreams vmangos-core # Updates only vMaNGOS core
 ```
 - **Local Inspection**: New incoming commits are reported with commit counts and git oneline logs for immediate local evaluation.
-- **Active Worktree Protection**: The active target repository `tortoise-wow` (branch: `extended`) is **strictly protected** and excluded from automated pulls to safeguard active development. Only `git fetch upstream` is run for `tortoise-wow` to keep upstream branch heads visible.
+- **Active Worktree Protection**: The active target repository `tortoise-wow-extended` (branch: `extended`) is **strictly protected** and excluded from automated pulls to safeguard active development. Only `git fetch upstream` is run for `tortoise-wow-extended` to keep upstream branch heads visible.
 
 #### Comprehensive Ecosystem Reference Links:
 - **Turtle WoW Original**: [Penqle/tortoise-wow](https://github.com/Penqle/tortoise-wow)

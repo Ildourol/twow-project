@@ -1,6 +1,6 @@
 # Turtle-WoW / Tortoise-WoW Extended - Master Command Reference & Architecture Guide
 
-This document is the canonical CLI operational reference and architecture guide for **Tortoise-WoW Extended** (`twow project/tortoise-wow`), unifying upstream VMaNGOS bugfix porting, native Turtle-WoW core restoration, deterministic bug proving, isolated worktree builds, multi-factor priority ranking, database safety auditing, and release lifecycle management.
+This document is the canonical CLI operational reference and architecture guide for **Tortoise-WoW Extended** (`twow project/tortoise-wow-extended`, junction at `tortoise-wow`), unifying upstream VMaNGOS bugfix porting, native Turtle-WoW core restoration, deterministic bug proving, isolated worktree builds, multi-factor priority ranking, database safety auditing, and release lifecycle management.
 
 > [!TIP]
 > **Universal Terminal Invocation**
@@ -472,7 +472,7 @@ Compiling and linking `mangosd.exe` on Windows requires 2–3 minutes and genera
 ## 11.1. Reference Upstreams Organization, Remote Alignment & Synchronization (`task update-upstreams`)
 
 ### Repository Topology & Remote Alignment:
-The target core product repository (`tortoise-wow`) is configured with the user's repository as primary `origin`:
+The target core product repository (`tortoise-wow-extended`, junction at `tortoise-wow`) is configured with the user's repository as primary `origin`:
 - **Target Remote (`origin`)**: [`https://github.com/Ildourol/tortoise-wow-extended.git`](https://github.com/Ildourol/tortoise-wow-extended) (active development branch: `extended`).
 - **Upstream Donor (`upstream`)**: [`https://github.com/Penqle/tortoise-wow.git`](https://github.com/Penqle/tortoise-wow) (tracking `upstream/main` for reference and base updates).
 
@@ -491,7 +491,7 @@ To fetch and pull all upstream donor and reference repositories locally:
 .\tools\task.ps1 update-upstreams vmangos-core # Updates only vMaNGOS core
 ```
 - **Local Inspection**: New incoming commits are reported with commit counts and git oneline logs for immediate local evaluation.
-- **Active Worktree Protection**: The active target repository `tortoise-wow` (branch: `extended`) is **strictly protected** and excluded from automated pulls to safeguard active development. Only `git fetch upstream` is run for `tortoise-wow` to keep upstream branch heads visible.
+- **Active Worktree Protection**: The active target repository `tortoise-wow-extended` (branch: `extended`) is **strictly protected** and excluded from automated pulls to safeguard active development. Only `git fetch upstream` is run for `tortoise-wow-extended` to keep upstream branch heads visible.
 
 ### Comprehensive Ecosystem Reference Links:
 - **Turtle WoW Original**: [Penqle/tortoise-wow](https://github.com/Penqle/tortoise-wow)

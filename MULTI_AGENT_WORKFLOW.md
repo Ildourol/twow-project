@@ -60,9 +60,9 @@ The system separates **Concurrent Read-Only Research & Staging (Agents 2, 3, 4, 
 | Purpose | Local Absolute Path | Description |
 | :--- | :--- | :--- |
 | **Project Workspace** | [`twow project/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/) | Parent directory housing all tools, docs, and repositories |
-| **Server Git Repository** | [`twow project/tortoise-wow/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tortoise-wow/) | Active code repository (Branch: `main`, Remote: `extended`) |
-| **Visual Studio Solution** | [`twow project/tortoise-wow/build/TurtleWoW.sln`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tortoise-wow/build/TurtleWoW.sln) | MSVC 2022 Solution for x64 Release builds |
-| **Compiled Binaries** | [`twow project/tortoise-wow/bin/Release/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tortoise-wow/bin/Release/) | Location of `mangosd.exe` and `realmd.exe` |
+| **Server Git Repository** | [`twow project/tortoise-wow-extended/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tortoise-wow-extended/) | Active development repository (Branch: `extended`, tracked via `origin/extended`, junction: `tortoise-wow/`) |
+| **Visual Studio Solution** | [`twow project/tortoise-wow-extended/build/TurtleWoW.sln`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tortoise-wow-extended/build/TurtleWoW.sln) | MSVC 2022 Solution for x64 Release builds |
+| **Compiled Binaries** | [`twow project/tortoise-wow-extended/bin/Release/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tortoise-wow-extended/bin/Release/) | Location of `mangosd.exe` and `realmd.exe` |
 | **Agent Rulebooks** | [`twow project/tools/tasks/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tools/tasks/) | Fixed instruction files for Agents 1, 2, 3, and 4 |
 | **Staging Queue** | [`twow project/tools/queue/`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/tools/queue/) | Asynchronous handoff directories (`ready_to_build/`, etc.) |
 | **Master Roadmap** | [`twow project/docs/ROADMAP.md`](file:///C:/Users/Admin/AntigravityProfiles/Projects/twow%20project/docs/ROADMAP.md) | Progress metrics, complete commit list, and upcoming backlog |
@@ -113,7 +113,7 @@ When you open an Antigravity CLI terminal, simply use the shorthand command for 
 #### CLI 4: Agent 4 (AI Context Assembler & C++ Semantic Adapter)
 * **Command**: `task ai-audit <sha>` (alias: `task 4 <sha>`)
   * *Example*: `task ai-audit 84f1bbccd`
-* **What it does**: Runs `Invoke-AiAudit.ps1` to assemble commit diff, target code in `tortoise-wow`, surrounding lines, and forum intelligence into `tools/queue/ai_dossiers/<sha>.md`.
+* **What it does**: Runs `Invoke-AiAudit.ps1` to assemble commit diff, target code in `tortoise-wow-extended`, surrounding lines, and forum intelligence into `tools/queue/ai_dossiers/<sha>.md`.
 
 #### CLI 5: Agent 5 (Core Restorer & Patch Parity Auditor)
 * **Commands**:

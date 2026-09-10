@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Updates all cloned reference upstreams for the twow-project workspace.
 .DESCRIPTION
@@ -21,7 +21,8 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ToolsDir = Split-Path -Parent $ScriptDir
 $ProjectRoot = Split-Path -Parent $ToolsDir
 $RefDir = Join-Path $ProjectRoot "reference-upstreams"
-$TortoiseRepo = Join-Path $ProjectRoot "tortoise-wow"
+$extDir = Join-Path $ProjectRoot "tortoise-wow-extended"
+$TortoiseRepo = if (Test-Path $extDir) { $extDir } else { Join-Path $ProjectRoot "tortoise-wow" }
 
 Write-Host "================================================================================" -ForegroundColor Cyan
 Write-Host "  UPDATE REFERENCE UPSTREAMS (twow-project)" -ForegroundColor Cyan
