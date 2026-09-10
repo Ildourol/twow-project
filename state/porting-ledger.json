@@ -7,11 +7,11 @@
     "metrics":  {
                     "total_audited":  43,
                     "pending":  14,
-                    "selected":  25,
+                    "selected":  24,
                     "in_progress":  0,
-                    "ported":  3,
-                    "verified":  3,
-                    "pushed":  3,
+                    "ported":  4,
+                    "verified":  4,
+                    "pushed":  4,
                     "skipped":  0,
                     "duplicate":  0,
                     "already_present":  0,
@@ -336,9 +336,13 @@
                                                                      "date":  "2026-09-09",
                                                                      "subject":  "Spell: Fix bot resurrection target validation",
                                                                      "audited_at":  "2026-09-10 17:15:15",
-                                                                     "status":  "RECOMMENDED",
+                                                                     "status":  "PORTED",
                                                                      "priority":  "P1",
-                                                                     "audit_mode":  "normal"
+                                                                     "audit_mode":  "normal",
+                                                                     "target_commit_sha":  "342e8ff36dba6dbde4018ff116967a7bd9e0f5e9",
+                                                                     "ported_at":  "2026-09-10 19:16:26",
+                                                                     "verified":  true,
+                                                                     "pushed":  true
                                                                  },
                     "868cc9977da1cbc505c8e12a133197daf1af5cea":  {
                                                                      "source":  "vmangos",
