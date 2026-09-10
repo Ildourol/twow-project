@@ -7,11 +7,11 @@
     "metrics":  {
                     "total_audited":  43,
                     "pending":  14,
-                    "selected":  23,
+                    "selected":  22,
                     "in_progress":  0,
-                    "ported":  5,
-                    "verified":  5,
-                    "pushed":  5,
+                    "ported":  6,
+                    "verified":  6,
+                    "pushed":  6,
                     "skipped":  0,
                     "duplicate":  0,
                     "already_present":  0,
@@ -228,9 +228,13 @@
                                                                      "date":  "2026-09-10",
                                                                      "subject":  "Movement: Fix stay/guard clearing the opposite strategy",
                                                                      "audited_at":  "2026-09-10 17:15:15",
-                                                                     "status":  "RECOMMENDED",
+                                                                     "status":  "PORTED",
                                                                      "priority":  "P1",
-                                                                     "audit_mode":  "normal"
+                                                                     "audit_mode":  "normal",
+                                                                     "target_commit_sha":  "cb281828e265a9a46a958f0af388a36731b8df18",
+                                                                     "ported_at":  "2026-09-10 19:17:21",
+                                                                     "verified":  true,
+                                                                     "pushed":  true
                                                                  },
                     "be2187e1c94ab8d25ee05637f2341b8fde67035e":  {
                                                                      "source":  "vmangos",

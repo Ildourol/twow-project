@@ -341,6 +341,7 @@ function Invoke-RecordPort {
     $subj = if ($Subject) { $Subject } else { $entry.subject }
     $dossierPath = Join-Path $ProjectRoot "docs\commits\${id}_${shortDonor}.md"
     
+    $bt = "`""
     $dossierContent = @"
 # Commit Dossier: $id ($shortTarget)
 
@@ -348,17 +349,17 @@ function Invoke-RecordPort {
 
 | Property | Value |
 |:---|:---|
-| **ID** | `$id` |
-| **Target Commit SHA** | [`$shortTarget`](https://github.com/Ildourol/tortoise-wow-extended/commit/$TargetSha) |
-| **Full SHA** | `$TargetSha` |
-| **Subject** | `$subj` |
+| **ID** | $bt$id$bt |
+| **Target Commit SHA** | [$bt$shortTarget$bt](https://github.com/Ildourol/tortoise-wow-extended/commit/$TargetSha) |
+| **Full SHA** | $bt$TargetSha$bt |
+| **Subject** | $bt$subj$bt |
 | **Subsystem** | $Subsystem |
 | **Author** | $($entry.author) |
 | **Date** | $($entry.date) |
-| **Upstream Donor** | [`$($entry.source)/core@$shortDonor`](https://github.com/ileboii/core/commit/$DonorSha) |
+| **Upstream Donor** | [$bt$($entry.source)/core@$shortDonor$bt](https://github.com/ileboii/core/commit/$DonorSha) |
 | **Verification Status** | Verified (MSVC 2022 x64 Release: modules.lib + mangosd.exe clean link) |
-| **Target Integration Branch** | `mantech-turtle` |
-| **Priority** | `$Priority` |
+| **Target Integration Branch** | ${bt}mantech-turtle$bt |
+| **Priority** | $bt$Priority$bt |
 
 ---
 
