@@ -20,6 +20,7 @@ flowchart TD
 
 ### 1.1. Level 1: Static Inspection & Diff Review
 - Review `git diff` for unintended edits, whitespace noise, or stray files.
+- **Strict Vanilla Verification (ADR-008)**: Verify that no TBC/WotLK expansion code, post-Vanilla abilities, talents, or mechanics are introduced.
 - Verify that no foreign dependencies or unmapped symbols were introduced.
 - Cross-check against `modules/mod-playerbots/cmangos-compat-shim.h` to ensure macro/type consistency.
 

@@ -1,6 +1,9 @@
 # Module-playerbots Porting & Stabilization Roadmap
-
+ 
 This roadmap documents the prioritized implementation tracks and verified progression milestones for integrating upstream fixes into Turtle WoW Extended.
+ 
+> [!IMPORTANT]
+> **Strict Vanilla / Classic Mandate (ADR-008)**: All phases and porting tracks operate under a strict Vanilla / Classic exclusivity policy. Porting ANY mechanics, spells, talents, or content from TBC or WotLK is strictly prohibited. Only Vanilla and Classic-related improvements are admitted.
 
 ---
 

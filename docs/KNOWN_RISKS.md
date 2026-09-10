@@ -6,10 +6,10 @@ This register identifies known failure modes, architectural traps, and regressio
 
 ## 1. Subsystem Risk Catalog
 
-### KR-01: TBC / WotLK Expansion Contamination
-- **Source**: CMaNGOS `playerbots` develops across Classic, TBC, and WotLK simultaneously.
-- **Hazard**: Code paths guarded by `#ifdef MANGOSBOT_ONE` or `#ifdef MANGOSBOT_TWO` contain post-Vanilla abilities (e.g. Crusader Strike for Paladins, Steady Shot for Hunters, Misdirection, Cloak of Shadows, TBC Shaman Flame Shock changes).
-- **Mitigation**: Filter all candidate diffs for expansion macros. Port only Vanilla 1.12 / Turtle 1.18.1 mechanics.
+### KR-01: Strict Prohibition on TBC / WotLK Expansion Contamination (ADR-008)
+- **Source**: Upstream donor repositories (`cmangos/playerbots` and `core`) develop across multiple expansions or contain multi-expansion code.
+- **Hazard**: Code paths guarded by `#ifdef MANGOSBOT_ONE` or `#ifdef MANGOSBOT_TWO` contain post-Vanilla abilities (e.g. Steady Shot for Hunters, Misdirection, Cloak of Shadows, TBC Shaman Flame Shock changes, resilience, jewelcrafting, Arena teams).
+- **Mandate**: **Strict Vanilla / Classic Exclusivity**. Porting ANY mechanics, spells, talents, strategies, or items from TBC or WotLK is **STRICTLY PROHIBITED**. Only changes, bugfixes, and enhancements directly relevant to Vanilla and Classic are permitted. All post-Vanilla expansion content must be rejected immediately (`EXPANSION_INCOMPATIBLE`).
 
 ### KR-02: Mid-Teleport Object Visibility Race
 - **Hazard**: When a bot teleports (e.g. entering an instance, hearthstoning, or unstuck), `Player` is temporarily unlinked from `sObjectMgr` during grid reattachment. Naive null checks or stale-pointer guards will treat the player as offline or dead, prematurely terminating the bot session.
