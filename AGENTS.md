@@ -61,18 +61,26 @@ When conflicting technical information or implementation patterns arise, agents 
 - **Handling Multi-Expansion Upstream Code**: If an upstream commit contains multi-expansion branching (`#if defined(MANGOSBOT_ONE) || defined(MANGOSBOT_TWO)`, `#ifdef TBC`, WotLK checks, etc.):
   1. All non-Vanilla branches, post-Vanilla spells, talents, arenas, flying mounts, and expansion logic must be completely stripped out.
   2. If an upstream fix exists primarily for or relies upon TBC/WotLK mechanics, it is immediately **DISQUALIFIED** with status `EXPANSION_INCOMPATIBLE` and priority `P3`.
-### 2.8. Build & Verification Execution Modes (Token & Performance Optimization)
-To prevent context token exhaustion and avoid excessive build wait times (linking `mangosd.exe` takes 2–3 minutes and injects hundreds of lines of linker output into context per turn), agents are authorized to operate under three defined verification modes:
+### 2.8. Build & Verification Execution Modes & Token Optimizations (ADR-009)
+To prevent context token exhaustion and avoid lengthy build wait times (linking `mangosd.exe` takes 2–3 minutes and injects hundreds of lines of linker output into context per turn), agents are authorized to operate under three defined verification modes and five high-efficiency execution optimizations:
 
+#### Five High-Efficiency Execution Optimizations:
+1. **Dynamic CPU Parallelism**: Build invocations use `--parallel $env:NUMBER_OF_PROCESSORS` dynamically (utilizing all 12 logical CPU cores on the host machine, providing a 2.5x–3x compilation speedup).
+2. **MSBuild Quiet Verbosity (`/nologo /v:q`)**: Suppresses routine `.cpp` progress listings (~150–200 lines). A passing build emits a single status line (`[PASS] modules.lib compiled cleanly in 1.7s (12 cores, quiet)`) consuming 0 prompt tokens. Errors and exact line numbers are printed only on failure.
+3. **Automated Single-Turn Port Loop (`task commit-and-push`)**: Compiles with quiet flags, creates atomic git commit, pushes to remote, and registers ledger/dossier in a single automated step. Reduces tool roundtrips from 5 down to 1 per commit.
+4. **Automated Ledger & Dossier Helper (`task record-port`)**: Updates `state/porting-ledger.json` and generates the standardized `docs/commits/PORT-XXXX.md` dossier instantly from a template.
+5. **Concise Git Operations (`--quiet`)**: Uses `-q` flags during automated git operations to keep context clean.
+
+#### Three Authorized Execution Modes:
 1. **Option 1: Fast Incremental Mode (Recommended Default)**:
-   - **Per-Commit Verification**: Compile only the module target `modules` / `modules_playerbots` (`cmake --build build --target modules --config Release --parallel 4`). This takes ~3 seconds and produces only 2–3 output lines, keeping active context compact.
-   - **Atomic Git Commit & Push**: Commit and push each donor fix individually to `mantech-turtle` (preserving ADR-007 1-to-1 provenance).
-   - **Milestone Link Check**: Run the full executable linker (`mangosd.exe`) once at the conclusion of the phase or batch to verify global symbol resolution.
-   - **Token & Time Savings**: Eliminates ~90% of compiler context bloat and saves 10–15 minutes per batch.
+   - **Per-Commit Verification**: Compile only the module target `modules` via `.\task.ps1 verify-fast` (~1.7 seconds, 1 status line).
+   - **Atomic Git Commit & Push**: Commit and push each donor fix individually to `mantech-turtle` via `.\task.ps1 commit-and-push` (preserving ADR-007 1-to-1 provenance).
+   - **Milestone Link Check**: Run the full executable linker (`mangosd.exe`) once at the conclusion of the phase or batch via `.\task.ps1 verify-full` to verify global symbol resolution.
+   - **Token & Time Savings**: Eliminates ~95% of compiler context bloat and saves 10–15 minutes per batch.
 
 2. **Option 2: Batch Verification Mode (Maximum Token Efficiency)**:
    - **Sequential Atomic Commits**: Apply changes, draft dossiers, and commit to git individually in sequence to preserve git bisectability and 1-to-1 donor tracking.
-   - **Deferred Compilation**: Run a single comprehensive compile and link pass (`modules` + `mangosd.exe`) at the conclusion of the batch.
+   - **Deferred Compilation**: Run a single comprehensive compile and link pass (`verify-batch`) at the conclusion of the batch.
    - **Debugging & Error Isolation**: If compilation fails, MSVC compiler output specifies the exact file, line number, and error identifier, immediately identifying the offending commit. For runtime regressions, atomic git commits ensure `git bisect` functions identically to per-commit builds. The resulting binaries and code are identical.
 
 3. **Option 3: Strict Full-Link Mode (P0 Maximum Paranoia)**:

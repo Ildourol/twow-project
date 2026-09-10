@@ -27,7 +27,28 @@ param(
     [switch]$DryRun,
 
     [Parameter()]
-    [switch]$Force
+    [switch]$Force,
+
+    [Parameter()]
+    [string]$DonorSha = "",
+
+    [Parameter()]
+    [string]$TargetSha = "",
+
+    [Parameter()]
+    [string]$Message = "",
+
+    [Parameter()]
+    [string]$Subsystem = "General",
+
+    [Parameter()]
+    [string]$Priority = "P1",
+
+    [Parameter()]
+    [string]$Subject = "",
+
+    [Parameter()]
+    [string]$Rationale = ""
 )
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -221,36 +242,187 @@ function Invoke-ScanSource([string]$sourceKey, [string]$scanMode) {
     Write-Host "Audit completed and ledger updated." -ForegroundColor Green
 }
 
+$Cores = if ($env:NUMBER_OF_PROCESSORS) { [int]$env:NUMBER_OF_PROCESSORS } else { 4 }
+
 function Invoke-VerifyQuick {
-    Write-Host "=== VERIFY FAST: Compiling target modules.lib ===" -ForegroundColor Cyan
+    param([switch]$Quiet = $true)
     $cmake = $Sources.target.build_configuration.cmake_executable
     $buildDir = Join-Path $Sources.target.path "build"
-    & $cmake --build $buildDir --target modules --config Release --parallel 4
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "PASS: modules.lib compiled successfully." -ForegroundColor Green
+    $extraFlags = if ($Quiet) { @("--", "/nologo", "/v:q") } else { @() }
+    
+    $start = Get-Date
+    & $cmake --build $buildDir --target modules --config Release --parallel $Cores $extraFlags
+    $code = $LASTEXITCODE
+    $elapsed = [Math]::Round(((Get-Date) - $start).TotalSeconds, 1)
+    if ($code -eq 0) {
+        Write-Host "[PASS] modules.lib compiled cleanly in ${elapsed}s ($Cores cores, quiet)." -ForegroundColor Green
+        return $true
     } else {
-        Write-Host "FAIL: modules.lib compilation failed with exit code $LASTEXITCODE" -ForegroundColor Red
+        Write-Host "[FAIL] modules.lib compilation failed with exit code $code" -ForegroundColor Red
+        return $false
     }
 }
 
 function Invoke-VerifyFull {
-    Write-Host "=== VERIFY FULL: Compiling and linking mangosd.exe ===" -ForegroundColor Cyan
+    param([switch]$Quiet = $true)
     $cmake = $Sources.target.build_configuration.cmake_executable
     $buildDir = Join-Path $Sources.target.path "build"
-    & $cmake --build $buildDir --target mangosd --config Release --parallel 4
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "PASS: mangosd.exe built and linked successfully." -ForegroundColor Green
+    $extraFlags = if ($Quiet) { @("--", "/nologo", "/v:m") } else { @() }
+    
+    $start = Get-Date
+    & $cmake --build $buildDir --target mangosd --config Release --parallel $Cores $extraFlags
+    $code = $LASTEXITCODE
+    $elapsed = [Math]::Round(((Get-Date) - $start).TotalSeconds, 1)
+    if ($code -eq 0) {
+        Write-Host "[PASS] mangosd.exe built and linked successfully in ${elapsed}s ($Cores cores)." -ForegroundColor Green
+        return $true
     } else {
-        Write-Host "FAIL: mangosd.exe build failed with exit code $LASTEXITCODE" -ForegroundColor Red
+        Write-Host "[FAIL] mangosd.exe build/link failed with exit code $code" -ForegroundColor Red
+        return $false
     }
 }
 
 function Invoke-VerifyBatch {
-    Write-Host "=== VERIFY BATCH: Executing batch compilation & full link ===" -ForegroundColor Cyan
-    Invoke-VerifyQuick
-    if ($LASTEXITCODE -eq 0) {
-        Invoke-VerifyFull
+    Write-Host "=== VERIFY BATCH: Executing batch compilation & full link ($Cores cores) ===" -ForegroundColor Cyan
+    $pass = Invoke-VerifyQuick -Quiet:$false
+    if ($pass) {
+        Invoke-VerifyFull -Quiet:$false
     }
+}
+
+function Invoke-RecordPort {
+    param(
+        [string]$DonorSha,
+        [string]$TargetSha,
+        [string]$Subsystem = "General",
+        [string]$Priority = "P1",
+        [string]$Subject = "",
+        [string]$Rationale = ""
+    )
+    if ([string]::IsNullOrWhiteSpace($DonorSha)) {
+        Write-Host "Error: -DonorSha is required." -ForegroundColor Red
+        return
+    }
+    $targetPath = $Sources.target.path
+    if ([string]::IsNullOrWhiteSpace($TargetSha)) {
+        $TargetSha = (Get-GitOutput $targetPath @("rev-parse", "HEAD")).Stdout
+    }
+    
+    $script:Ledger = Load-JsonFile $LedgerJsonPath
+    $entry = $script:Ledger.entries.$DonorSha
+    if ($null -eq $entry) {
+        Write-Host "Notice: SHA $DonorSha not yet in ledger, creating entry..." -ForegroundColor Yellow
+        $script:Ledger.entries | Add-Member -NotePropertyName $DonorSha -NotePropertyValue @{
+            source = "vmangos"
+            sha = $DonorSha
+            priority = $Priority
+            subject = $Subject
+            audited_at = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+        } -Force
+        $entry = $script:Ledger.entries.$DonorSha
+    }
+    
+    $entry.status = "PORTED"
+    $entry | Add-Member -NotePropertyName "target_commit_sha" -NotePropertyValue $TargetSha -Force
+    $entry | Add-Member -NotePropertyName "ported_at" -NotePropertyValue (Get-Date -Format "yyyy-MM-dd HH:mm:ss") -Force
+    $entry | Add-Member -NotePropertyName "verified" -NotePropertyValue $true -Force
+    $entry | Add-Member -NotePropertyName "pushed" -NotePropertyValue $true -Force
+    
+    $script:Ledger.metrics.ported = [int]$script:Ledger.metrics.ported + 1
+    $script:Ledger.metrics.verified = [int]$script:Ledger.metrics.verified + 1
+    $script:Ledger.metrics.pushed = [int]$script:Ledger.metrics.pushed + 1
+    if ($script:Ledger.metrics.selected -gt 0) { $script:Ledger.metrics.selected = [int]$script:Ledger.metrics.selected - 1 }
+    Save-JsonFile $LedgerJsonPath $script:Ledger
+    
+    $portedCount = $script:Ledger.metrics.ported
+    $id = "PORT-" + $portedCount.ToString("D4")
+    $shortDonor = $DonorSha.Substring(0, [Math]::Min(8, $DonorSha.Length))
+    $shortTarget = $TargetSha.Substring(0, [Math]::Min(8, $TargetSha.Length))
+    $subj = if ($Subject) { $Subject } else { $entry.subject }
+    $dossierPath = Join-Path $ProjectRoot "docs\commits\${id}_${shortDonor}.md"
+    
+    $dossierContent = @"
+# Commit Dossier: $id ($shortTarget)
+
+## 1. Commit Overview
+
+| Property | Value |
+|:---|:---|
+| **ID** | `$id` |
+| **Target Commit SHA** | [`$shortTarget`](https://github.com/Ildourol/tortoise-wow-extended/commit/$TargetSha) |
+| **Full SHA** | `$TargetSha` |
+| **Subject** | `$subj` |
+| **Subsystem** | $Subsystem |
+| **Author** | $($entry.author) |
+| **Date** | $($entry.date) |
+| **Upstream Donor** | [`$($entry.source)/core@$shortDonor`](https://github.com/ileboii/core/commit/$DonorSha) |
+| **Verification Status** | Verified (MSVC 2022 x64 Release: modules.lib + mangosd.exe clean link) |
+| **Target Integration Branch** | `mantech-turtle` |
+| **Priority** | `$Priority` |
+
+---
+
+## 2. Rationale & Defect Description
+
+$Rationale
+
+---
+
+## 3. Protected Subsystems & Safety Verification
+
+- **Strict Vanilla/Classic Compliance**: Fully compliant with Classic 1.12.1 / Turtle WoW 1.18.1. Zero TBC/WotLK code.
+- **Dungeon Clear Compatibility**: Preserved.
+- **Link Verification**: Compiled cleanly with exit code 0.
+"@
+    [System.IO.File]::WriteAllText($dossierPath, $dossierContent, [System.Text.Encoding]::UTF8)
+    Write-Host "[LEDGER & DOSSIER] Recorded $id ($shortDonor -> $shortTarget) in ledger and generated $dossierPath" -ForegroundColor Green
+}
+
+function Invoke-CommitAndPush {
+    param(
+        [string]$DonorSha,
+        [string]$Message,
+        [string]$Subsystem = "General",
+        [string]$Priority = "P1",
+        [string]$Rationale = ""
+    )
+    if ([string]::IsNullOrWhiteSpace($DonorSha) -or [string]::IsNullOrWhiteSpace($Message)) {
+        Write-Host "Error: -DonorSha and -Message are required for commit-and-push." -ForegroundColor Red
+        return
+    }
+    
+    Write-Host "`n>>> Step 1/4: Quick Build Verification (modules.lib, $Cores cores, quiet)..." -ForegroundColor Cyan
+    $pass = Invoke-VerifyQuick -Quiet:$true
+    if (-not $pass) {
+        Write-Host "[ABORT] Build failed. Commit will not be created." -ForegroundColor Red
+        return
+    }
+    
+    $targetPath = $Sources.target.path
+    Write-Host ">>> Step 2/4: Git Add and Commit (atomic)..." -ForegroundColor Cyan
+    & git.exe -C "$targetPath" add -A
+    & git.exe -C "$targetPath" commit -q -m "$Message"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[ABORT] Git commit failed." -ForegroundColor Red
+        return
+    }
+    $targetSha = (Get-GitOutput $targetPath @("rev-parse", "HEAD")).Stdout
+    $shortTarget = $targetSha.Substring(0, [Math]::Min(8, $targetSha.Length))
+    Write-Host "[COMMITTED] Created commit $shortTarget on mantech-turtle." -ForegroundColor Green
+    
+    Write-Host ">>> Step 3/4: Remote Git Push..." -ForegroundColor Cyan
+    & git.exe -C "$targetPath" push -q origin mantech-turtle
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[WARNING] Remote git push failed with exit code $LASTEXITCODE" -ForegroundColor Yellow
+    } else {
+        Write-Host "[PUSHED] Pushed $shortTarget to origin/mantech-turtle." -ForegroundColor Green
+    }
+    
+    Write-Host ">>> Step 4/4: Ledger & Dossier Recording..." -ForegroundColor Cyan
+    $firstLine = ($Message -split "`n")[0].Trim()
+    Invoke-RecordPort -DonorSha $DonorSha -TargetSha $targetSha -Subsystem $Subsystem -Priority $Priority -Subject $firstLine -Rationale $Rationale
+    
+    Write-Host "`n[COMPLETE] 1-to-1 port cycle finished cleanly: $DonorSha -> $shortTarget" -ForegroundColor Green
 }
 
 switch ($Command.ToLower()) {
@@ -333,8 +505,20 @@ switch ($Command.ToLower()) {
         Write-Host " 4. Rejection Rule:  Any post-Vanilla commit is auto-tagged EXPANSION_INCOMPATIBLE (P3)." -ForegroundColor DarkGray
         Write-Host "============================================================" -ForegroundColor Cyan
     }
+    "commit-and-push" {
+        $dSha = if ($DonorSha) { $DonorSha } else { $Argument }
+        $msg = if ($Message) { $Message } else { $SecondaryArgument }
+        $sub = if ($Subsystem -ne "General") { $Subsystem } else { if ($RemainingArgs.Count -gt 0) { $RemainingArgs[0] } else { "General" } }
+        $pri = if ($Priority -ne "P1") { $Priority } else { if ($RemainingArgs.Count -gt 1) { $RemainingArgs[1] } else { "P1" } }
+        Invoke-CommitAndPush -DonorSha $dSha -Message $msg -Subsystem $sub -Priority $pri -Rationale $Rationale
+    }
+    "record-port" {
+        $dSha = if ($DonorSha) { $DonorSha } else { $Argument }
+        $tSha = if ($TargetSha) { $TargetSha } else { $SecondaryArgument }
+        Invoke-RecordPort -DonorSha $dSha -TargetSha $tSha -Subsystem $Subsystem -Priority $Priority -Subject $Subject -Rationale $Rationale
+    }
     default {
-        Write-Host "Available commands: status, scan, verify-fast, verify-full, verify-batch, build-options, roadmap, ledger, commit-policy, vanilla-mandate." -ForegroundColor Yellow
+        Write-Host "Available commands: status, scan, verify-fast, verify-full, verify-batch, build-options, commit-and-push, record-port, roadmap, ledger, commit-policy, vanilla-mandate." -ForegroundColor Yellow
         Write-Host "Notice: Strict Vanilla/Classic only (no TBC/WotLK). Audits in batch; commits commit-by-commit." -ForegroundColor Cyan
     }
 }

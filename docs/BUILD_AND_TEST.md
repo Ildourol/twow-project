@@ -29,7 +29,8 @@ flowchart TD
 - Command:
   ```powershell
   & "C:\vcpkg\downloads\tools\cmake-4.4.2-windows\cmake-4.4.2-windows-x86_64\bin\cmake.exe" `
-    --build "tortoise-wow-extended/build" --target modules --config Release --parallel 4
+    --build "tortoise-wow-extended/build" --target modules --config Release `
+    --parallel $env:NUMBER_OF_PROCESSORS -- /nologo /v:q
   ```
 
 ### 1.3. Level 3: Server Binary Linkage
@@ -37,7 +38,8 @@ flowchart TD
 - Command:
   ```powershell
   & "C:\vcpkg\downloads\tools\cmake-4.4.2-windows\cmake-4.4.2-windows-x86_64\bin\cmake.exe" `
-    --build "tortoise-wow-extended/build" --target mangosd --config Release --parallel 4
+    --build "tortoise-wow-extended/build" --target mangosd --config Release `
+    --parallel $env:NUMBER_OF_PROCESSORS -- /nologo /v:m
   ```
 
 ### 1.4. Level 4: Test Suite Execution

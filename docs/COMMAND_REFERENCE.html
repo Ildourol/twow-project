@@ -411,6 +411,34 @@
     </tr>
     <tr>
       <td>
+        <span class="cmd-name">commit-and-push</span>
+        <span class="badge badge-p1">Automated 1-Turn</span>
+      </td>
+      <td>
+        <div class="cmd-syntax">.\task.ps1 commit-and-push -DonorSha &lt;sha&gt; -Message &quot;&lt;msg&gt;&quot; [-Subsystem &lt;name&gt;] [-Priority &lt;tier&gt;] [-Rationale &lt;notes&gt;]</div>
+        <div class="cmd-notes">Automates post-edit verification, commit, push, and ledger update.</div>
+      </td>
+      <td>
+        <div class="cmd-desc">Executes the entire post-edit porting cycle in a single automated step: (1) compiles <code>modules.lib</code> with quiet flags across 12 cores (~1.7s), (2) creates atomic Git commit with <code>--quiet</code> on <code>mantech-turtle</code>, (3) pushes single commit immediately to remote, (4) updates <code>state/porting-ledger.json</code> and generates <code>PORT-XXXX</code> dossier automatically from template. Reduces tool roundtrips from 5 to 1.</div>
+      </td>
+      <td>Builds, commits, pushes, and writes dossier in 1 turn.</td>
+    </tr>
+    <tr>
+      <td>
+        <span class="cmd-name">record-port</span>
+        <span class="badge badge-core">Ledger Helper</span>
+      </td>
+      <td>
+        <div class="cmd-syntax">.\task.ps1 record-port -DonorSha &lt;sha&gt; [-TargetSha &lt;sha&gt;] [-Subsystem &lt;name&gt;] [-Priority &lt;tier&gt;] [-Subject &quot;&lt;text&gt;&quot;]</div>
+        <div class="cmd-notes">Direct ledger update &amp; dossier generation.</div>
+      </td>
+      <td>
+        <div class="cmd-desc">Directly records a ported commit in <code>state/porting-ledger.json</code>, updates tracking metrics, and generates the standardized markdown dossier in <code>docs/commits/</code> from a template without manual JSON editing.</div>
+      </td>
+      <td>Updates ledger and generates dossier.</td>
+    </tr>
+    <tr>
+      <td>
         <span class="cmd-name">build-options</span>
         <span class="badge badge-core">Information</span>
       </td>

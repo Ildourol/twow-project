@@ -117,13 +117,41 @@ Directly ports an explicitly requested commit and its required dependencies.
 .\task.ps1 verify-full   # Complete target server link (mangosd.exe, ~2-3m)
 .\task.ps1 verify-batch  # Batch verification pass across multi-commit series
 ```
-- **Option 1: Fast Incremental (Recommended Default)**: Run `verify-fast` after each individual commit. Eliminates 90% of token bloat and build wait time (~3s per commit). Run `verify-full` once at the end of the batch/phase.
+- **Option 1: Fast Incremental (Recommended Default)**: Run `verify-fast` after each individual commit. Eliminates 95% of token bloat and build wait time (~1.7s per commit, 12 cores, quiet). Run `verify-full` once at the end of the batch/phase.
 - **Option 2: Batch Verification**: Commit candidate fixes sequentially to git to preserve 1-to-1 provenance and git bisectability. Defer compilation and run `verify-batch` (or `verify-full`) once all commits in the batch are applied.
 - **Option 3: Strict Full-Link**: Run `verify-full` after each individual commit. Reserved for P0 core threading and engine refactors.
 
 ---
 
-### 2.8. ROADMAP
+### 2.8. COMMIT AND PUSH (AUTOMATED 1-TURN PORT CYCLE)
+```powershell
+.\task.ps1 commit-and-push -DonorSha <sha> -Message "<commit message>" -Subsystem <name> -Priority <P0|P1> -Rationale "<notes>"
+```
+Executes the full post-edit atomic cycle in a single automated step:
+1. Compiles target `modules.lib` with quiet flags (`/nologo /v:q`) across all 12 cores (~1.7s).
+2. Stages changes (`git add -A`) and creates an atomic target Git commit on `mantech-turtle`.
+3. Pushes the single commit immediately to `origin/mantech-turtle` via `--quiet`.
+4. Updates `state/porting-ledger.json` and generates `docs/commits/PORT-XXXX_<sha>.md` automatically from template.
+
+---
+
+### 2.9. RECORD PORT (MANUAL LEDGER & DOSSIER GENERATION)
+```powershell
+.\task.ps1 record-port -DonorSha <sha> [-TargetSha <sha>] -Subsystem <name> -Priority <P0|P1> -Subject "<text>" -Rationale "<notes>"
+```
+Directly records a completed port in `state/porting-ledger.json` and synthesizes the standard markdown dossier in `docs/commits/` without running a build or git push.
+
+---
+
+### 2.10. BUILD OPTIONS
+```powershell
+.\task.ps1 build-options
+```
+Displays the active ADR-009 verification modes, parallelism settings, and token optimization rules.
+
+---
+
+### 2.11. ROADMAP
 ```powershell
 .\task.ps1 roadmap
 ```
@@ -131,8 +159,9 @@ Displays current phase progress, prioritized backlog, and active porting tracks.
 
 ---
 
-### 2.9. LEDGER
+### 2.12. LEDGER
 ```powershell
 .\task.ps1 ledger [cmangos|vmangos]
 ```
 Displays tabular status of all audited, ported, skipped, duplicate, and rejected commits from `state/porting-ledger.json`.
+
