@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "audit_id": "AUDIT-cmangos-6ad783c9",
+  "source": "cmangos",
+  "source_commit": "6ad783c953759efd9a40bec05f9817221e5b93c6",
+  "author": "mostlikely4r",
+  "date": "2026-09-08",
+  "subject": "Corpse: Fixed crash when corpse does not exists or is at 0,0,0,0",
+  "priority": "P0",
+  "status": "PORTED",
+  "target_commit_sha": "7e5024c9271a2afe10ca20b5d2fe1a71ba6379bb",
+  "affected_files": [
+    {
+      "source_file": "playerbot/strategy/actions/ReviveFromCorpseAction.cpp",
+      "target_file": "modules/mod-playerbots/src/playerbot/strategy/actions/ReviveFromCorpseAction.cpp",
+      "action": "MODIFY"
+    },
+    {
+      "source_file": "playerbot/strategy/values/DeadValues.cpp",
+      "target_file": "modules/mod-playerbots/src/playerbot/strategy/values/DeadValues.cpp",
+      "action": "MODIFY"
+    }
+  ],
+  "dungeon_clear_impact": "POSITIVE (improves wipe recovery and corpse run reliability)",
+  "expansion_incompatible": false,
+  "verification_passed": true,
+  "pushed": true
+}

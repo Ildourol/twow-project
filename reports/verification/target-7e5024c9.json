@@ -1,0 +1,12 @@
+{
+  "target_commit_sha": "7e5024c9271a2afe10ca20b5d2fe1a71ba6379bb",
+  "upstream_donor_sha": "6ad783c953759efd9a40bec05f9817221e5b93c6",
+  "verification_timestamp": "2026-09-10 18:16:02",
+  "build_config": "Release x64 MSVC 2022 v143",
+  "modules_lib_exit_code": 0,
+  "mangosd_exe_exit_code": 0,
+  "unresolved_symbols": 0,
+  "result": "PASSED",
+  "pushed_to_remote": true,
+  "branch": "mantech-turtle"
+}

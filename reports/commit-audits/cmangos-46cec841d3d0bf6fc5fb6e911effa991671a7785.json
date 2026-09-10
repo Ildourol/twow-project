@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "audit_id": "AUDIT-cmangos-46cec841",
+  "source": "cmangos",
+  "source_commit": "46cec841d3d0bf6fc5fb6e911effa991671a7785",
+  "author": "mostlikely4r",
+  "date": "2026-09-08",
+  "subject": "Debug: Fixed crash when getting object location of a player that does not exists.",
+  "priority": "P0",
+  "status": "PORTED",
+  "target_commit_sha": "29a8df5032d73ad310cd6d242733cd907f263932",
+  "affected_files": [
+    {
+      "source_file": "playerbot/ChatHelper.cpp",
+      "target_file": "modules/mod-playerbots/src/playerbot/ChatHelper.cpp",
+      "action": "MODIFY"
+    }
+  ],
+  "dungeon_clear_impact": "NONE",
+  "expansion_incompatible": false,
+  "verification_passed": true,
+  "pushed": true
+}
