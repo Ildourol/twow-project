@@ -40,8 +40,8 @@ This roadmap documents the prioritized implementation tracks and verified progre
 ---
 
 ## Phase 2: CMaNGOS High-Priority Crash & Null-Pointer Fixes
-- [ ] **Corpse Location Crash**: Prevent crash when corpse does not exist or coordinates are `0,0,0,0` (`6ad783c9`).
-- [ ] **Player Location Crash**: Prevent crash when getting object location of non-existent player (`46cec841`).
+- [x] **Player Location Crash**: Prevent crash when getting object location of non-existent player (`46cec841` -> target `29a8df50`). *(PORTED & PUSHED commit-by-commit)*
+- [x] **Corpse Location Crash**: Prevent crash when corpse does not exist or coordinates are `0,0,0,0` (`6ad783c9` -> target `7e5024c9`). *(PORTED & PUSHED commit-by-commit)*
 - [ ] **Creature Data Description Crash**: Prevent crash when inspecting non-existent creature templates (`084a1368`).
 - [ ] **Factionless Mind-Control Reaction**: Guard creature controlled by player without faction (`ddbbfeda`).
 - [ ] **Stale Battleground Teleport**: Prevent bot teleporting to non-existent or concluded battlegrounds (`89a4e5ae`).

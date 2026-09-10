@@ -283,7 +283,18 @@ switch ($Command.ToLower()) {
         Write-Host "Per ADR-006 and AGENTS.md Section 2.5, this action risks scope explosion, regression hazards, and TBC/WotLK contamination." -ForegroundColor Yellow
         Write-Host "MANDATORY DOUBLE-CONFIRMATION GATE: To proceed, you must provide explicit secondary confirmation." -ForegroundColor Cyan
     }
+    "commit-policy" {
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host " COMMIT & PUSH POLICY (ADR-007 / AGENTS.md 2.6)" -ForegroundColor Cyan
+        Write-Host "============================================================" -ForegroundColor Cyan
+        Write-Host " 1. Batch Auditing: PERMITTED (audit up to 50 candidates in batch)." -ForegroundColor Green
+        Write-Host " 2. Batch Commits:  STRICTLY PROHIBITED." -ForegroundColor Red
+        Write-Host " 3. Granularity:    1 Upstream Donor Commit = 1 Target Commit = 1 Remote Push." -ForegroundColor Yellow
+        Write-Host " 4. Target Branch:  mantech-turtle on tortoise-wow-extended." -ForegroundColor Yellow
+        Write-Host "============================================================" -ForegroundColor Cyan
+    }
     default {
-        Write-Host "Available commands: status, scan, verify-quick, verify-full, roadmap, ledger." -ForegroundColor Yellow
+        Write-Host "Available commands: status, scan, verify-quick, verify-full, roadmap, ledger, commit-policy." -ForegroundColor Yellow
+        Write-Host "Notice: Audits may be batched, but all commits and pushes must be done commit-by-commit." -ForegroundColor Cyan
     }
 }

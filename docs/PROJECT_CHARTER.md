@@ -33,6 +33,8 @@ This is **not a blind cherry-picking project**. Upstream commits represent evide
    The Module-playerbots project operates with complete independence. No symlinks, junctions, shared caches, or cross-workspace links are permitted.
 7. **Strict Scope Boundary & Double-Confirmation Gate**:
    Unbounded widening of the scan scope into historical bulk donor backlogs is **prohibited**. The project operates strictly within the focused, high-signal active watermark ranges. If scope expansion is requested, the system must double-ask and require explicit user re-confirmation before adjusting watermarks.
+8. **Mandatory Commit-by-Commit Porting & Pushing (Batch Audit Allowed, Batch Commits Prohibited)**:
+   While candidate commits may be audited and triaged in batches for analysis efficiency, all porting, code adaptation, build verification, git committing, and remote pushing must be executed strictly **commit-by-commit** (1 upstream donor commit = 1 atomic target git commit = 1 remote push). Grouping, squashing, or batch-uploading multiple upstream commits into a single target commit is strictly prohibited.
 
 ---
 

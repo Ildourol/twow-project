@@ -43,8 +43,12 @@ vMaNGOS is structurally closer to the target's underlying core.
 
 ## 3. Commit Granularity & Provenance
 
-- **One Logical Fix = One Target Commit**: Do not create bloated batches containing unrelated fixes.
-- **Combined Fix Chains**: When upstream fixes a bug in commit A and immediately patches a flaw in commit B, port the consolidated, correct solution in a single commit.
+- **Strict 1-to-1 Commit Granularity (Batch Audit Allowed, Batch Commits Prohibited)**:
+  - You MAY audit and triage candidate commits in batches for scanning efficiency.
+  - Porting, adapting, verifying, committing, and pushing must occur strictly **commit-by-commit**.
+  - **1 Upstream Donor Commit = 1 Target Git Commit = 1 Remote Push**.
+  - Multiple upstream donor commits must **NEVER** be batched, squashed, or combined into a single target commit.
+  - Every individual commit must be verified (`modules.lib` and `mangosd.exe`) and pushed to `mantech-turtle` before proceeding to the next commit.
 - **Commit Message Standard**:
   ```git
   playerbots: <concise summary of fix/enhancement>

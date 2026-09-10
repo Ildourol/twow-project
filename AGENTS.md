@@ -46,6 +46,14 @@ When conflicting technical information or implementation patterns arise, agents 
 - **Strict Scope Prohibition**: Widening the scan scope to historical bulk backlogs beyond the established active watermarks is **STRICTLY PROHIBITED**.
 - **Double-Confirmation Requirement**: If the user or operator ever requests widening the scan scope or moving watermarks further into historical history, the agent **MUST NOT** execute it immediately. The agent is strictly required to pause, reject automatic execution, explain the risks of scope explosion and regression hazards, and explicitly request a second, separate confirmation ("double ask") before altering watermarks.
 
+### 2.6. Strict Commit-by-Commit Porting & Pushing Workflow (Batch Audit Allowed, Batch Commit Prohibited)
+- **Batch Auditing Permitted**: Agents and tasks MAY scan, evaluate, and triage multiple upstream donor commits in batches (up to 50 candidate commits per batch) to maintain high audit efficiency.
+- **Batch Commits Strictly Prohibited**: Multiple upstream donor commits must **NEVER** be grouped, combined, or squashed into a single target git commit.
+- **1-to-1 Atomic Porting Cycle**: Every single ported commit must execute its own isolated atomic cycle:
+  `1 Donor Commit -> 1 Adaptation -> 1 Build Verification (modules.lib + mangosd.exe) -> 1 Atomic Target Git Commit -> 1 Remote Git Push -> 1 Ledger Update`.
+- Each commit pushed to `mantech-turtle` must correspond to exactly one upstream donor commit with full individual provenance (source repository, upstream commit SHA, subsystem, priority).
+- **No Batch Pushing**: Every individual commit must be pushed immediately to `mantech-turtle` upon passing verification before moving to the next candidate commit.
+
 ---
 
 ## 3. Specialized Agent Roles
@@ -74,12 +82,12 @@ When conflicting technical information or implementation patterns arise, agents 
 ---
 
 ## 5. Definition of Done
-
-A candidate port or synchronization batch is officially **DONE** when:
+ 
+A candidate port is officially **DONE** when:
 1. Candidate bug or enhancement is proven relevant to the target and not already present.
 2. Code is ported natively conforming to target module and threading architecture.
 3. Dungeon Clear compatibility checklist passes.
 4. Target compilation of `modules.lib` succeeds with 0 errors.
 5. Target binary `mangosd.exe` links cleanly with 0 unresolved symbols.
-6. Commit is recorded in `state/porting-ledger.json` with full upstream provenance.
-7. Verified commit is committed and pushed to `mantech-turtle`.
+6. Commit is recorded in `state/porting-ledger.json` with full upstream provenance and individual target commit SHA.
+7. Verified commit is committed and pushed individually to `mantech-turtle` (commit-by-commit, 1-to-1 with upstream donor commit).

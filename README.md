@@ -78,10 +78,11 @@ cmake -S tortoise-wow-extended -B tortoise-wow-extended/build `
 3. **Turtle Expansion Assurances**: Preserves 11 playable races (`MAX_RACES = 11`), custom entities ($\ge 40000$ spells, $\ge 300000$ creatures), and 64-bit debuff streaming.
 4. **Multi-Tier Verification**: Every port must compile `modules.lib` and successfully link `mangosd.exe` using Visual Studio 2022 x64 before marking as completed.
 5. **Durable Ledger**: Every evaluated commit is tracked permanently in `state/porting-ledger.json` to eliminate duplicate investigation.
+6. **Commit-by-Commit Pipeline**: Batch auditing is permitted, but all code adaptation, build verification, git committing, and remote pushing must be executed strictly **commit-by-commit** (1 upstream commit = 1 target commit = 1 remote push). Batch commits are prohibited.
 
 ---
 
-## 3. Project Directory Structure
+## 4. Project Directory Structure
 
 ```
 Module-playerbots/
@@ -114,7 +115,7 @@ Module-playerbots/
 
 ---
 
-## 4. Command Quick Reference
+## 5. Command Quick Reference
 
 ```powershell
 # Show current project status, repository heads, and backlog metrics

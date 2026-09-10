@@ -246,7 +246,7 @@
     <span class="command-badge">Full Pipeline</span>
   </div>
   <div class="command-body">
-    <p>Executes the complete end-to-end synchronization pipeline: updates donor refs, audits candidate deltas, adapts eligible fixes natively, compiles <code>modules.lib</code>, links <code>mangosd.exe</code>, updates the ledger, commits to target, and pushes passing commits to <code>mantech-turtle</code>.</p>
+    <p>Executes the complete end-to-end synchronization pipeline: updates donor refs, audits candidate deltas in batch, then executes an atomic <strong>commit-by-commit</strong> loop (ports candidate natively, compiles <code>modules.lib</code>, links <code>mangosd.exe</code>, records in ledger, creates individual target commit, and immediately pushes each commit to <code>mantech-turtle</code>). Batch committing is strictly prohibited.</p>
     <div class="code-block">.\task.ps1 sync all normal</div>
   </div>
 </div>
@@ -360,6 +360,10 @@
 
 <div class="alert-box" style="border-left-color: #dc2626; background: #fef2f2;">
   <strong style="color: #991b1b;">Scope Boundary Invariant &amp; Double-Confirmation Gate:</strong> Widening the scan scope into historical donor backlogs beyond the active watermarks is strictly <strong>PROHIBITED</strong>. If historical scope expansion is ever requested, the framework will not execute it immediately; it requires an explicit warning and a mandatory double-confirmation from the operator.
+</div>
+
+<div class="alert-box" style="border-left-color: #0284c7; background: #f0f9ff;">
+  <strong style="color: #0369a1;">Mandatory Commit-by-Commit Pipeline (ADR-007):</strong> While candidate audits may be conducted in batches, all target code modifications, verification steps, git commits, and remote pushes must be executed strictly <strong>commit-by-commit</strong> (1 upstream donor commit = 1 atomic target commit = 1 remote push). Grouping multiple donor commits into a single commit or batch push is strictly prohibited.
 </div>
 
 </body>

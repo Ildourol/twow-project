@@ -52,3 +52,11 @@
 - **Context**: Donor repositories contain thousands of historical commits spanning multiple years and unrelated subsystems. Unbounded historical widening risks token bloat, regression hazards, and divergence from Turtle contracts.
 - **Decision**: Strictly prohibit widening the scan scope into historical bulk donor commits. The project remains locked to the active recent watermark ranges. If scope widening is ever requested again, the agent must not execute it automatically; it must reject immediate execution, warn of scope explosion risks, and require an explicit double-confirmation from the operator before altering any watermarks.
 - **Consequences**: Protects project focus, ensures high signal-to-noise ratio, and guarantees operator sovereignty over historical scope adjustments.
+
+---
+
+## ADR-007: Mandatory Commit-by-Commit Porting & Remote Pushing Architecture
+- **Status**: Accepted (Binding Directive)
+- **Context**: Porting multiple fixes in batched commits complicates regression attribution, git bisect operations, upstream provenance tracking, and cherry-picking between branches (`extended` and `mantech-turtle`).
+- **Decision**: While candidate commits may be audited and triaged in batches during scanning passes, all actual ports, code adaptations, build verifications, git commits, and remote pushes must be executed strictly **commit-by-commit** (1 upstream donor commit = 1 target git commit = 1 remote push). Grouping, combining, or squashing multiple upstream donor fixes into a single target git commit or single push is strictly prohibited.
+- **Consequences**: Guarantees clean git history, precise regression isolation, full auditability, and 1-to-1 provenance traceability back to upstream donor repositories.

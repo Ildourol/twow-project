@@ -2,7 +2,7 @@
 
 ## 1. The Multi-Tier Verification Ladder
 
-A source file compiling is **never** sufficient proof that a port is complete or correct. All candidate ports and sync batches must climb the verification ladder:
+A source file compiling is **never** sufficient proof that a port is complete or correct. All candidate ports must climb the verification ladder individually on a strict **commit-by-commit** basis before committing and pushing:
 
 ```mermaid
 flowchart TD

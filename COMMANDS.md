@@ -50,13 +50,15 @@ Audits new commits from the specified upstream source without modifying target f
 ```
 Executes the full automated backporting pipeline:
 1. Fetches remote upstream updates.
-2. Audits unscanned commits in the watermark range.
+2. Audits unscanned commits in the watermark range (batch auditing is permitted).
 3. Selects eligible candidates meeting P0/P1 criteria.
-4. Ports selected changes into `tortoise-wow-extended` using native adaptation.
-5. Runs verification ladder (`modules.lib` compile, `mangosd.exe` link).
-6. Creates formatted target git commits with full provenance.
-7. Records completed entries in `state/porting-ledger.json`.
-8. Pushes passing target commits to remote branch `mantech-turtle`.
+4. Executes an atomic **commit-by-commit** porting loop for each selected candidate:
+   a. Ports candidate natively into `tortoise-wow-extended`.
+   b. Runs verification ladder (`modules.lib` compile and `mangosd.exe` link).
+   c. Creates an individual, formatted target git commit with full provenance.
+   d. Pushes the single commit immediately to remote branch `mantech-turtle`.
+   e. Records the individual commit in `state/porting-ledger.json`.
+   *(Batch commits and batch pushes are strictly prohibited.)*
 
 ---
 
