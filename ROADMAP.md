@@ -1,4 +1,4 @@
-# Module-playerbots Porting & Stabilization Roadmap
+﻿# Module-playerbots Porting & Stabilization Roadmap
  
 This roadmap documents the prioritized implementation tracks and verified progression milestones for integrating upstream fixes into Turtle WoW Extended.
  
@@ -22,7 +22,7 @@ This roadmap documents the prioritized implementation tracks and verified progre
 ---
 
 ## Phase 0: Repository Identity & Baseline Setup (COMPLETE)
-- [x] Identify target repository: `tortoise-wow-extended` (`mantech-turtle` @ `a80ca1d1d4d5ac71573e9d06f5b80c4068c910ef`).
+- [x] Identify target repository: `tortoise-wow-extended` (`playerbots` @ `a80ca1d1d4d5ac71573e9d06f5b80c4068c910ef`).
 - [x] Resolve CMaNGOS donor repository: `playerbots` (`master` @ `89a4e5aebd6aa41ee87f6e65d89b66fff5c5c7c1`).
 - [x] Resolve vMaNGOS donor repository: `core` (`vmangos-ike3-playerbots` @ `2ff8489f74b82617591f9ada3bab2772bf849da2`).
 - [x] Establish standalone project-management layer (`AGENTS.md`, `COMMANDS.md`, `ROADMAP.md`, `docs/`, `state/`, `reports/`).

@@ -1,10 +1,10 @@
-# Module-playerbots Source Map & Subsystem Topology
+﻿# Module-playerbots Source Map & Subsystem Topology
 
 ## 1. Repository Register
 
 | Repository Role | Local Path | Git Remote URL | Branch | Initial HEAD SHA | Lineage & Architecture |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **TARGET (Turtle WoW Server)** | `tortoise-wow-extended` | `https://github.com/Ildourol/tortoise-wow-extended.git` | `mantech-turtle` | `a80ca1d1d4d5ac71573e9d06f5b80c4068c910ef` | Turtle WoW 1.18.1 / vMaNGOS core. Modular architecture. Writable target. |
+| **TARGET (Turtle WoW Server)** | `tortoise-wow-extended` | `https://github.com/Ildourol/tortoise-wow-extended.git` | `playerbots` | `a80ca1d1d4d5ac71573e9d06f5b80c4068c910ef` | Turtle WoW 1.18.1 / vMaNGOS core. Modular architecture. Writable target. |
 | **UPSTREAM (CMaNGOS PlayerBots)** | `reference-upstreams/playerbots` | `https://github.com/cmangos/playerbots.git` | `master` | `89a4e5aebd6aa41ee87f6e65d89b66fff5c5c7c1` | Standalone CMaNGOS PlayerBots module. High-velocity development. |
 | **UPSTREAM (vMaNGOS PlayerBots Core)** | `reference-upstreams/core` | `https://github.com/ileboii/core.git` | `vmangos-ike3-playerbots` | `2ff8489f74b82617591f9ada3bab2772bf849da2` | vMaNGOS core fork with ike3 PlayerBots integrated under `src/game/PlayerBots`. |
 

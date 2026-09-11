@@ -1,4 +1,4 @@
-# Module-playerbots Project Charter
+﻿# Module-playerbots Project Charter
 
 ## 1. Executive Summary & Objective
 
@@ -10,7 +10,7 @@ The project systematically harvests, audits, adapts, verifies, documents, and in
 
 Target Server:
 - **Repository**: `https://github.com/Ildourol/tortoise-wow-extended.git`
-- **Integration Branch**: `mantech-turtle`
+- **Integration Branch**: `playerbots`
 - **Protected Core Contracts**: Turtle WoW 1.18.1 mechanics, custom content/races, client build 7272, and **Dungeon Clear** integration.
 
 This is **not a blind cherry-picking project**. Upstream commits represent evidence and source material; the target checkout and its contracts are authoritative.
@@ -56,6 +56,6 @@ When technical requirements or evidence conflict:
 ## 4. Operational Boundaries
 
 - **No Destructive Operations**: `git reset --hard`, `git clean -fd`, and force-push are strictly forbidden against repos with user changes.
-- **Push Policy**: Commits are pushed only to `mantech-turtle` after complete link verification.
+- **Push Policy**: Commits are pushed only to `playerbots` after complete link verification.
 - **Database Safety**: Schema migrations are generated in source only; no live database modification without explicit user authorization.
 - **Config Safety**: `.conf.dist` templates are maintained; live configuration files are never overwritten.

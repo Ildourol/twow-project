@@ -1,4 +1,4 @@
-# Upstream Porting Policy & Engineering Standards
+﻿# Upstream Porting Policy & Engineering Standards
 
 ## 1. Guiding Principles
 
@@ -53,7 +53,7 @@ vMaNGOS is structurally closer to the target's underlying core.
   - Porting, adapting, verifying, committing, and pushing must occur strictly **commit-by-commit**.
   - **1 Upstream Donor Commit = 1 Target Git Commit = 1 Remote Push**.
   - Multiple upstream donor commits must **NEVER** be batched, squashed, or combined into a single target commit.
-  - Every individual commit must be verified (`modules.lib` and `mangosd.exe`) and pushed to `mantech-turtle` before proceeding to the next commit.
+  - Every individual commit must be verified (`modules.lib` and `mangosd.exe`) and pushed to `playerbots` before proceeding to the next commit.
 - **Commit Message Standard**:
   ```git
   playerbots: <concise summary of fix/enhancement>

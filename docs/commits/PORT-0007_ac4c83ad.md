@@ -1,4 +1,4 @@
-# Commit Dossier: PORT-0007 (e9e0dfc9)
+﻿# Commit Dossier: PORT-0007 (e9e0dfc9)
 
 ## 1. Commit Overview
 
@@ -13,7 +13,7 @@
 | **Date** | 2026-09-10 |
 | **Upstream Donor** | [`vmangos/core@ac4c83ad`](https://github.com/ileboii/core/commit/ac4c83adf3ef73d0ae04233b0d150aaf29120180) |
 | **Verification Status** | Verified (MSVC 2022 x64 Release: modules.lib + mangosd.exe clean link) |
-| **Target Integration Branch** | `mantech-turtle` |
+| **Target Integration Branch** | `playerbots` |
 | **Priority** | `P1` |
 
 ---

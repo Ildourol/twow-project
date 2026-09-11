@@ -1,4 +1,4 @@
-# Module-playerbots
+﻿# Module-playerbots
 
 **Module-playerbots** is an autonomous, evidence-driven upstream porting, stabilization, and verification framework for Turtle WoW 1.18.1 / vMaNGOS PlayerBots.
 
@@ -10,7 +10,7 @@ The project systematically audits, adapts, verifies, and integrates fixes and im
 
 | Repository Role | Local Directory | Upstream Git Remote | Branch | Primary Function |
 | :--- | :--- | :--- | :--- | :--- |
-| **TARGET** | `tortoise-wow-extended` | `https://github.com/Ildourol/tortoise-wow-extended.git` | `mantech-turtle` | Product repository. PlayerBots module (`modules/mod-playerbots`) and Dungeon Clear (`modules/mod-dungeon-clear`). |
+| **TARGET** | `tortoise-wow-extended` | `https://github.com/Ildourol/tortoise-wow-extended.git` | `playerbots` | Product repository. PlayerBots module (`modules/mod-playerbots`) and Dungeon Clear (`modules/mod-dungeon-clear`). |
 | **UPSTREAM 1** | `reference-upstreams/playerbots` *(junction at `playerbots/`)* | `https://github.com/cmangos/playerbots.git` | `master` | Donor repository for CMaNGOS PlayerBots. High-velocity AI, travel, and combat fixes. |
 | **UPSTREAM 2** | `reference-upstreams/core` *(junction at `core/`)* | `https://github.com/ileboii/core.git` | `vmangos-ike3-playerbots` | Donor repository for vMaNGOS PlayerBots. Core-integrated lifecycle, healing, and stance fixes. |
 
@@ -31,7 +31,7 @@ Run the following commands inside the `Module-playerbots` directory:
 
 ```powershell
 # 1. Target Product Repository (Turtle WoW Extended)
-git clone -b mantech-turtle https://github.com/Ildourol/tortoise-wow-extended.git tortoise-wow-extended
+git clone -b playerbots https://github.com/Ildourol/tortoise-wow-extended.git tortoise-wow-extended
 
 # 2. Reference Upstreams (organized in reference-upstreams/ with root junctions)
 New-Item -ItemType Directory -Path "reference-upstreams" -Force | Out-Null
@@ -161,6 +161,6 @@ Module-playerbots/
 | **vMaNGOS Database** | [brotalnia/database](https://github.com/brotalnia/database/tree/master) | Historical database reference snapshots. |
 | **cMaNGOS PlayerBots** | [cmangos/playerbots](https://github.com/cmangos/playerbots) | CMaNGOS bot mechanics donor repository. |
 | **Turtle DB Viewer** | [Web Dashboard](https://xian55.github.io/tortoise-db-viewer/?)<br>[Xian55/tortoise-db-viewer](https://github.com/Xian55/tortoise-db-viewer) | Interactive online database search and schema comparison. |
-| **User Product Repository** | [Ildourol/tortoise-wow-extended](https://github.com/Ildourol/tortoise-wow-extended) | Active target repository (branch: `mantech-turtle`). |
-| **Fork Comparison** | [T-imothy vs Ildourol:mantech-turtle](https://github.com/T-imothy/tortoise-wow/compare/mantech-turtle...Ildourol:tortoise-wow-extended:mantech-turtle) | Live GitHub diff comparing upstream bot changes with target fork. |
+| **User Product Repository** | [Ildourol/tortoise-wow-extended](https://github.com/Ildourol/tortoise-wow-extended) | Active target repository (branch: `playerbots`). |
+| **Fork Comparison** | [T-imothy vs Ildourol:playerbots](https://github.com/T-imothy/tortoise-wow/compare/playerbots...Ildourol:tortoise-wow-extended:playerbots) | Live GitHub diff comparing upstream bot changes with target fork. |
 

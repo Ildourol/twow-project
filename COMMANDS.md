@@ -1,4 +1,4 @@
-# Command Reference Manual
+﻿# Command Reference Manual
 
 This manual details the execution syntax, parameter semantics, and expected output for the **Module-playerbots** task dispatcher (`task.ps1`).
 
@@ -66,7 +66,7 @@ Executes the full automated backporting pipeline:
    a. Ports candidate natively into `tortoise-wow-extended`.
    b. Runs verification ladder (`modules.lib` compile and `mangosd.exe` link).
    c. Creates an individual, formatted target git commit with full provenance.
-   d. Pushes the single commit immediately to remote branch `mantech-turtle`.
+   d. Pushes the single commit immediately to remote branch `playerbots`.
    e. Records the individual commit in `state/porting-ledger.json`.
    *(Batch commits and batch pushes are strictly prohibited.)*
 
@@ -129,8 +129,8 @@ Directly ports an explicitly requested commit and its required dependencies.
 ```
 Executes the full post-edit atomic cycle in a single automated step:
 1. Compiles target `modules.lib` with quiet flags (`/nologo /v:q`) across all 12 cores (~1.7s).
-2. Stages changes (`git add -A`) and creates an atomic target Git commit on `mantech-turtle`.
-3. Pushes the single commit immediately to `origin/mantech-turtle` via `--quiet`.
+2. Stages changes (`git add -A`) and creates an atomic target Git commit on `playerbots`.
+3. Pushes the single commit immediately to `origin/playerbots` via `--quiet`.
 4. Updates `state/porting-ledger.json` and generates `docs/commits/PORT-XXXX_<sha>.md` automatically from template.
 
 ---

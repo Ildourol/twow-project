@@ -15,14 +15,14 @@ Module-playerbots/
 │   └── playerbots/            # cmangos/playerbots (branch: master)
 ├── core/                      # Junction -> reference-upstreams/core
 ├── playerbots/                # Junction -> reference-upstreams/playerbots
-└── tortoise-wow-extended/     # Active product repository (branch: mantech-turtle)
+└── tortoise-wow-extended/     # Active product repository (branch: playerbots)
 ```
 
 | Subdirectory / Junction | Git Remote URL | Branch | Role in Porting |
 |:---|:---|:---|:---|
 | `reference-upstreams/core` | `https://github.com/ileboii/core.git` | `vmangos-ike3-playerbots` | Primary donor for bot lifecycle, stance, and healing fixes |
 | `reference-upstreams/playerbots` | `https://github.com/cmangos/playerbots.git` | `master` | CMaNGOS donor for bot strategies, combat, and travel nodes |
-| `tortoise-wow-extended` | `https://github.com/Ildourol/tortoise-wow-extended.git` | `mantech-turtle` | Active target product repository (Protected) |
+| `tortoise-wow-extended` | `https://github.com/Ildourol/tortoise-wow-extended.git` | `playerbots` | Active target product repository (Protected) |
 
 ---
 
@@ -66,5 +66,5 @@ To fetch and fast-forward all reference upstream repositories locally without to
 | **vMaNGOS Database** | [brotalnia/database](https://github.com/brotalnia/database/tree/master) | Historical database reference snapshots. |
 | **cMaNGOS PlayerBots** | [cmangos/playerbots](https://github.com/cmangos/playerbots) | CMaNGOS bot mechanics donor repository. |
 | **Turtle DB Viewer** | [Web Dashboard](https://xian55.github.io/tortoise-db-viewer/?)<br>[Xian55/tortoise-db-viewer](https://github.com/Xian55/tortoise-db-viewer) | Interactive online database search and schema comparison. |
-| **User Product Repository** | [Ildourol/tortoise-wow-extended](https://github.com/Ildourol/tortoise-wow-extended) | Active target repository (branch: `mantech-turtle`). |
-| **Fork Comparison** | [T-imothy vs Ildourol:mantech-turtle](https://github.com/T-imothy/tortoise-wow/compare/mantech-turtle...Ildourol:tortoise-wow-extended:mantech-turtle) | Live GitHub diff comparing upstream bot changes with target fork. |
+| **User Product Repository** | [Ildourol/tortoise-wow-extended](https://github.com/Ildourol/tortoise-wow-extended) | Active target repository (branch: `playerbots`). |
+| **Fork Comparison** | [T-imothy vs Ildourol:playerbots](https://github.com/T-imothy/tortoise-wow/compare/playerbots...Ildourol:tortoise-wow-extended:playerbots) | Live GitHub diff comparing upstream bot changes with target fork. |

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -207,7 +207,7 @@
     </td>
     <td style="width: 25%;">
       <strong>Target Branch</strong>
-      mantech-turtle
+      playerbots
     </td>
     <td style="width: 25%;">
       <strong>CLI Dispatcher</strong>
@@ -320,10 +320,10 @@
         <div class="cmd-notes"><b>source:</b> cmangos | vmangos | all<br><b>mode:</b> fast | normal | deep</div>
       </td>
       <td>
-        <div class="cmd-desc">Executes the automated end-to-end backporting pipeline: updates donor references, audits candidate deltas in batch, then executes an atomic <b>commit-by-commit loop</b>. Each selected candidate is ported natively, compiled against <code>modules.lib</code>, linked into <code>mangosd.exe</code>, documented in a per-commit dossier, committed to target git, and immediately pushed to <code>mantech-turtle</code>.</div>
+        <div class="cmd-desc">Executes the automated end-to-end backporting pipeline: updates donor references, audits candidate deltas in batch, then executes an atomic <b>commit-by-commit loop</b>. Each selected candidate is ported natively, compiled against <code>modules.lib</code>, linked into <code>mangosd.exe</code>, documented in a per-commit dossier, committed to target git, and immediately pushed to <code>playerbots</code>.</div>
         <div class="cmd-notes"><b>ADR-007:</b> Batch commits and batch pushes are strictly prohibited.</div>
       </td>
-      <td>Generates target git commits and remote pushes to <code>mantech-turtle</code>.</td>
+      <td>Generates target git commits and remote pushes to <code>playerbots</code>.</td>
     </tr>
     <tr>
       <td>
@@ -419,7 +419,7 @@
         <div class="cmd-notes">Automates post-edit verification, commit, push, and ledger update.</div>
       </td>
       <td>
-        <div class="cmd-desc">Executes the entire post-edit porting cycle in a single automated step: (1) compiles <code>modules.lib</code> with quiet flags across 12 cores (~1.7s), (2) creates atomic Git commit with <code>--quiet</code> on <code>mantech-turtle</code>, (3) pushes single commit immediately to remote, (4) updates <code>state/porting-ledger.json</code> and generates <code>PORT-XXXX</code> dossier automatically from template. Reduces tool roundtrips from 5 to 1.</div>
+        <div class="cmd-desc">Executes the entire post-edit porting cycle in a single automated step: (1) compiles <code>modules.lib</code> with quiet flags across 12 cores (~1.7s), (2) creates atomic Git commit with <code>--quiet</code> on <code>playerbots</code>, (3) pushes single commit immediately to remote, (4) updates <code>state/porting-ledger.json</code> and generates <code>PORT-XXXX</code> dossier automatically from template. Reduces tool roundtrips from 5 to 1.</div>
       </td>
       <td>Builds, commits, pushes, and writes dossier in 1 turn.</td>
     </tr>
@@ -517,7 +517,7 @@
         <div class="cmd-notes">Prints binding architectural rules.</div>
       </td>
       <td>
-        <div class="cmd-desc">Displays the binding rules of <b>ADR-007</b>: Batch auditing is permitted for scanning speed; batch commits and batch pushes are strictly prohibited. Every upstream commit ported must produce exactly 1 target commit and 1 remote push to <code>mantech-turtle</code>.</div>
+        <div class="cmd-desc">Displays the binding rules of <b>ADR-007</b>: Batch auditing is permitted for scanning speed; batch commits and batch pushes are strictly prohibited. Every upstream commit ported must produce exactly 1 target commit and 1 remote push to <code>playerbots</code>.</div>
       </td>
       <td>Console summary of commit granularity standards.</td>
     </tr>
@@ -615,7 +615,7 @@
 <h2>5. Architectural Governance & Safety Invariants</h2>
 <div class="policy-strip green">
   <strong>1. Mandatory 1-to-1 Commit Granularity (ADR-007):</strong>
-  Batch auditing is permitted for scanning efficiency. However, all target code modifications, verification builds, git commits, documentation dossiers, and remote pushes must occur strictly <b>commit-by-commit</b>. 1 Upstream Donor Commit = 1 Target Commit = 1 Remote Push to <code>mantech-turtle</code>. Squashing or batching donor commits into composite commits is strictly prohibited.
+  Batch auditing is permitted for scanning efficiency. However, all target code modifications, verification builds, git commits, documentation dossiers, and remote pushes must occur strictly <b>commit-by-commit</b>. 1 Upstream Donor Commit = 1 Target Commit = 1 Remote Push to <code>playerbots</code>. Squashing or batching donor commits into composite commits is strictly prohibited.
 </div>
 
 <div class="policy-strip red">

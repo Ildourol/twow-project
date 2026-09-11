@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Standalone CLI Task Dispatcher for Module-playerbots.
 .DESCRIPTION
@@ -358,7 +358,7 @@ function Invoke-RecordPort {
 | **Date** | $($entry.date) |
 | **Upstream Donor** | [$bt$($entry.source)/core@$shortDonor$bt](https://github.com/ileboii/core/commit/$DonorSha) |
 | **Verification Status** | Verified (MSVC 2022 x64 Release: modules.lib + mangosd.exe clean link) |
-| **Target Integration Branch** | ${bt}mantech-turtle$bt |
+| **Target Integration Branch** | ${bt}playerbots$bt |
 | **Priority** | $bt$Priority$bt |
 
 ---
@@ -409,14 +409,14 @@ function Invoke-CommitAndPush {
     }
     $targetSha = (Get-GitOutput $targetPath @("rev-parse", "HEAD")).Stdout
     $shortTarget = $targetSha.Substring(0, [Math]::Min(8, $targetSha.Length))
-    Write-Host "[COMMITTED] Created commit $shortTarget on mantech-turtle." -ForegroundColor Green
+    Write-Host "[COMMITTED] Created commit $shortTarget on playerbots." -ForegroundColor Green
     
     Write-Host ">>> Step 3/4: Remote Git Push..." -ForegroundColor Cyan
-    & git.exe -C "$targetPath" push -q origin mantech-turtle
+    & git.exe -C "$targetPath" push -q origin playerbots
     if ($LASTEXITCODE -ne 0) {
         Write-Host "[WARNING] Remote git push failed with exit code $LASTEXITCODE" -ForegroundColor Yellow
     } else {
-        Write-Host "[PUSHED] Pushed $shortTarget to origin/mantech-turtle." -ForegroundColor Green
+        Write-Host "[PUSHED] Pushed $shortTarget to origin/playerbots." -ForegroundColor Green
     }
     
     Write-Host ">>> Step 4/4: Ledger & Dossier Recording..." -ForegroundColor Cyan
@@ -559,7 +559,7 @@ switch ($Command.ToLower()) {
         Write-Host " 1. Batch Auditing: PERMITTED (audit up to 50 candidates in batch)." -ForegroundColor Green
         Write-Host " 2. Batch Commits:  STRICTLY PROHIBITED." -ForegroundColor Red
         Write-Host " 3. Granularity:    1 Upstream Donor Commit = 1 Target Commit = 1 Remote Push." -ForegroundColor Yellow
-        Write-Host " 4. Target Branch:  mantech-turtle on tortoise-wow-extended." -ForegroundColor Yellow
+        Write-Host " 4. Target Branch:  playerbots on tortoise-wow-extended." -ForegroundColor Yellow
         Write-Host "============================================================" -ForegroundColor Cyan
     }
     "vanilla-mandate" {

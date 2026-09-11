@@ -1,4 +1,4 @@
-# AGENTS.md: Autonomous Operating Protocol for Module-playerbots
+﻿# AGENTS.md: Autonomous Operating Protocol for Module-playerbots
 
 This document establishes the binding architectural principles, authority order, agent operational roles, verification gates, and porting policies for AI agents operating on **Module-playerbots**.
 
@@ -34,9 +34,9 @@ When conflicting technical information or implementation patterns arise, agents 
 
 ### 2.3. Repository Targets & Commit Safety
 - **Writable Target**: Modifications occur strictly in `tortoise-wow-extended`.
-- **Target Integration Branch**: `mantech-turtle`.
+- **Target Integration Branch**: `playerbots`.
 - **Read-Only Sources**: `playerbots` and `core` are read-only source repositories. Never commit or push to them.
-- **Push Policy**: Pushes to `mantech-turtle` are authorized only after complete Level 3 verification (`mangosd.exe` links cleanly). Force-pushes are strictly forbidden.
+- **Push Policy**: Pushes to `playerbots` are authorized only after complete Level 3 verification (`mangosd.exe` links cleanly). Force-pushes are strictly forbidden.
 
 ### 2.4. Protected Subsystems
 - **Dungeon Clear (`modules/mod-dungeon-clear`)**: Protected subsystem. No port may break, bypass, or desync Dungeon Clear value contexts, routes, or encounter states.
@@ -51,8 +51,8 @@ When conflicting technical information or implementation patterns arise, agents 
 - **Batch Commits Strictly Prohibited**: Multiple upstream donor commits must **NEVER** be grouped, combined, or squashed into a single target git commit.
 - **1-to-1 Atomic Porting Cycle**: Every single ported commit must execute its own isolated atomic cycle:
   `1 Donor Commit -> 1 Adaptation -> 1 Build Verification (modules.lib + mangosd.exe) -> 1 Atomic Target Git Commit -> 1 Remote Git Push -> 1 Ledger Update`.
-- Each commit pushed to `mantech-turtle` must correspond to exactly one upstream donor commit with full individual provenance (source repository, upstream commit SHA, subsystem, priority).
-- **No Batch Pushing**: Every individual commit must be pushed immediately to `mantech-turtle` upon passing verification before moving to the next candidate commit.
+- Each commit pushed to `playerbots` must correspond to exactly one upstream donor commit with full individual provenance (source repository, upstream commit SHA, subsystem, priority).
+- **No Batch Pushing**: Every individual commit must be pushed immediately to `playerbots` upon passing verification before moving to the next candidate commit.
 
 ### 2.7. Absolute Vanilla / Classic Exclusivity Mandate (Strict Prohibition on TBC and WotLK)
 - **Strict Vanilla / Classic Target**: This project targets exclusively **Vanilla / Classic WoW** (Classic 1.12.1 / Turtle WoW 1.18.1 Classic+).
@@ -74,7 +74,7 @@ To prevent context token exhaustion and avoid lengthy build wait times (linking 
 #### Three Authorized Execution Modes:
 1. **Option 1: Fast Incremental Mode (Recommended Default)**:
    - **Per-Commit Verification**: Compile only the module target `modules` via `.\task.ps1 verify-fast` (~1.7 seconds, 1 status line).
-   - **Atomic Git Commit & Push**: Commit and push each donor fix individually to `mantech-turtle` via `.\task.ps1 commit-and-push` (preserving ADR-007 1-to-1 provenance).
+   - **Atomic Git Commit & Push**: Commit and push each donor fix individually to `playerbots` via `.\task.ps1 commit-and-push` (preserving ADR-007 1-to-1 provenance).
    - **Milestone Link Check**: Run the full executable linker (`mangosd.exe`) once at the conclusion of the phase or batch via `.\task.ps1 verify-full` to verify global symbol resolution.
    - **Token & Time Savings**: Eliminates ~95% of compiler context bloat and saves 10–15 minutes per batch.
 
@@ -99,7 +99,7 @@ To fetch and integrate new upstream donor commits locally without touching the w
 .\tools\task.ps1 update-upstreams cmangos   # Updates only CMaNGOS PlayerBots
 ```
 - **Local Commits Inspection**: When new commits are detected, `task update-upstreams` outputs the commit count and recent git oneline logs, allowing immediate inspection with `git -C reference-upstreams/core show <sha>`.
-- **Target Repository Exclusion & Protection**: Active target repo `tortoise-wow-extended` (branch `mantech-turtle`) is **strictly excluded** from automated pulls or checkouts to prevent dirtying or overwriting active development work.
+- **Target Repository Exclusion & Protection**: Active target repo `tortoise-wow-extended` (branch `playerbots`) is **strictly excluded** from automated pulls or checkouts to prevent dirtying or overwriting active development work.
 
 #### Essential Ecosystem Links & Comparison References:
 - **Turtle WoW Original**: [Penqle/tortoise-wow](https://github.com/Penqle/tortoise-wow)
@@ -113,7 +113,7 @@ To fetch and integrate new upstream donor commits locally without touching the w
 - **cMaNGOS PlayerBots**: [cmangos/playerbots](https://github.com/cmangos/playerbots)
 - **Turtle DB Viewer**: [Online DB Viewer](https://xian55.github.io/tortoise-db-viewer/?) &bull; [Xian55/tortoise-db-viewer](https://github.com/Xian55/tortoise-db-viewer)
 - **User Working Target Repository**: [Ildourol/tortoise-wow-extended](https://github.com/Ildourol/tortoise-wow-extended)
-- **Fork Comparison**: [T-imothy vs Ildourol:mantech-turtle Comparison](https://github.com/T-imothy/tortoise-wow/compare/mantech-turtle...Ildourol:tortoise-wow-extended:mantech-turtle)
+- **Fork Comparison**: [T-imothy vs Ildourol:playerbots Comparison](https://github.com/T-imothy/tortoise-wow/compare/playerbots...Ildourol:tortoise-wow-extended:playerbots)
 
 ---
 
@@ -138,7 +138,7 @@ To fetch and integrate new upstream donor commits locally without touching the w
    - Max candidate batch size: 50.
    - Build timeout: 900 seconds.
 3. **Deterministic First**: Evaluate syntax, file presence, and keyword filters deterministically before invoking AI analysis.
-4. **Cache Invalidation**: Cache entries are invalidated whenever target `mantech-turtle` HEAD moves or donor watermarks advance.
+4. **Cache Invalidation**: Cache entries are invalidated whenever target `playerbots` HEAD moves or donor watermarks advance.
 
 ---
 
@@ -151,4 +151,4 @@ A candidate port is officially **DONE** when:
 4. Target compilation of `modules.lib` succeeds with 0 errors.
 5. Target binary `mangosd.exe` links cleanly with 0 unresolved symbols.
 6. Commit is recorded in `state/porting-ledger.json` with full upstream provenance and individual target commit SHA.
-7. Verified commit is committed and pushed individually to `mantech-turtle` (commit-by-commit, 1-to-1 with upstream donor commit).
+7. Verified commit is committed and pushed individually to `playerbots` (commit-by-commit, 1-to-1 with upstream donor commit).

@@ -1,4 +1,4 @@
-# Commit Selection & Triage Policy
+﻿# Commit Selection & Triage Policy
 
 ## 1. Priority Classification Hierarchy
 
@@ -44,7 +44,7 @@ Every candidate commit evaluated is assigned one of the following statuses in `s
 - `PORT_WITH_ADAPTATION`: Fix requires rewriting using target-native contracts or `cmangos-compat-shim.h`.
 - `PORTED`: Implemented and committed to the target branch.
 - `VERIFIED`: Confirmed passing MSVC 2022 x64 compilation and linking `mangosd.exe`.
-- `PUSHED`: Pushed to remote target branch `mantech-turtle`.
+- `PUSHED`: Pushed to remote target branch `playerbots`.
 - `ALREADY_PRESENT`: Semantic equivalence already identified in target.
 - `DUPLICATE`: Identical to another ported candidate.
 - `SUPERSEDED`: Replaced by a more comprehensive downstream/follow-up commit.

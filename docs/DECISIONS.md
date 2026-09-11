@@ -1,4 +1,4 @@
-# Architectural Decision Records (ADR)
+﻿# Architectural Decision Records (ADR)
 
 ## ADR-001: Independent Standalone Project-Management Architecture
 - **Status**: Accepted
@@ -30,7 +30,7 @@
 - **Status**: Accepted
 - **Context**: A compiling object file does not guarantee binary linkability or runtime correctness.
 - **Decision**: Every ported commit or sync batch must compile `modules.lib` and successfully link `mangosd.exe` using MSVC 2022 x64 before marking as `VERIFIED` in the ledger.
-- **Consequences**: Prevents broken builds and unresolved externals from being pushed to `mantech-turtle`.
+- **Consequences**: Prevents broken builds and unresolved externals from being pushed to `playerbots`.
 
 ---
 
@@ -57,7 +57,7 @@
 
 ## ADR-007: Mandatory Commit-by-Commit Porting & Remote Pushing Architecture
 - **Status**: Accepted (Binding Directive)
-- **Context**: Porting multiple fixes in batched commits complicates regression attribution, git bisect operations, upstream provenance tracking, and cherry-picking between branches (`extended` and `mantech-turtle`).
+- **Context**: Porting multiple fixes in batched commits complicates regression attribution, git bisect operations, upstream provenance tracking, and cherry-picking between branches (`extended` and `playerbots`).
 - **Decision**: While candidate commits may be audited and triaged in batches during scanning passes, all actual ports, code adaptations, build verifications, git commits, and remote pushes must be executed strictly **commit-by-commit** (1 upstream donor commit = 1 target git commit = 1 remote push). Grouping, combining, or squashing multiple upstream donor fixes into a single target git commit or single push is strictly prohibited.
 - **Consequences**: Guarantees clean git history, precise regression isolation, full auditability, and 1-to-1 provenance traceability back to upstream donor repositories.
 
@@ -75,7 +75,7 @@
 - **Status**: Accepted (Binding Directive)
 - **Context**: Compiling and linking `mangosd.exe` with MSVC 2022 on Windows requires 2–3 minutes per run and emits hundreds of lines of output into active context. Performing a full link cycle for every single commit incurs massive token waste and 10–15 minutes of idle waiting across small batches.
 - **Decision**: Authorize two optimized verification modes alongside Strict Full-Link Mode:
-  1. **Option 1: Fast Incremental Mode (Recommended Default)**: Compile the isolated library target `modules` / `modules_playerbots` per commit (~3s, ~3 lines of output). Push the atomic commit immediately to `mantech-turtle`. Execute the full `mangosd.exe` link once at the batch or milestone boundary.
+  1. **Option 1: Fast Incremental Mode (Recommended Default)**: Compile the isolated library target `modules` / `modules_playerbots` per commit (~3s, ~3 lines of output). Push the atomic commit immediately to `playerbots`. Execute the full `mangosd.exe` link once at the batch or milestone boundary.
   2. **Option 2: Batch Verification Mode**: Apply and commit code changes sequentially in git to maintain 1-to-1 provenance and git bisectability, but execute a single compile and link pass (`modules` + `mangosd.exe`) at the conclusion of the batch.
   3. **Option 3: Strict Full-Link Mode**: Retained as an explicit option for P0 core architectural overhauls.
 - **Consequences**: Yields ~90% reduction in context token consumption and build latency while preserving 1-to-1 git commit granularity, bisectability, and compiler diagnostic precision.

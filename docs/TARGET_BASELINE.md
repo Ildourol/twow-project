@@ -1,10 +1,10 @@
-# Target Baseline Specification
+﻿# Target Baseline Specification
 
 ## 1. Target Repository Baseline
 
 - **Repository Directory**: `C:\Users\Admin\AntigravityProfiles\Projects\Module-playerbots\tortoise-wow-extended`
 - **Git Remote**: `origin -> https://github.com/Ildourol/tortoise-wow-extended.git`
-- **Integration Branch**: `mantech-turtle`
+- **Integration Branch**: `playerbots`
 - **Baseline HEAD SHA**: `a80ca1d1d4d5ac71573e9d06f5b80c4068c910ef`
 - **Working Tree Cleanliness**: `Clean` (0 uncommitted changes, 0 untracked files)
 - **Client Protocol Target**: Turtle WoW 1.18.1 (Client Build 7272)
