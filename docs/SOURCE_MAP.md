@@ -1,4 +1,4 @@
-﻿# Module-playerbots Source Map & Subsystem Topology
+# Module-playerbots Source Map & Subsystem Topology
 
 ## 1. Repository Register
 
@@ -44,7 +44,7 @@ In the target repository (`tortoise-wow-extended`), PlayerBots operates as an in
 - `src/game/World.cpp`: Startup hook `World::InitPlayerbotsAtStartup()`.
 - `src/game/PlayerbotStubs.cpp`: Fallback stubs compiled when `BUILD_PLAYERBOTS=OFF`.
 - `src/game/ScriptMgr.h`: Script hooks providing bot interaction points without polluting core headers.
-- `src/game/Player.cpp` / `Unit.cpp`: Core entity integration with bot safety guards.
+- `src/game/Objects/Player.cpp` / `Unit.cpp`: Core entity integration with bot safety guards.
 
 ---
 
@@ -81,5 +81,5 @@ When evaluating commits from either upstream source, file paths must be mapped t
 - **Porting Method**: **Adapted Port**.
 - **Key Adaptations**:
   - Translate paths from `src/game/PlayerBots/` to `modules/mod-playerbots/src/`.
-  - Check for Turtle WoW custom content differences (e.g. 11 playable races, custom spells $\ge 40000$, custom creatures $\ge 300000$).
+  - Check for Turtle WoW custom content differences (e.g. 10 playable races (IDs 1-10; exclusive bound 11), custom spells $\ge 40000$, custom creatures $\ge 300000$).
   - Preserve Turtle module hooks.

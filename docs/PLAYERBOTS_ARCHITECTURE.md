@@ -85,7 +85,7 @@ The AI decision cycle executes through the following stages:
 3. **Action Basket & Execution**:
    - Candidate actions are gathered into `ActionBasket`.
    - Priorities are dynamically modified by `Multiplier` plugins based on combat role, stance, or dungeon strategy.
-   - The action with highest net priority is executed via `Action::Execute(Event event)`.
+   - The action with highest net priority is executed via `Action::Execute(Event& event)`.
 4. **Strategies**:
    - Groups of triggers, actions, and multipliers grouped into cohesive playstyles (e.g. `dps`, `heal`, `tank`, `rpg`, `stay`, `follow`, `dungeon`).
 
@@ -102,10 +102,10 @@ The AI decision cycle executes through the following stages:
 ## 5. Compatibility Seams
 
 Because upstream CMaNGOS evolves independently, `cmangos-compat-shim.h` bridges structural type divergence:
-- `ObjectGuidSet` mapped to `GuidSet`.
-- `CreatureAI` mapped to `UnitAI`.
-- `Transport` mapped to `GenericTransport`.
-- `AreaEntry` mapped to `AreaTableEntry`.
-- `AreaTriggerEntry` mapped to `AreaTrigger`.
+- `GuidSet` mapped to native `ObjectGuidSet`.
+- `UnitAI` mapped to native `CreatureAI`.
+- `GenericTransport` mapped to native `Transport`.
+- `AreaTableEntry` mapped to native `AreaEntry`.
+- `AreaTrigger` mapped to native `AreaTriggerEntry`.
 
 Target-native APIs always take precedence over foreign shims.

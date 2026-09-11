@@ -1,5 +1,7 @@
 # Build & Verification Ladder Specification
 
+Current interpretation: ADR-009 permits fast or batch verification to defer full linking. The strict per-commit ladder below describes full-link mode. Deferred checks remain pending until run against the recorded revision; they are not evidence of a completed port. See [documentation map](DOCUMENTATION_MAP.md).
+
 ## 1. The Multi-Tier Verification Ladder
 
 A source file compiling is **never** sufficient proof that a port is complete or correct. All candidate ports must climb the verification ladder individually on a strict **commit-by-commit** basis before committing and pushing:
@@ -72,6 +74,6 @@ Linking `mangosd.exe` with MSVC 2022 takes 2–3 minutes and emits hundreds of l
 | **Option 3: Strict Full-Link** | Full `modules` + `mangosd` | Atomic 1-to-1 Push | Verified on every commit | High (hundreds of lines/commit) | Slow (~3m/commit) | P0 critical fixes, threading, core headers |
 
 ### Debugging & Error Isolation Guarantees:
-- **Compiler Errors**: In all modes, MSVC compiler output explicitly identifies the source file, function name, and line number. A compilation failure in a batch of 5 commits points directly to the exact file touched by one specific commit.
+- **Compiler Errors**: In all modes, MSVC compiler output explicitly identifies the source file, function name, and line number. The error location can depend on several commits; inspect dependencies and isolate the failing revision when needed.
 - **Runtime Bugs & Bisectability**: Because code changes are always committed to git as individual atomic commits with 1-to-1 provenance, standard `git bisect` and localized git logs pinpoint defects effortlessly regardless of which verification mode was used.
-- **Binary Identity**: The resulting binaries produced by all three modes are identical bit-for-bit.
+- **Binary Identity**: Equivalent final source and configuration must be validated; bit-for-bit reproducibility is not guaranteed.

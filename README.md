@@ -1,5 +1,7 @@
 # Module-playerbots
 
+Start with the [documentation map](docs/DOCUMENTATION_MAP.md). For native C++, module and SQL adaptations, use the [turtle-playerbots-porting skill](.agents/skills/turtle-playerbots-porting/SKILL.md).
+
 **Module-playerbots** is an autonomous, evidence-driven upstream porting, stabilization, and verification framework for Turtle WoW 1.18.1 / vMaNGOS PlayerBots.
 
 The project systematically audits, adapts, verifies, and integrates fixes and improvements from two active upstream repositories into a custom Turtle WoW server.
@@ -78,7 +80,7 @@ cmake -S tortoise-wow-extended -B tortoise-wow-extended/build `
 
 1. **Core-Preservation Invariant**: Target native mechanics always take priority over foreign upstream architecture.
 2. **Dungeon Clear Compatibility**: `modules/mod-dungeon-clear` is protected. Bot changes must preserve encounter routing, party hierarchy, and wipe recovery.
-3. **Turtle Expansion Assurances**: Preserves 11 playable races (`MAX_RACES = 11`), custom entities ($\ge 40000$ spells, $\ge 300000$ creatures), and 64-bit debuff streaming.
+3. **Turtle Expansion Assurances**: Preserves 10 playable races (IDs 1-10; exclusive bound 11) (`MAX_RACES = 11`), custom entities ($\ge 40000$ spells, $\ge 300000$ creatures), and custom debuff streaming.
 4. **Multi-Tier Verification**: Every port must compile `modules.lib` and successfully link `mangosd.exe` using Visual Studio 2022 x64 before marking as completed.
 5. **Durable Ledger**: Every evaluated commit is tracked permanently in `state/porting-ledger.json` to eliminate duplicate investigation.
 6. **Commit-by-Commit Pipeline & Batch Verification**: Batch auditing and single batch compilation (`batch-compile-and-audit`) are permitted for throughput, but all git committing and remote pushing must be executed strictly **commit-by-commit** (1 upstream commit = 1 target commit; pushes are 1-by-1 as default). Batch commits to Git are strictly prohibited.

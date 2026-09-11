@@ -1,4 +1,6 @@
-﻿# Upstream Porting Policy & Engineering Standards
+# Upstream Porting Policy & Engineering Standards
+
+Current interpretation: ADR-009 permits fast or batch verification to defer full linking. The strict per-commit ladder below describes full-link mode. Deferred checks remain pending until run against the recorded revision; they are not evidence of a completed port. See [documentation map](DOCUMENTATION_MAP.md).
 
 ## 1. Guiding Principles
 
@@ -9,9 +11,9 @@
 3. **No Foreign Architectural Intrusion**:
    Do not introduce alien frameworks or dependencies (e.g. CMaNGOS database stores, non-standard threading models) when existing target facilities accomplish the objective.
 4. **Preserve Turtle WoW Contracts**:
-   - 11 playable races (`MAX_RACES = 11`, including High Elf & Goblin).
+   - 10 playable races (IDs 1-10; exclusive bound 11) (`MAX_RACES = 11`, including High Elf & Goblin).
    - Protected custom entities: Spells $\ge 40000$, Creatures/Objects/Items/Quests $\ge 300000$.
-   - 64-bit debuff streaming (`sTWDebuff`).
+   - custom debuff streaming (`sTWDebuff`).
    - Protected managers: `sLFTMgr`, `sTransmogMgr`, `sCustomMerchantMgr`.
 5. **Strict Vanilla / Classic Exclusivity (Absolute Prohibition on TBC & WotLK)**:
    - This project is **strictly Vanilla** (Classic 1.12.1 / Turtle WoW 1.18.1 Classic+).
@@ -28,7 +30,7 @@ CMaNGOS is actively developed and frequently incorporates enhancements spanning 
 - **Always a Native Manual Port**.
 - **Audit Steps**:
   1. Inspect upstream diff, commit subject, and commit body.
-  2. **Mandatory Vanilla Filter**: Check for and completely reject multi-expansion branches (`#if defined(MANGOSBOT_ONE) || defined(MANGOSBOT_TWO)` or `#ifdef TBC`/`WOTLK`). If a commit introduces TBC/WotLK mechanics, mark it `EXPANSION_INCOMPATIBLE` immediately.
+  2. **Mandatory Vanilla Filter**: Inspect multi-expansion branches (`MANGOSBOT_ONE`, `MANGOSBOT_TWO`, TBC/WOTLK guards). Port only a separable Classic-relevant correction, omitting later-expansion behavior; mark a fix that requires those mechanics `EXPANSION_INCOMPATIBLE`. The presence of an expansion guard alone does not disqualify independent Classic code.
   3. Map affected symbols using `cmangos-compat-shim.h` or target-native equivalents (`ObjectGuidSet`, `AreaEntry`, `Transport`).
   4. Implement changes within `modules/mod-playerbots/src/playerbot/`.
   5. Check impact on `modules/mod-dungeon-clear`.

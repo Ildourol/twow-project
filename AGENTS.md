@@ -1,5 +1,13 @@
 # AGENTS.md: Autonomous Operating Protocol for Module-playerbots
 
+## Project skill and interpretation
+
+For donor adaptation or native implementation, read [.agents/skills/turtle-playerbots-porting/SKILL.md](.agents/skills/turtle-playerbots-porting/SKILL.md). Use [the documentation map](docs/DOCUMENTATION_MAP.md) to select supporting references.
+
+Current source signatures and actual command implementations take precedence over dated API examples and performance claims. Fast/batch verification means deferred checks remain pending: a module compile is not executable link, startup, or gameplay evidence. Preserve existing one-donor/one-commit policy and authorized execution modes. Reading instructions or editing documentation does not invoke publishing workflows.
+
+ADR-009 execution modes qualify the older per-commit full-link wording below and in the porting/build guides. Record the selected mode and exact SHA tested; do not mark deferred link checks complete.
+
 This document establishes the binding architectural principles, authority order, agent operational roles, verification gates, and porting policies for AI agents operating on **Module-playerbots**.
 
 ---
@@ -24,7 +32,7 @@ When conflicting technical information or implementation patterns arise, agents 
 
 ### 2.1. Absolute Project Isolation
 - This project operates in **complete isolation**.
-- No symbolic links, NTFS junctions, submodules, shared runtime files, shared databases, or cross-workspace references are permitted.
+- No cross-project links, shared runtime files, shared databases, or cross-workspace dependencies are permitted. Existing root donor junctions are local compatibility aliases into this project; use canonical reference-upstreams paths and verify resolved paths remain inside this project.
 - All persistent configuration resides within `Module-playerbots/`.
 
 ### 2.2. Single-Writer & Worktree Safety
@@ -40,7 +48,7 @@ When conflicting technical information or implementation patterns arise, agents 
 
 ### 2.4. Protected Subsystems
 - **Dungeon Clear (`modules/mod-dungeon-clear`)**: Protected subsystem. No port may break, bypass, or desync Dungeon Clear value contexts, routes, or encounter states.
-- **Turtle WoW 1.18.1 Mechanics**: 11 playable races (`MAX_RACES = 11`), custom entities (spells $\ge 40000$, objects $\ge 300000$), 64-bit debuff streaming (`sTWDebuff`).
+- **Turtle WoW 1.18.1 Mechanics**: 10 playable races (IDs 1-10; exclusive bound 11) (`MAX_RACES = 11`), custom entities (spells $\ge 40000$, objects $\ge 300000$), custom debuff streaming (`sTWDebuff`).
 
 ### 2.5. Scope Widening Prohibition & Mandatory Double-Confirmation Gate
 - **Strict Scope Prohibition**: Widening the scan scope to historical bulk backlogs beyond the established active watermarks is **STRICTLY PROHIBITED**.
@@ -81,7 +89,7 @@ To prevent context token exhaustion and avoid lengthy build wait times (linking 
 2. **Option 2: Batch Verification Mode (Maximum Token Efficiency)**:
    - **Sequential Atomic Commits**: Apply changes, draft dossiers, and commit to git individually in sequence to preserve git bisectability and 1-to-1 donor tracking.
    - **Deferred Compilation**: Run a single comprehensive compile and link pass (`verify-batch`) at the conclusion of the batch.
-   - **Debugging & Error Isolation**: If compilation fails, MSVC compiler output specifies the exact file, line number, and error identifier, immediately identifying the offending commit. For runtime regressions, atomic git commits ensure `git bisect` functions identically to per-commit builds. The resulting binaries and code are identical.
+   - **Debugging & Error Isolation**: If compilation fails, MSVC compiler output specifies the exact file, line number, and error identifier, helping locate the failing code; interacting commits may require further isolation. For runtime regressions, atomic git commits ensure `git bisect` functions identically to per-commit builds. A passing batch tip does not prove each intermediate commit builds; binary reproducibility requires separate evidence.
 
 3. **Option 3: Strict Full-Link Mode (P0 Maximum Paranoia)**:
    - Recompile `modules.lib` and fully link `mangosd.exe` after every single commit. Recommended only when modifying core engine headers, threading primitives, or global object models.
