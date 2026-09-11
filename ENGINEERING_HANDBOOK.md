@@ -1,5 +1,7 @@
 # ENGINEERING_HANDBOOK.md: Technical Implementation Guide
 
+Documentation status: test totals, timings, line numbers and case-study defect claims below are historical snapshots. Recheck the current source and run results; use [the documentation audit](docs/DOCUMENTATION_AUDIT_2026-09-11.md) for known corrections and limitations.
+
 This handbook provides developers and AI agents with technical specifications, architectural comparisons, preservation invariants, concrete porting recipes, and coding standards for backporting fixes from **VMaNGOS** (`reference-upstreams/vmangos-core`, aliased via `core`) to **Tortoise-WoW** (`twow project/tortoise-wow-extended`, junction at `tortoise-wow`).
 
 ---
@@ -22,7 +24,7 @@ While both servers share a common codebase root dating back to the Nostalrius/El
 
 ## 2. Danger Zones & Preservation Rules
 
-Every developer and agent modifying Tortoise-WoW **must obey the following six preservation invariants**:
+Every developer and agent modifying Tortoise-WoW **must obey the following preservation invariants**:
 
 ### Danger Zone 1: The 10-Race System
 In VMaNGOS, code frequently uses hardcoded race limits:
@@ -112,8 +114,8 @@ Tortoise-WoW operates on a Nostalrius-derived world database schema and preserve
    - `spell_template` entries $\ge 40000$ are reserved for Turtle custom spells (e.g. Holy Strike, Moonfury, custom racials).
    - World template IDs $\ge 300000$ in `item_template`, `creature_template`, `gameobject_template`, and `quest_template` belong exclusively to custom Turtle content (e.g. High Elf / Goblin items, custom quests, new dungeons). Never overwrite or delete entries within these ranges during vanilla backporting.
 3. **Reference Database Hierarchy**:
-   - **Choice 1**: `tortoise-db-viewer` (`tortoise-db-viewer/` / `https://xian55.github.io/tortoise-db-viewer/`) — primary reference for authoritative Turtle database entities, vanilla catalogs, tooltips, and drops.
-   - **Choice 2**: `vmangos/core db_latest` (`reference-upstreams/vmangos-core/db_latest/mysql-dump/mangos.sql`) — secondary reference for modern column definitions (e.g. `spell_template.script_name`).
+   - **Choice 1**: `tortoise-db-viewer` (`tortoise-db-viewer/` / `https://xian55.github.io/tortoise-db-viewer/`) — supporting reference for Turtle entities, tooltips and drops; target schema, migrations and native loaders remain authoritative.
+   - **Choice 2**: `vmangos/core db_latest` (`reference-upstreams/vmangos-core/db_latest/mysql-dump/mangos.sql`) — donor comparison only; verify all column definitions against the target schema and loaders.
 4. **C++ Engine Schema Alignment**: Ensure any column actively queried by the C++ engine (such as `SELECT DISTINCT(script_name) FROM spell_template`) is present in both `sql/base/` and the migration pipeline.
 5. **Mandatory Automated Audit**: All migration files must be validated using `.\tools\porting\Audit-DatabaseMigrations.ps1` before committing.
 

@@ -29,7 +29,7 @@ Every single bugfix follows an isolated, atomic lifecycle:
 ### Prohibited Practices:
 - **NO BATCH SQUASHING**: Never group multiple donor fixes into a single git commit. Each bugfix must stand alone.
 - **NO GENERIC TITLES**: Never commit with messages like "Misc fixes", "Batch 5", or "Various cleanups".
-- **NO BLIND CHERRY-PICKING**: Never use naive `git apply` without semantic verification; Turtle-WoW contains custom race limits (`MAX_RACES = 11`), 64-bit debuff streaming (`UI64LIT`), custom arena parameters (`inGurubashiArena`), and custom content IDs ($\ge 300,000$) that must never be clobbered.
+- **NO BLIND CHERRY-PICKING**: Never use naive `git apply` without semantic verification; Turtle-WoW contains custom race limits (`MAX_RACES = 11`), custom debuff streaming (`UI64LIT`), custom arena parameters (`inGurubashiArena`), and custom content IDs ($\ge 300,000$) that must never be clobbered.
 - **NO DOCUMENTATION COMMITS TO GIT**: All dossiers, runbooks, and ledgers are maintained locally in `twow project/docs/`. Git history contains **strictly production code and database migrations**.
 
 ---

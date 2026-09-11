@@ -156,7 +156,7 @@ The AI Semantic Engine distinguishes between **Hard Incompatibilities** (which m
 | Pattern | Upstream Form | Turtle WoW Form | AI Adaptation Strategy |
 | :--- | :--- | :--- | :--- |
 | **Zone Parameters** | `GetHonorGain(killer, victim, rank, kills, group)` | `GetHonorGain(..., group, inGurubashiArena)` | Keep `inGurubashiArena`, adapt internal math. |
-| **Debuff Masks** | Standard uint32 aura bitmasks | `UI64LIT(1) << slot` (64-bit debuff streaming) | Preserve `UI64LIT` macro and debuff streaming calls. |
+| **Debuff Masks** | Standard uint32 aura bitmasks | `UI64LIT(1) << slot` (custom debuff streaming) | Preserve `UI64LIT` macro and debuff streaming calls. |
 | **Race Limits** | `MAX_RACES = 10` | `MAX_RACES = 11` (Goblin & High Elf) | Enforce array bounds of 11 in all loops and DBC lookups. |
 | **Float Precision** | Legacy double/int mixed constants (`45`, `2.5`) | Explicit float literals (`45.f`, `2.5f`) | Apply clean float typing across all math routines. |
 | **Branch Simplification** | Deeply nested `else if` ladders | Early-return guard clauses (`if (...) return 0.0f;`) | Adopt early exits while maintaining all Turtle branch outcomes. |

@@ -1,5 +1,11 @@
 # AGENTS.md: Autonomous Agent Operating Protocol for Tortoise-WoW Extended
 
+## Project skill and interpretation
+
+For donor adaptation or native implementation, read [.agents/skills/turtle-core-porting/SKILL.md](.agents/skills/turtle-core-porting/SKILL.md). Use [the documentation map](docs/DOCUMENTATION_MAP.md) to select supporting references.
+
+Current source signatures and actual command implementations take precedence over dated API examples and performance claims. Fast/batch verification means deferred checks remain pending: a module compile is not executable link, startup, or gameplay evidence. Preserve existing one-donor/one-commit policy and authorized execution modes. Reading instructions or editing documentation does not invoke publishing workflows.
+
 This document establishes the binding architectural principles, agent operational guidelines, verification gates, authority order, and upstream backporting rules for AI agents and developers working on **Tortoise-WoW Extended** (`twow project/tortoise-wow-extended`).
 
 ---
@@ -77,7 +83,7 @@ To eliminate severe AI context token exhaustion and avoid lengthy build wait tim
 2. **MSBuild Quiet Verbosity (`/nologo /v:q` / `/v:m`)**: Passing builds run quietly without dumping hundreds of `.cpp` file listings into context. Compiler errors and line numbers are printed only on failure.
 3. **Fast Static Library Targeting (`-FastBuild`)**: When `-FastBuild` is enabled on `task 1` / `task build-ready`, compilation targets only affected static libraries (`game.lib`, `modules.lib`, `shared.lib`), skipping executable link overhead during routine verification.
 4. **Concise Git Operations (`--quiet`)**: Uses `-q` flags on routine git operations to prevent terminal clutter and context bloat.
-5. **Preserved Atomic Git Provenance**: Even when builds are batched or fast-verified, each patch produces an atomic git commit on its isolated candidate branch (`port/PORT-XXXX`) with full upstream provenance.
+5. **Preserved Atomic Git Provenance**: Even when builds are batched or fast-verified, each patch produces an atomic git commit on its isolated candidate branch (`worktree/<candidate-id>` from WorktreeManager) with full upstream provenance.
 
 #### Three Authorized Execution Modes:
 1. **Option 1: Fast Incremental Mode (Recommended Default)**:
@@ -90,9 +96,9 @@ To eliminate severe AI context token exhaustion and avoid lengthy build wait tim
    - **Sequential Atomic Commits**: Apply changes, draft dossiers, and commit to git individually in sequence to preserve git bisectability and 1-to-1 donor tracking.
    - **Deferred Compilation**: Run a single comprehensive compile and link pass (`world` + `mangosd.exe`) at the conclusion of the batch.
    - **Debugging & Error Isolation Guarantees**:
-     - *Compiler Errors*: MSVC diagnostics explicitly identify the exact source file, line number, and error identifier, immediately pinpointing which commit in the batch caused the failure.
+     - *Compiler Errors*: MSVC diagnostics explicitly identify the exact source file, line number, and error identifier, helping locate the failure; dependencies may span multiple commits.
      - *Runtime Regressions*: Because each change is recorded as an individual git commit, standard `git bisect` isolates any behavioral defects effortlessly.
-     - *Binary Identity*: The resulting binaries are identical bit-for-bit to per-commit builds.
+     - *Binary Identity*: Equivalent final source and configuration must be validated; bit-for-bit reproducibility is not guaranteed.
 
 3. **Option 3: Strict Full-Link Mode (P0 Maximum Safety)**:
    - Recompile and fully link `mangosd.exe` after each individual candidate. Reserved for high-risk core architectural changes, threading overhauls, or global object model refactors.
@@ -169,8 +175,8 @@ Upstream VMaNGOS and Tortoise-WoW have diverged directory hierarchies (e.g., `sr
 
 ### 3.4. AI-Powered Semantic Conflict & Regression Audit Gate
 Static keyword matching is insufficient to catch subtle semantic divergence. Every candidate backport is subjected to an active **AI Semantic Conflict Audit** ([`tools/modules/AiConflictAuditor.ps1`](tools/modules/AiConflictAuditor.ps1)) across six invariant dimensions:
-1. **Race Dimension**: Bounded loops/arrays must accommodate Turtle's 11 races (`MAX_RACES = 11`, High Elf & Goblin).
-2. **Debuff Dimension**: Aura masks must preserve Turtle's 64-bit `sTWDebuff` streaming without truncating to 32-bit.
+1. **Race Dimension**: Bounded loops/arrays must accommodate Turtle's 10 playable races (`MAX_RACES = 11` is the exclusive bound; High Elf & Goblin included).
+2. **Debuff Dimension**: Preserve Turtle's `sTWDebuff` lifecycle and wire representation; inspect actual field widths rather than assuming this is a 64-bit mask.
 3. **Manager & Opcode Dimension**: Protected managers (`sLFTMgr`, `sTransmogMgr`, `sCustomMerchantMgr`) and opcodes (`SCRIPT_COMMAND_TAKE_MONEY = 93`) must never be clobbered.
 4. **Entity Range Dimension**: Custom spell IDs ($\ge 40,000$) and world entity IDs ($\ge 300,000$) are strictly protected.
 5. **AST & Call-Site Signature Dimension**: Validates that donor call-sites do not omit Turtle custom parameters (such as `inGurubashiArena`, teleport flags, or broadcaster guards).
@@ -186,7 +192,7 @@ If any semantic conflict is detected, the candidate is automatically rejected wi
 All patches are scanned against `config/turtle-compatibility.json`:
 - **MAX_RACES = 11**: Hardcoded limits $< 11$ (such as vanilla loops `< 8` or `< 9`) or reassignments to 10 are rejected.
 - **sTWDebuff**: Removal or disruption of `sTWDebuff` streaming is strictly rejected.
-- **SCRIPT_COMMAND_TAKE_MONEY = 93**: Custom packet opcode value must be preserved.
+- **SCRIPT_COMMAND_TAKE_MONEY = 93**: Database-script command identifier must be preserved; this is not a network packet opcode.
 - **Protected Managers**: `sLFTMgr`, `sTransmogMgr`, `sCustomMerchantMgr` must not be deleted.
 
 ### 4.2. Database Safety & Entity Provenance
@@ -233,10 +239,10 @@ A candidate fix or topic restoration is officially **DONE** when:
 3. **AI Semantic Conflict Audit certifies `PASS` with zero conflicts or regressions across all 6 invariant dimensions.**
 4. Candidate compiles cleanly in an isolated worktree with 0 errors, 0 fatal warnings under the resolved build profile.
 5. Disposable startup smoke test passes without assert or crash.
-6. Fix is committed cleanly to isolated candidate branch `port/PORT-XXXX-<sha>`.
+6. Fix is committed cleanly to isolated candidate branch `worktree/<candidate-id>` as resolved by WorktreeManager.
 7. State store (`tools/state/state_store.json`) updates candidate state to `COMPLETE`.
 8. Candidate manifest and dossier are saved locally to `docs/commits/` and `docs/BACKPORT_HISTORY.md`.
-9. Orchestration test suite (`task test`) passes 39/39 tests.
+9. Orchestration test suite (`task test`) passes the current required suite; record actual totals and failures from this run.
 
 ---
 
@@ -254,6 +260,6 @@ Agents and operators execute workflows through the canonical dispatcher ([`tools
 | **Target Build Execution** | `task build <profile>` | Compiles server under specified profile (`world`, `auth`, `sql-only`, `playerbots`). |
 | **Worktree Build & Commit** | `task build-packages` | Compiles and commits all ready staged packages in isolated worktrees (local only, never auto-pushes). |
 | **Invariant & State Audit** | `task compatibility`, `task db-audit`, `task parity` | Verifies hard compatibility, DB ID ranges, and client DBC alignment. |
-| **Automated Verification** | `task test` | Runs the full 39-suite orchestration test suite. |
+| **Automated Verification** | `task test` | Runs the current orchestration test suite; record actual results. |
 | **Pipeline State & Queue** | `task status`, `task next`, `task rank` | Displays backlog metrics, candidate ranking, and optimal next target. |
 

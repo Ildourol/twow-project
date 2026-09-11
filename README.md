@@ -1,4 +1,8 @@
 # Turtle-WoW Orchestration & AI Multi-Agent Engineering Framework
+
+Documentation status: test totals, timings, line numbers and case-study defect claims below are historical snapshots. Recheck the current source and run results; use [the documentation audit](docs/DOCUMENTATION_AUDIT_2026-09-11.md) for known corrections and limitations.
+
+Start with the [documentation map](docs/DOCUMENTATION_MAP.md). For native C++, module and SQL adaptations, use the [turtle-core-porting skill](.agents/skills/turtle-core-porting/SKILL.md).
 ### *The Next-Generation 2.0 Total Revamp Architecture*
 
 [![Test Suite](https://img.shields.io/badge/pester%20tests-38%2F38%20passed%20(100%25)-brightgreen.svg)](tests/AllTests.Tests.ps1)

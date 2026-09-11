@@ -198,7 +198,7 @@ When `task port <sha>` or `task port-batch <N>` stages a package with status `AW
 2. **Identify the Divergence**:
    Compare the upstream donor diff with the local Turtle file. Common causes:
    - Custom parameter additions (e.g. `bool inGurubashiArena = false`).
-   - 64-bit debuff streaming masks (`UI64LIT`).
+   - custom debuff streaming masks (`UI64LIT`).
    - Custom spell or race ID bounds (`MAX_RACES = 11`).
 3. **Synthesize & Author Adapted Patch**:
    - Write the adapted patch to `tools/queue/staging_patches/<sha>.patch`.
