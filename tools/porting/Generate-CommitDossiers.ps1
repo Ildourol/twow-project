@@ -3,7 +3,8 @@ param(
     [string]$Branch = "refs/heads/extended"
 )
 
-$TortoisePath = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow"
+$extDir = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow-extended"
+$TortoisePath = if (Test-Path $extDir) { $extDir } else { "C:\Users\Admin\AntigravityProfiles\Projects\twow project\tortoise-wow" }
 $CommitsDir = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\docs\commits"
 $UploadedLedger = "C:\Users\Admin\AntigravityProfiles\Projects\twow project\docs\COMMITS_UPLOADED.md"
 

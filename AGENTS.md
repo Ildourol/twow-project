@@ -133,7 +133,12 @@ To fetch and pull all upstream donor and reference repositories locally:
 - **cMaNGOS PlayerBots**: [cmangos/playerbots](https://github.com/cmangos/playerbots)
 - **Turtle DB Viewer**: [Online DB Viewer](https://xian55.github.io/tortoise-db-viewer/?) &bull; [Xian55/tortoise-db-viewer](https://github.com/Xian55/tortoise-db-viewer)
 - **User Product Repository**: [Ildourol/tortoise-wow-extended](https://github.com/Ildourol/tortoise-wow-extended)
-- **Fork Comparison**: [T-imothy vs Ildourol:mantech-turtle Comparison](https://github.com/T-imothy/tortoise-wow/compare/mantech-turtle...Ildourol:tortoise-wow-extended:mantech-turtle)
+- **Fork Comparison**: [T-imothy vs Ildourol:playerbots Comparison](https://github.com/T-imothy/tortoise-wow/compare/playerbots...Ildourol:tortoise-wow-extended:playerbots)
+
+### 2.10. Batch Compile and Audit Policy & Commit/Push Standard (ADR-010)
+- **Batch Compile and Audit Command**: `.\tools\task.ps1 batch-compile-and-audit [N]` (or `batch-audit-and-compile`) executes high-throughput batch auditing and single-pass compilation. It allows auditing multiple candidates in batch and compiling once at the end of the batch, avoiding lengthy repetitive MSVC Whole-Program Optimization / Link-Time Code Generation passes (`/GL` / `/LTCG`).
+- **NEVER Batch-Commit to Git**: Multiple upstream donor commits must **NEVER** be squashed or batched into a single target git commit. Each donor commit must be applied and committed to Git individually (1 donor commit = 1 git commit) to ensure complete provenance and `git bisect` capability.
+- **Push One-by-One as Default**: Every commit must be pushed to remote individually (`git push origin <sha>:refs/heads/<branch>`) as default. Do not push composite batch SHAs.
 
 ---
 

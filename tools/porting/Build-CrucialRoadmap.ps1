@@ -7,7 +7,8 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..")
 $CorePath = Join-Path $ProjectRoot "reference-upstreams\vmangos-core"
-$TortoisePath = Join-Path $ProjectRoot "tortoise-wow"
+$extDir = Join-Path $ProjectRoot "tortoise-wow-extended"
+$TortoisePath = if (Test-Path $extDir) { $extDir } else { Join-Path $ProjectRoot "tortoise-wow" }
 $RoadmapMdPath = Join-Path $ProjectRoot "docs\ROADMAP.md"
 $CrucialQueueCsvPath = Join-Path $ScriptDir "CRUCIAL_COMMITS_QUEUE.csv"
 $AllReferenceCsvPath = Join-Path $ScriptDir "ALL_AVAILABLE_COMMITS_REFERENCE.csv"
@@ -202,13 +203,13 @@ if (Test-Path $uploadedLedger) {
 $sb = [System.Text.StringBuilder]::new()
 [void]$sb.AppendLine("# Master Project Roadmap & Semantic AI Porting Queue")
 [void]$sb.AppendLine("")
-[void]$sb.AppendLine('This document is the authoritative, fixed roadmap and execution ledger for **Tortoise-WoW Extended** (`twow project/tortoise-wow`). All historical VMaNGOS commits have been semantically audited across all 5 severity tiers.')
+[void]$sb.AppendLine('This document is the authoritative, fixed roadmap and execution ledger for **Tortoise-WoW Extended** (`twow project/tortoise-wow-extended`, junction at `tortoise-wow`). All historical VMaNGOS commits have been semantically audited across all 5 severity tiers.')
 [void]$sb.AppendLine("")
 [void]$sb.AppendLine("---")
 [void]$sb.AppendLine("")
 [void]$sb.AppendLine("## 1. Executive Metrics & Build Status")
 [void]$sb.AppendLine("")
-[void]$sb.AppendLine("* **Target Remote**: [``https://github.com/Ildourol/tortoise-wow-extended.git``](https://github.com/Ildourol/tortoise-wow-extended.git) (branch ``main``)")
+[void]$sb.AppendLine("* **Target Remote**: [``https://github.com/Ildourol/tortoise-wow-extended.git``](https://github.com/Ildourol/tortoise-wow-extended.git) (branch ``extended``)")
 [void]$sb.AppendLine("* **Base Baseline SHA**: [``b8f24bef6``](https://github.com/Ildourol/tortoise-wow-extended/commit/b8f24bef6) ([``Penqle/tortoise-wow``](https://github.com/Penqle/tortoise-wow) + upstream quest/vmap fixes)")
 [void]$sb.AppendLine("* **Current Head SHA**: [``$currentHeadSha``](https://github.com/Ildourol/tortoise-wow-extended/commit/$currentHeadFull)")
 [void]$sb.AppendLine("* **Total Uploaded Commits**: **$uploadedCount** ($commitsSinceBase commits on top of baseline)")

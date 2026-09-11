@@ -151,6 +151,7 @@ The orchestration architecture consists of three interconnected subsystems feedi
 
 | Command | Full Syntax | Mode | Access | AI Usage | Build Usage | DB Usage | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `task batch-compile-and-audit` | `task.ps1 batch-compile-and-audit [N] [-Mode M]` | Variable | Read / Build | Advisory | Full MSVC | Invariant Audit | High-throughput batch audit & candidate triage, commit 1-by-1, push 1-by-1 (default), single batch compile. |
 | `task auto-pilot` | `task.ps1 auto-pilot [N] [-Tier 1-5] [-Mode M]` | Variable | Write & Remote Push | Advisory | Full MSVC | Migration Audit | Autonomous batch port, compile, candidate commit, and auto-push passing fixes to GitHub `extended` branch. |
 | `task auto-port` | `task.ps1 auto-port <sha> [-Mode M] [-DryRun]` | Variable | Write & Remote Push | Advisory | Full MSVC | Migration Audit | Autonomous single-commit port, compile, candidate commit, and auto-push to GitHub `extended` branch. |
 | `task push-extended` | `task.ps1 push-extended [branch] [-DryRun]` | Fast | Remote Git Push | None | None | None | Integrates and pushes all verified passing candidate commits to remote `extended` branch (`extended/extended`). |
@@ -505,7 +506,7 @@ To fetch and pull all upstream donor and reference repositories locally:
 - **cMaNGOS PlayerBots**: [cmangos/playerbots](https://github.com/cmangos/playerbots)
 - **Turtle DB Viewer**: [Online DB Viewer](https://xian55.github.io/tortoise-db-viewer/?) &bull; [Xian55/tortoise-db-viewer](https://github.com/Xian55/tortoise-db-viewer)
 - **User Product Repository**: [Ildourol/tortoise-wow-extended](https://github.com/Ildourol/tortoise-wow-extended)
-- **Fork Comparison**: [T-imothy vs Ildourol:mantech-turtle Comparison](https://github.com/T-imothy/tortoise-wow/compare/mantech-turtle...Ildourol:tortoise-wow-extended:mantech-turtle)
+- **Fork Comparison**: [T-imothy vs Ildourol:playerbots Comparison](https://github.com/T-imothy/tortoise-wow/compare/playerbots...Ildourol:tortoise-wow-extended:playerbots)
 
 ---
 

@@ -94,8 +94,80 @@ $ProjectRoot = Split-Path -Parent $ScriptDir
 . (Join-Path $ModulesDir "DbAuditor.ps1")
 . (Join-Path $ModulesDir "SystemChecker.ps1")
 
+function Invoke-BatchCompileAndAudit {
+    param(
+        [string]$Target = "all",
+        [string]$ScanMode = "Normal",
+        [int]$Count = 10,
+        [int]$Tier = 0,
+        [string]$Subsystem = "",
+        [switch]$NoPush = $false
+    )
+    Write-Host "================================================================================" -ForegroundColor Cyan
+    Write-Host "  BATCH COMPILE AND AUDIT (AGENTS.md Section 2.7 / 2.10)" -ForegroundColor Cyan
+    Write-Host "================================================================================" -ForegroundColor Cyan
+    Write-Host " Policy: Batch audit & candidate triage -> Commit 1-by-1 -> Push 1-by-1 (default) -> Single batch compilation verification" -ForegroundColor Gray
+    Write-Host " Rule:   NEVER do batch commits to git. Each ported commit is committed & pushed individually." -ForegroundColor Yellow
+    Write-Host ""
+
+    # Step 1: Batch Audit / Candidate Triage
+    Write-Host ">>> Step 1/3: Batch Auditing candidate donor commits (Count: $Count, Mode: $ScanMode)..." -ForegroundColor Cyan
+    $queueCsv = Join-Path $PortingDir "CRUCIAL_COMMITS_QUEUE.csv"
+    if (Test-Path $queueCsv) {
+        $rows = Import-Csv $queueCsv
+        $store = Get-StateStore
+        $processed = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        if ($store.candidates) {
+            foreach ($k in $store.candidates.Keys) { [void]$processed.Add($store.candidates[$k].donor_sha) }
+        }
+        $audited = 0
+        foreach ($r in $rows) {
+            if ($audited -ge $Count) { break }
+            if ($Tier -gt 0 -and [int]$r.Tier -ne $Tier) { continue }
+            if (-not [string]::IsNullOrEmpty($Subsystem) -and $r.Subsystem -notlike "*$Subsystem*") { continue }
+            if ($processed.Contains($r.ShortSha)) { continue }
+            $score = Get-CandidatePriorityScore -DonorSha $r.ShortSha -Subject $r.Subject -Tier ([int]$r.Tier) -Subsystem $r.Subsystem
+            Write-Host ("  [{0,5}] {1,-10} (Tier {2}, {3}): {4}" -f $score.TotalScore, $r.ShortSha, $r.Tier, $score.RecommendedMode, $r.Subject) -ForegroundColor Green
+            $audited++
+        }
+        Write-Host "  Audited $audited candidate(s) in batch." -ForegroundColor Gray
+    } else {
+        Write-Host "  Queue file not found ($queueCsv). Scanning candidate state..." -ForegroundColor DarkGray
+    }
+
+    # Step 2: Informational / Git status
+    Write-Host "`n>>> Step 2/3: Checking Git commit status..." -ForegroundColor Cyan
+    $currBranch = (git -C $TortoiseDir branch --show-current).Trim()
+    $currHead = (git -C $TortoiseDir log -n 1 --oneline).Trim()
+    Write-Host "  Target Repo  : $TortoiseDir" -ForegroundColor Gray
+    Write-Host "  Target Branch: $currBranch" -ForegroundColor Gray
+    Write-Host "  Git HEAD     : $currHead" -ForegroundColor Gray
+    Write-Host "  Commit Policy: Commits must be applied strictly 1-by-1 to Git. Never batch-commit." -ForegroundColor Yellow
+    Write-Host "  Push Policy  : Pushes are executed 1-by-1 as default (git push origin <sha>:refs/heads/$currBranch)." -ForegroundColor Yellow
+
+    # Step 3: Single Batch Compile & Full Link Pass
+    Write-Host "`n>>> Step 3/3: Executing Single Batch Compilation & Link..." -ForegroundColor Cyan
+    $buildRes = Invoke-TargetBuild -TargetRepo $TortoiseDir -Profile "world"
+    if ($buildRes.ExitCode -eq 0) {
+        Write-Host ">>> Batch compilation & link verified successfully!" -ForegroundColor Green
+    } else {
+        Write-Host ">>> Batch compilation failed with exit code $($buildRes.ExitCode)." -ForegroundColor Red
+    }
+    return $buildRes
+}
+
 switch ($Command.ToLower()) {
     # --- Core Automation Commands ---
+    "batch-compile-and-audit" {
+        $c = if ($Argument -as [int]) { [int]$Argument } else { 10 }
+        $scanMode = if ($SecondaryArgument) { $SecondaryArgument } else { $Mode }
+        Invoke-BatchCompileAndAudit -Count $c -ScanMode $scanMode -Tier $Tier -Subsystem $Subsystem -NoPush:$DryRun
+    }
+    "batch-audit-and-compile" {
+        $c = if ($Argument -as [int]) { [int]$Argument } else { 10 }
+        $scanMode = if ($SecondaryArgument) { $SecondaryArgument } else { $Mode }
+        Invoke-BatchCompileAndAudit -Count $c -ScanMode $scanMode -Tier $Tier -Subsystem $Subsystem -NoPush:$DryRun
+    }
     "1" {
         $extra = if ($FastBuild) { @("-FastBuild") } else { @() }
         & powershell.exe -ExecutionPolicy Bypass -File (Join-Path $PortingDir "Build-ReadyPackages.ps1") @extra
@@ -656,6 +728,7 @@ switch ($Command.ToLower()) {
         Write-Host "  TWOW TASK DISPATCHER - AVAILABLE COMMANDS" -ForegroundColor Cyan
         Write-Host "================================================================================" -ForegroundColor Cyan
         Write-Host "Core Automation Commands:" -ForegroundColor Yellow
+        Write-Host "  task batch-compile-and-audit [N] -> High-throughput batch audit & single-pass batch compile" -ForegroundColor Gray
         Write-Host "  task auto-pilot [N] [T]  -> One-command auto-port & commit batch [-Tier T] [-Mode M]" -ForegroundColor Gray
         Write-Host "  task auto-port <sha>     -> One-command auto-port & commit single candidate [-Mode M]" -ForegroundColor Gray
         Write-Host "  task port <sha>          -> Port candidate [-Mode Fast|Normal|Deep] [-DryRun] [-AutoCommit]" -ForegroundColor Gray

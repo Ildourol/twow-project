@@ -158,6 +158,7 @@ The universal dispatcher [`tools/task.ps1`](tools/task.ps1) executes seamlessly 
 ### Build, Smoke & Operational Commands
 | Command | Syntax | Description |
 |---|---|---|
+| **Batch Compile & Audit** | `task batch-compile-and-audit [N]` | High-throughput batch audit & single-pass batch compilation. |
 | **Port Candidate** | `task port <sha> [-Mode Fast\|Normal\|Deep]` | Executes isolated porting pipeline in `.worktrees/PORT-XXXX/`. |
 | **Port Batch** | `task port-batch [-Count N]` | Ports the next `N` highest-priority candidates sequentially. |
 | **Build Profile** | `task build-profile <sha>` | Identifies minimal build profile (`world`, `auth`, `sql-only`, `docs-only`). |
@@ -266,5 +267,5 @@ Orchestration and candidate builds are continuously validated through GitHub Act
 | **cMaNGOS PlayerBots** | [cmangos/playerbots](https://github.com/cmangos/playerbots) | CMaNGOS bot mechanics donor repository. |
 | **Turtle DB Viewer** | [Web Dashboard](https://xian55.github.io/tortoise-db-viewer/?)<br>[Xian55/tortoise-db-viewer](https://github.com/Xian55/tortoise-db-viewer) | Interactive online database search and schema comparison. |
 | **User Product Repository** | [Ildourol/tortoise-wow-extended](https://github.com/Ildourol/tortoise-wow-extended) | Active target repository (branch: `extended`, tracked as `origin`). |
-| **Fork Comparison** | [T-imothy vs Ildourol:mantech-turtle](https://github.com/T-imothy/tortoise-wow/compare/mantech-turtle...Ildourol:tortoise-wow-extended:mantech-turtle) | Live GitHub diff comparing upstream bot changes with target fork. |
+| **Fork Comparison** | [T-imothy vs Ildourol:playerbots](https://github.com/T-imothy/tortoise-wow/compare/playerbots...Ildourol:tortoise-wow-extended:playerbots) | Live GitHub diff comparing upstream bot changes with target fork. |
 
