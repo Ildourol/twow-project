@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Standalone CLI Task Dispatcher for Module-playerbots.
 .DESCRIPTION
@@ -290,6 +290,35 @@ function Invoke-VerifyBatch {
     }
 }
 
+function Invoke-BatchCompileAndAudit {
+    param(
+        [string]$Source = "all",
+        [string]$ScanMode = "Normal",
+        [switch]$NoPush = $false
+    )
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host " BATCH COMPILE AND AUDIT (ADR-010 / AGENTS.md 2.10)" -ForegroundColor Cyan
+    Write-Host "============================================================" -ForegroundColor Cyan
+    Write-Host " Policy: Batch audit & candidate selection -> Commit 1-by-1 -> Push 1-by-1 (default) -> Single batch compilation verification" -ForegroundColor Gray
+    Write-Host " Rule:   NEVER do batch commits to git. Each ported commit is committed & pushed individually." -ForegroundColor Yellow
+    Write-Host ""
+
+    # Step 1: Batch Audit
+    Write-Host ">>> Step 1/3: Batch Auditing candidate donor commits ($Source, $ScanMode)..." -ForegroundColor Cyan
+    if ($Source -eq "cmangos" -or $Source -eq "all") { Invoke-ScanSource "cmangos" $ScanMode }
+    if ($Source -eq "vmangos" -or $Source -eq "all") { Invoke-ScanSource "vmangos" $ScanMode }
+
+    # Step 2: Informational / verification
+    Write-Host "`n>>> Step 2/3: Checking Git commit status..." -ForegroundColor Cyan
+    $targetPath = $Sources.target.path
+    $currBranch = (Get-GitOutput $targetPath @("branch", "--show-current")).Stdout
+    Write-Host "  Target Branch: $currBranch (must be playerbots)" -ForegroundColor Gray
+
+    # Step 3: Single Batch Compile & Full Link Pass
+    Write-Host "`n>>> Step 3/3: Executing Single Batch Compilation & Link ($Cores cores)..." -ForegroundColor Cyan
+    Invoke-VerifyBatch
+}
+
 function Invoke-RecordPort {
     param(
         [string]$DonorSha,
@@ -514,6 +543,16 @@ switch ($Command.ToLower()) {
     "verify-batch" {
         Invoke-VerifyBatch
     }
+    "batch-compile-and-audit" {
+        $src = if ($Argument) { $Argument.ToLower() } else { "all" }
+        $scanMode = if ($SecondaryArgument) { $SecondaryArgument } else { $Mode }
+        Invoke-BatchCompileAndAudit -Source $src -ScanMode $scanMode -NoPush:$DryRun
+    }
+    "batch-audit-and-compile" {
+        $src = if ($Argument) { $Argument.ToLower() } else { "all" }
+        $scanMode = if ($SecondaryArgument) { $SecondaryArgument } else { $Mode }
+        Invoke-BatchCompileAndAudit -Source $src -ScanMode $scanMode -NoPush:$DryRun
+    }
     "build-options" {
         Write-Host "============================================================" -ForegroundColor Cyan
         Write-Host " BUILD & VERIFICATION EXECUTION OPTIONS (ADR-009)" -ForegroundColor Cyan
@@ -597,7 +636,7 @@ switch ($Command.ToLower()) {
         Invoke-UpdateUpstreams -TargetUpstream $tgt
     }
     default {
-        Write-Host "Available commands: status, scan, update-upstreams, verify-fast, verify-full, verify-batch, build-options, commit-and-push, record-port, roadmap, ledger, commit-policy, vanilla-mandate." -ForegroundColor Yellow
-        Write-Host "Notice: Strict Vanilla/Classic only (no TBC/WotLK). Audits in batch; commits commit-by-commit." -ForegroundColor Cyan
+        Write-Host "Available commands: status, scan, batch-compile-and-audit, update-upstreams, verify-fast, verify-full, verify-batch, build-options, commit-and-push, record-port, roadmap, ledger, commit-policy, vanilla-mandate." -ForegroundColor Yellow
+        Write-Host "Notice: Strict Vanilla/Classic only (no TBC/WotLK). Audits in batch; commits commit-by-commit; pushes 1-by-1 as default; never batch-commit." -ForegroundColor Cyan
     }
 }

@@ -1,4 +1,4 @@
-﻿# Command Reference Manual
+# Command Reference Manual
 
 This manual details the execution syntax, parameter semantics, and expected output for the **Module-playerbots** task dispatcher (`task.ps1`).
 
@@ -123,7 +123,20 @@ Directly ports an explicitly requested commit and its required dependencies.
 
 ---
 
-### 3.8. COMMIT AND PUSH (AUTOMATED 1-TURN PORT CYCLE)
+### 3.8. BATCH-COMPILE-AND-AUDIT
+```powershell
+.\task.ps1 batch-compile-and-audit [cmangos|vmangos|all] [fast|normal|deep]
+# (Alias: batch-audit-and-compile)
+```
+Executes high-throughput batch audit and single-pass batch compilation:
+- **Batch Audit**: Audits unscanned donor commits across upstream watermarks in batch.
+- **NEVER Batch-Commit**: Applies and commits each candidate strictly one-by-one to Git with full individual provenance. Batch commits are strictly prohibited.
+- **Push One-by-One as Default**: Pushes each commit individually to `origin/playerbots` as default.
+- **Single Batch Compile**: Executes a single batch compilation and full link pass (`modules.lib` + `mangosd.exe`) to verify the entire batch together, avoiding repetitive 6-minute MSVC whole-program optimization cycles.
+
+---
+
+### 3.9. COMMIT AND PUSH (AUTOMATED 1-TURN PORT CYCLE)
 ```powershell
 .\task.ps1 commit-and-push -DonorSha <sha> -Message "<commit message>" -Subsystem <name> -Priority <P0|P1> -Rationale "<notes>"
 ```
@@ -135,7 +148,7 @@ Executes the full post-edit atomic cycle in a single automated step:
 
 ---
 
-### 3.9. RECORD PORT (MANUAL LEDGER & DOSSIER GENERATION)
+### 3.10. RECORD PORT (MANUAL LEDGER & DOSSIER GENERATION)
 ```powershell
 .\task.ps1 record-port -DonorSha <sha> [-TargetSha <sha>] -Subsystem <name> -Priority <P0|P1> -Subject "<text>" -Rationale "<notes>"
 ```
@@ -143,7 +156,7 @@ Directly records a completed port in `state/porting-ledger.json` and synthesizes
 
 ---
 
-### 3.10. BUILD OPTIONS
+### 3.11. BUILD OPTIONS
 ```powershell
 .\task.ps1 build-options
 ```
@@ -151,7 +164,7 @@ Displays the active ADR-009 verification modes, parallelism settings, and token 
 
 ---
 
-### 3.11. ROADMAP
+### 3.12. ROADMAP
 ```powershell
 .\task.ps1 roadmap
 ```
@@ -159,7 +172,7 @@ Displays current phase progress, prioritized backlog, and active porting tracks.
 
 ---
 
-### 3.12. LEDGER
+### 3.13. LEDGER
 ```powershell
 .\task.ps1 ledger [cmangos|vmangos]
 ```

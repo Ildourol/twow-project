@@ -1,4 +1,4 @@
-﻿# Module-playerbots
+# Module-playerbots
 
 **Module-playerbots** is an autonomous, evidence-driven upstream porting, stabilization, and verification framework for Turtle WoW 1.18.1 / vMaNGOS PlayerBots.
 
@@ -81,7 +81,7 @@ cmake -S tortoise-wow-extended -B tortoise-wow-extended/build `
 3. **Turtle Expansion Assurances**: Preserves 11 playable races (`MAX_RACES = 11`), custom entities ($\ge 40000$ spells, $\ge 300000$ creatures), and 64-bit debuff streaming.
 4. **Multi-Tier Verification**: Every port must compile `modules.lib` and successfully link `mangosd.exe` using Visual Studio 2022 x64 before marking as completed.
 5. **Durable Ledger**: Every evaluated commit is tracked permanently in `state/porting-ledger.json` to eliminate duplicate investigation.
-6. **Commit-by-Commit Pipeline**: Batch auditing is permitted, but all code adaptation, build verification, git committing, and remote pushing must be executed strictly **commit-by-commit** (1 upstream commit = 1 target commit = 1 remote push). Batch commits are prohibited.
+6. **Commit-by-Commit Pipeline & Batch Verification**: Batch auditing and single batch compilation (`batch-compile-and-audit`) are permitted for throughput, but all git committing and remote pushing must be executed strictly **commit-by-commit** (1 upstream commit = 1 target commit; pushes are 1-by-1 as default). Batch commits to Git are strictly prohibited.
 7. **Strict Vanilla / Classic Exclusivity**: This project is strictly Vanilla (Classic 1.12.1 / Turtle WoW 1.18.1 Classic+). Porting anything from TBC or WotLK is **STRICTLY PROHIBITED**. Only changes to Vanilla and Classic-related mechanics are permitted. Zero post-Vanilla expansion pollution.
 
 ---

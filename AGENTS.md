@@ -1,4 +1,4 @@
-﻿# AGENTS.md: Autonomous Operating Protocol for Module-playerbots
+# AGENTS.md: Autonomous Operating Protocol for Module-playerbots
 
 This document establishes the binding architectural principles, authority order, agent operational roles, verification gates, and porting policies for AI agents operating on **Module-playerbots**.
 
@@ -100,6 +100,11 @@ To fetch and integrate new upstream donor commits locally without touching the w
 ```
 - **Local Commits Inspection**: When new commits are detected, `task update-upstreams` outputs the commit count and recent git oneline logs, allowing immediate inspection with `git -C reference-upstreams/core show <sha>`.
 - **Target Repository Exclusion & Protection**: Active target repo `tortoise-wow-extended` (branch `playerbots`) is **strictly excluded** from automated pulls or checkouts to prevent dirtying or overwriting active development work.
+
+### 2.10. Batch Compile and Audit Policy & Commit/Push Standard (ADR-010)
+- **Batch Compile and Audit Command**: `.\tools\task.ps1 batch-compile-and-audit [source] [mode]` executes high-throughput batch auditing and single-pass compilation. It allows auditing multiple candidates in batch and compiling once at the end of the batch, avoiding lengthy repetitive MSVC Whole-Program Optimization / Link-Time Code Generation passes (`/GL` / `/LTCG`).
+- **NEVER Batch-Commit to Git**: Multiple upstream donor commits must **NEVER** be squashed or batched into a single target git commit. Each donor commit must be applied and committed to Git individually (1 donor commit = 1 git commit) to ensure complete provenance and `git bisect` capability.
+- **Push One-by-One as Default**: Every commit must be pushed to `origin/playerbots` individually (`git push origin <sha>:playerbots`) as default. Do not push composite batch SHAs.
 
 #### Essential Ecosystem Links & Comparison References:
 - **Turtle WoW Original**: [Penqle/tortoise-wow](https://github.com/Penqle/tortoise-wow)
